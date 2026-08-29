@@ -63,7 +63,7 @@ function Login() {
             alt="Logo DeviTech"
             width={816}
             height={816}
-            className="h-24 w-24 object-contain drop-shadow-[0_0_24px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
+            className="h-28 w-28 object-contain drop-shadow-[0_0_24px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
           />
           <h1 className="mt-3 text-5xl font-bold tracking-tight">
             <span className="text-foreground">Devi</span>
@@ -119,7 +119,7 @@ function Login() {
 
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 pt-1">
             <label className="flex min-w-0 items-center gap-3 text-sm text-foreground">
-              <Checkbox className="h-5 w-5 shrink-0 rounded-md border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" />
+              <Checkbox className="h-5 w-5 shrink-0 !rounded-md border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" />
               <span className="truncate">Lembrar-me</span>
             </label>
             <a
