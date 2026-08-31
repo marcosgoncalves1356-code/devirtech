@@ -26,7 +26,7 @@ export const Route = createFileRoute("/app/")({
 });
 
 const kpis = [
-  { label: "Receita da safra", value: "R$ 4,２M".replace("２", "2"), delta: "+12,4%", icon: TrendingUp },
+  { label: "Receita da safra", value: "R$ 4,2M", delta: "+12,4%", icon: TrendingUp },
   { label: "Saldo em caixa", value: "R$ 812 mil", delta: "+3,1%", icon: Wallet },
   { label: "Área plantada", value: "1.240 ha", delta: "84% da meta", icon: Sprout },
   { label: "Diesel no mês", value: "18.320 L", delta: "-6,2%", icon: Truck },
