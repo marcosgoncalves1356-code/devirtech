@@ -12,6 +12,19 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppComprasRouteImport } from './routes/app.compras'
+import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
+import { Route as AppEmpresasRouteImport } from './routes/app.empresas'
+import { Route as AppEstoqueRouteImport } from './routes/app.estoque'
+import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
+import { Route as AppFolhaDePagamentoRouteImport } from './routes/app.folha-de-pagamento'
+import { Route as AppFuncionariosRouteImport } from './routes/app.funcionarios'
+import { Route as AppProducaoRouteImport } from './routes/app.producao'
+import { Route as AppPropriedadesRouteImport } from './routes/app.propriedades'
+import { Route as AppRelatoriosRouteImport } from './routes/app.relatorios'
+import { Route as AppUsuariosRouteImport } from './routes/app.usuarios'
+import { Route as AppVeiculosRouteImport } from './routes/app.veiculos'
+import { Route as AppVendasRouteImport } from './routes/app.vendas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,28 +41,180 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppComprasRoute = AppComprasRouteImport.update({
+  id: '/compras',
+  path: '/compras',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEmpresasRoute = AppEmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEstoqueRoute = AppEstoqueRouteImport.update({
+  id: '/estoque',
+  path: '/estoque',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFolhaDePagamentoRoute = AppFolhaDePagamentoRouteImport.update({
+  id: '/folha-de-pagamento',
+  path: '/folha-de-pagamento',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFuncionariosRoute = AppFuncionariosRouteImport.update({
+  id: '/funcionarios',
+  path: '/funcionarios',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProducaoRoute = AppProducaoRouteImport.update({
+  id: '/producao',
+  path: '/producao',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPropriedadesRoute = AppPropriedadesRouteImport.update({
+  id: '/propriedades',
+  path: '/propriedades',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRelatoriosRoute = AppRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUsuariosRoute = AppUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVeiculosRoute = AppVeiculosRouteImport.update({
+  id: '/veiculos',
+  path: '/veiculos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVendasRoute = AppVendasRouteImport.update({
+  id: '/vendas',
+  path: '/vendas',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/app/compras': typeof AppComprasRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
+  '/app/empresas': typeof AppEmpresasRoute
+  '/app/estoque': typeof AppEstoqueRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/folha-de-pagamento': typeof AppFolhaDePagamentoRoute
+  '/app/funcionarios': typeof AppFuncionariosRoute
+  '/app/producao': typeof AppProducaoRoute
+  '/app/propriedades': typeof AppPropriedadesRoute
+  '/app/relatorios': typeof AppRelatoriosRoute
+  '/app/usuarios': typeof AppUsuariosRoute
+  '/app/veiculos': typeof AppVeiculosRoute
+  '/app/vendas': typeof AppVendasRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/compras': typeof AppComprasRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
+  '/app/empresas': typeof AppEmpresasRoute
+  '/app/estoque': typeof AppEstoqueRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/folha-de-pagamento': typeof AppFolhaDePagamentoRoute
+  '/app/funcionarios': typeof AppFuncionariosRoute
+  '/app/producao': typeof AppProducaoRoute
+  '/app/propriedades': typeof AppPropriedadesRoute
+  '/app/relatorios': typeof AppRelatoriosRoute
+  '/app/usuarios': typeof AppUsuariosRoute
+  '/app/veiculos': typeof AppVeiculosRoute
+  '/app/vendas': typeof AppVendasRoute
   '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/app/compras': typeof AppComprasRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
+  '/app/empresas': typeof AppEmpresasRoute
+  '/app/estoque': typeof AppEstoqueRoute
+  '/app/financeiro': typeof AppFinanceiroRoute
+  '/app/folha-de-pagamento': typeof AppFolhaDePagamentoRoute
+  '/app/funcionarios': typeof AppFuncionariosRoute
+  '/app/producao': typeof AppProducaoRoute
+  '/app/propriedades': typeof AppPropriedadesRoute
+  '/app/relatorios': typeof AppRelatoriosRoute
+  '/app/usuarios': typeof AppUsuariosRoute
+  '/app/veiculos': typeof AppVeiculosRoute
+  '/app/vendas': typeof AppVendasRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/app/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/app/compras'
+    | '/app/configuracoes'
+    | '/app/empresas'
+    | '/app/estoque'
+    | '/app/financeiro'
+    | '/app/folha-de-pagamento'
+    | '/app/funcionarios'
+    | '/app/producao'
+    | '/app/propriedades'
+    | '/app/relatorios'
+    | '/app/usuarios'
+    | '/app/veiculos'
+    | '/app/vendas'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app'
-  id: '__root__' | '/' | '/app' | '/app/'
+  to:
+    | '/'
+    | '/app/compras'
+    | '/app/configuracoes'
+    | '/app/empresas'
+    | '/app/estoque'
+    | '/app/financeiro'
+    | '/app/folha-de-pagamento'
+    | '/app/funcionarios'
+    | '/app/producao'
+    | '/app/propriedades'
+    | '/app/relatorios'
+    | '/app/usuarios'
+    | '/app/veiculos'
+    | '/app/vendas'
+    | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/app/compras'
+    | '/app/configuracoes'
+    | '/app/empresas'
+    | '/app/estoque'
+    | '/app/financeiro'
+    | '/app/folha-de-pagamento'
+    | '/app/funcionarios'
+    | '/app/producao'
+    | '/app/propriedades'
+    | '/app/relatorios'
+    | '/app/usuarios'
+    | '/app/veiculos'
+    | '/app/vendas'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -80,14 +245,131 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/compras': {
+      id: '/app/compras'
+      path: '/compras'
+      fullPath: '/app/compras'
+      preLoaderRoute: typeof AppComprasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/configuracoes': {
+      id: '/app/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/app/configuracoes'
+      preLoaderRoute: typeof AppConfiguracoesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/empresas': {
+      id: '/app/empresas'
+      path: '/empresas'
+      fullPath: '/app/empresas'
+      preLoaderRoute: typeof AppEmpresasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/estoque': {
+      id: '/app/estoque'
+      path: '/estoque'
+      fullPath: '/app/estoque'
+      preLoaderRoute: typeof AppEstoqueRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/financeiro': {
+      id: '/app/financeiro'
+      path: '/financeiro'
+      fullPath: '/app/financeiro'
+      preLoaderRoute: typeof AppFinanceiroRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/folha-de-pagamento': {
+      id: '/app/folha-de-pagamento'
+      path: '/folha-de-pagamento'
+      fullPath: '/app/folha-de-pagamento'
+      preLoaderRoute: typeof AppFolhaDePagamentoRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/funcionarios': {
+      id: '/app/funcionarios'
+      path: '/funcionarios'
+      fullPath: '/app/funcionarios'
+      preLoaderRoute: typeof AppFuncionariosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/producao': {
+      id: '/app/producao'
+      path: '/producao'
+      fullPath: '/app/producao'
+      preLoaderRoute: typeof AppProducaoRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/propriedades': {
+      id: '/app/propriedades'
+      path: '/propriedades'
+      fullPath: '/app/propriedades'
+      preLoaderRoute: typeof AppPropriedadesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/relatorios': {
+      id: '/app/relatorios'
+      path: '/relatorios'
+      fullPath: '/app/relatorios'
+      preLoaderRoute: typeof AppRelatoriosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/usuarios': {
+      id: '/app/usuarios'
+      path: '/usuarios'
+      fullPath: '/app/usuarios'
+      preLoaderRoute: typeof AppUsuariosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/veiculos': {
+      id: '/app/veiculos'
+      path: '/veiculos'
+      fullPath: '/app/veiculos'
+      preLoaderRoute: typeof AppVeiculosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/vendas': {
+      id: '/app/vendas'
+      path: '/vendas'
+      fullPath: '/app/vendas'
+      preLoaderRoute: typeof AppVendasRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppComprasRoute: typeof AppComprasRoute
+  AppConfiguracoesRoute: typeof AppConfiguracoesRoute
+  AppEmpresasRoute: typeof AppEmpresasRoute
+  AppEstoqueRoute: typeof AppEstoqueRoute
+  AppFinanceiroRoute: typeof AppFinanceiroRoute
+  AppFolhaDePagamentoRoute: typeof AppFolhaDePagamentoRoute
+  AppFuncionariosRoute: typeof AppFuncionariosRoute
+  AppProducaoRoute: typeof AppProducaoRoute
+  AppPropriedadesRoute: typeof AppPropriedadesRoute
+  AppRelatoriosRoute: typeof AppRelatoriosRoute
+  AppUsuariosRoute: typeof AppUsuariosRoute
+  AppVeiculosRoute: typeof AppVeiculosRoute
+  AppVendasRoute: typeof AppVendasRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppComprasRoute: AppComprasRoute,
+  AppConfiguracoesRoute: AppConfiguracoesRoute,
+  AppEmpresasRoute: AppEmpresasRoute,
+  AppEstoqueRoute: AppEstoqueRoute,
+  AppFinanceiroRoute: AppFinanceiroRoute,
+  AppFolhaDePagamentoRoute: AppFolhaDePagamentoRoute,
+  AppFuncionariosRoute: AppFuncionariosRoute,
+  AppProducaoRoute: AppProducaoRoute,
+  AppPropriedadesRoute: AppPropriedadesRoute,
+  AppRelatoriosRoute: AppRelatoriosRoute,
+  AppUsuariosRoute: AppUsuariosRoute,
+  AppVeiculosRoute: AppVeiculosRoute,
+  AppVendasRoute: AppVendasRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
