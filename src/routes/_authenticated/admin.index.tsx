@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, Users, Blocks, LifeBuoy, ArrowRight } from "lucide-react";
 
-import { demoCompanies } from "@/lib/company-context";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+
+import { listAccessLogs, listCompanies, listUsers } from "@/lib/admin.functions";
 import { modules } from "@/lib/modules";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
@@ -26,11 +29,24 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 });
 
 function AdminHome() {
+  const fetchCompanies = useServerFn(listCompanies);
+  const fetchUsers = useServerFn(listUsers);
+  const fetchLogs = useServerFn(listAccessLogs);
+
+  const { data: companies = [] } = useQuery({ queryKey: ["admin-companies"], queryFn: () => fetchCompanies() });
+  const { data: users = [] } = useQuery({ queryKey: ["admin-users"], queryFn: () => fetchUsers() });
+  const { data: logs = [] } = useQuery({ queryKey: ["admin-logs"], queryFn: () => fetchLogs() });
+
   const stats = [
-    { label: "Empresas ativas", value: String(demoCompanies.length), icon: Building2, to: "/admin/empresas" },
-    { label: "Usuários da plataforma", value: "27", icon: Users, to: "/admin/usuarios" },
+    {
+      label: "Empresas ativas",
+      value: String(companies.filter((c: any) => c.status === "active").length),
+      icon: Building2,
+      to: "/admin/empresas",
+    },
+    { label: "Usuários da plataforma", value: String(users.length), icon: Users, to: "/admin/usuarios" },
     { label: "Módulos disponíveis", value: String(modules.length), icon: Blocks, to: "/admin/modulos" },
-    { label: "Chamados abertos", value: "4", icon: LifeBuoy, to: "/admin/suporte" },
+    { label: "Suporte", value: "—", icon: LifeBuoy, to: "/admin/suporte" },
   ] as const;
 
   return (
@@ -65,9 +81,13 @@ function AdminHome() {
       <section className="rounded-2xl border border-border/60 bg-card/60 p-5 backdrop-blur">
         <h2 className="text-sm font-semibold">Atividade recente</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-          <li>Agro Vale Verde habilitou o módulo Folha de pagamento</li>
-          <li>Novo usuário administrador criado em Café Serra Alta</li>
-          <li>Chamado #1042 aguardando resposta do suporte</li>
+          {logs.length === 0 ? <li>Nenhum evento registrado ainda.</li> : null}
+          {logs.slice(0, 6).map((log: any) => (
+            <li key={log.id}>
+              <span className="text-foreground">{log.action}</span> — {log.detail ?? "—"}{" "}
+              <span className="text-xs">({new Date(log.created_at).toLocaleString("pt-BR")})</span>
+            </li>
+          ))}
         </ul>
       </section>
     </div>
