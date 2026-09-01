@@ -233,6 +233,7 @@ export type Database = {
           must_change_password: boolean
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
+          username: string
         }
         Insert: {
           company_id?: string | null
@@ -243,6 +244,7 @@ export type Database = {
           must_change_password?: boolean
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
+          username: string
         }
         Update: {
           company_id?: string | null
@@ -253,6 +255,7 @@ export type Database = {
           must_change_password?: boolean
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
+          username?: string
         }
         Relationships: [
           {
