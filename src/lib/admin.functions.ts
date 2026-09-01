@@ -141,11 +141,15 @@ const userInput = z.object({
     .toLowerCase()
     .regex(/^[a-z0-9._-]{3,32}$/, "Nome de usuário inválido: use 3 a 32 caracteres (letras, números, . _ -)."),
   fullName: z.string().min(2),
+  jobTitle: z.string().trim().max(80).default(""),
   password: z.string().min(8).optional(),
   companyId: z.string().uuid().nullable().optional(),
   role: z.enum(["devitech_admin", "company_admin", "manager", "operator"]),
   status: z.enum(["active", "blocked"]).default("active"),
   permissions: z.record(z.string(), z.enum(["none", "view", "edit"])).default({}),
+}).refine((v) => v.role === "devitech_admin" || !!v.companyId, {
+  message: "Todo usuário deve estar vinculado a uma empresa.",
+  path: ["companyId"],
 });
 
 
