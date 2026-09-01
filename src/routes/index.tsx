@@ -107,7 +107,7 @@ function Login() {
         </div>
 
         <div className="mt-8 text-center">
-          <h2 className="text-2xl font-semibold text-foreground">Bem-vindo de volta!</h2>
+          <h2 className="text-2xl font-semibold text-foreground">Bem-vindo(a) de volta!</h2>
           <p className="mt-1 text-sm text-muted-foreground">Entre com as credenciais fornecidas pelo administrador</p>
         </div>
 
