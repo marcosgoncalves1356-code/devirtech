@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Building2, Users, Blocks, KeyRound, LifeBuoy, LayoutDashboard, ArrowLeft } from "lucide-react";
+import { Building2, Users, Blocks, KeyRound, LifeBuoy, LayoutDashboard, ArrowLeft, Eye } from "lucide-react";
 
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
