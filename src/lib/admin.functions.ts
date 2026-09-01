@@ -144,7 +144,10 @@ const userInput = z.object({
     .regex(/^[a-z0-9._-]{3,32}$/, "Nome de usuário inválido: use 3 a 32 caracteres (letras, números, . _ -)."),
   fullName: z.string().min(2),
   jobTitle: z.string().trim().max(80).default(""),
-  password: z.string().min(8).optional(),
+  password: z
+    .union([z.string().min(8, "A senha deve ter ao menos 8 caracteres."), z.literal("")])
+    .optional()
+    .transform((v) => (v ? v : undefined)),
   companyId: z.string().uuid().nullable().optional(),
   role: z.enum(["devitech_admin", "company_admin", "manager", "operator"]),
   status: z.enum(["active", "blocked"]).default("active"),
