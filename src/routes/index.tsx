@@ -1,25 +1,27 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { User, Lock, Eye, EyeOff, Apple } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, Loader2 } from "lucide-react";
 
 import logo from "@/assets/devitech-logo.png";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
+  ssr: false,
   head: () => ({
     meta: [
-      { title: "DeviTech — Login" },
+      { title: "DeviTech ERP — Acesso restrito" },
       {
         name: "description",
         content:
-          "Acesse sua conta DeviTech: tecnologia que impulsiona o campo, com login seguro para todos os sistemas da empresa.",
+          "Portal de acesso do ERP DeviTech para o agronegócio. Uso exclusivo de usuários cadastrados pelo administrador.",
       },
-      { property: "og:title", content: "DeviTech — Login" },
+      { property: "og:title", content: "DeviTech ERP — Acesso restrito" },
       {
         property: "og:description",
         content:
-          "Acesse sua conta DeviTech: tecnologia que impulsiona o campo, com login seguro para todos os sistemas da empresa.",
+          "Portal de acesso do ERP DeviTech para o agronegócio. Uso exclusivo de usuários cadastrados pelo administrador.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -28,31 +30,52 @@ export const Route = createFileRoute("/")({
   component: Login,
 });
 
-function GoogleIcon() {
-  return (
-    <svg viewBox="0 0 48 48" className="h-5 w-5" aria-hidden="true">
-      <path
-        fill="#EA4335"
-        d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2.5 24 .5 14.6.5 6.5 5.9 2.6 13.7l7.8 6.1C12.3 13.6 17.6 9.5 24 9.5z"
-      />
-      <path
-        fill="#4285F4"
-        d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.9 7.2l7.6 5.9c4.4-4.1 7.1-10.2 7.1-17.6z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M10.4 28.2a14.6 14.6 0 0 1 0-8.4l-7.8-6.1a23.5 23.5 0 0 0 0 20.6l7.8-6.1z"
-      />
-      <path
-        fill="#34A853"
-        d="M24 47.5c6.2 0 11.5-2 15.4-5.5l-7.6-5.9c-2.1 1.4-4.8 2.3-7.8 2.3-6.4 0-11.7-4.1-13.6-9.8l-7.8 6.1C6.5 42.1 14.6 47.5 24 47.5z"
-      />
-    </svg>
-  );
-}
+const REMEMBER_KEY = "devitech.remember-email";
 
 function Login() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(REMEMBER_KEY);
+    if (saved) {
+      setEmail(saved);
+      setRemember(true);
+    }
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/app", replace: true });
+    });
+  }, [navigate]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    });
+    setLoading(false);
+
+    if (signInError) {
+      setError(
+        signInError.message.toLowerCase().includes("invalid")
+          ? "E-mail ou senha inválidos. Se você não tem acesso, fale com o administrador DeviTech."
+          : signInError.message,
+      );
+      return;
+    }
+
+    if (remember) window.localStorage.setItem(REMEMBER_KEY, email.trim().toLowerCase());
+    else window.localStorage.removeItem(REMEMBER_KEY);
+
+    navigate({ to: "/app", replace: true });
+  }
 
   return (
     <main className="tech-backdrop relative flex min-h-screen items-center justify-center px-4 py-10">
@@ -63,37 +86,31 @@ function Login() {
             alt="Logo DeviTech"
             width={816}
             height={816}
-            className="h-28 w-28 object-contain drop-shadow-[0_0_24px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
+            className="h-24 w-24 object-contain drop-shadow-[0_0_24px_color-mix(in_oklab,var(--primary)_45%,transparent)]"
           />
           <h1 className="mt-3 text-5xl font-bold tracking-tight">
             <span className="text-foreground">Devi</span>
             <span className="text-primary">Tech</span>
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Tecnologia que impulsiona o campo.
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">ERP do agronegócio • acesso restrito</p>
         </div>
 
-        <div className="mt-10 text-center">
+        <div className="mt-8 text-center">
           <h2 className="text-2xl font-semibold text-foreground">Bem-vindo de volta!</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Faça login para acessar sua conta
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">Entre com as credenciais fornecidas pelo administrador</p>
         </div>
 
-        <form
-          className="mt-8 space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
+        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
           <div className="field-shell">
-            <User className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+            <Mail className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
             <input
-              type="text"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               autoComplete="username"
-              placeholder="E-mail ou CPF"
-              aria-label="E-mail ou CPF"
+              placeholder="E-mail corporativo"
+              aria-label="E-mail"
               className="w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
             />
           </div>
@@ -102,6 +119,9 @@ function Login() {
             <Lock className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
             <input
               type={showPassword ? "text" : "password"}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               placeholder="Senha"
               aria-label="Senha"
@@ -117,48 +137,33 @@ function Login() {
             </button>
           </div>
 
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 pt-1">
-            <label className="flex min-w-0 items-center gap-3 text-sm text-foreground">
-              <Checkbox className="h-5 w-5 shrink-0 !rounded-md border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" />
-              <span className="truncate">Lembrar-me</span>
-            </label>
-            <a
-              href="#"
-              className="text-sm text-primary transition-opacity hover:opacity-80"
-            >
-              Esqueci minha senha
-            </a>
-          </div>
+          <label className="flex items-center gap-3 pt-1 text-sm text-foreground">
+            <Checkbox
+              checked={remember}
+              onCheckedChange={(v) => setRemember(v === true)}
+              className="h-5 w-5 shrink-0 !rounded-md border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+            />
+            <span className="truncate">Lembrar meu e-mail</span>
+          </label>
 
-          <Button asChild type="submit" variant="glow" size="xl" className="w-full">
-            <Link to="/app">Entrar</Link>
+          {error ? (
+            <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive-foreground">
+              {error}
+            </p>
+          ) : null}
+
+          <Button type="submit" variant="glow" size="xl" className="w-full" disabled={loading}>
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Entrar"}
           </Button>
-
         </form>
 
-        <div className="my-7 flex items-center gap-4">
-          <span className="h-px flex-1 bg-border" />
-          <span className="text-sm text-muted-foreground">ou continue com</span>
-          <span className="h-px flex-1 bg-border" />
+        <div className="mt-8 flex items-start gap-3 rounded-2xl border border-border/60 bg-secondary/40 p-4 text-xs text-muted-foreground">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <p>
+            Plataforma privada: não há cadastro público. Novos usuários são criados pelo administrador DeviTech e
+            vinculados a uma empresa. Esqueceu a senha? Solicite a redefinição ao administrador.
+          </p>
         </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Button variant="social" size="lg">
-            <GoogleIcon />
-            Google
-          </Button>
-          <Button variant="social" size="lg">
-            <Apple className="h-5 w-5" />
-            Apple
-          </Button>
-        </div>
-
-        <p className="mt-8 text-center text-sm text-muted-foreground">
-          Ainda não tem uma conta?{" "}
-          <a href="#" className="text-primary transition-opacity hover:opacity-80">
-            Criar conta
-          </a>
-        </p>
       </section>
     </main>
   );
