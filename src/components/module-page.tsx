@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Construction, ArrowRight } from "lucide-react";
+import { Construction, ArrowRight, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
@@ -28,12 +28,20 @@ export function ModulePage({ slug }: { slug: string }) {
       </header>
 
       {!enabled ? (
-        <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
-          Este módulo não está habilitado para <strong>{company.name}</strong>. Solicite a liberação na área
-          administrativa DeviTech.
+        <div className="space-y-3 rounded-2xl border border-destructive/40 bg-destructive/10 p-6 text-sm">
+          <p className="flex items-center gap-2 font-semibold">
+            <Lock className="h-4 w-4" /> Módulo indisponível
+          </p>
+          <p className="text-muted-foreground">
+            O módulo <strong>{mod.label}</strong> não está habilitado para <strong>{company.name}</strong> ou seu
+            perfil não possui permissão de acesso. Solicite a liberação ao administrador DeviTech.
+          </p>
+          <Button asChild variant="outline">
+            <Link to="/app">Voltar ao dashboard</Link>
+          </Button>
         </div>
-      ) : null}
-
+      ) : (
+      <>
       <section className="grid gap-4 sm:grid-cols-2">
         {mod.features.map((f) => (
           <article key={f} className="rounded-2xl border border-border/60 bg-card/60 p-5 backdrop-blur">
@@ -60,6 +68,8 @@ export function ModulePage({ slug }: { slug: string }) {
           </Link>
         </Button>
       </section>
+      </>
+      )}
     </div>
   );
 }
