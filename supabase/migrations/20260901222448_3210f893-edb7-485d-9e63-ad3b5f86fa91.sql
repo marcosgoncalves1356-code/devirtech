@@ -1,0 +1,4 @@
+ALTER TABLE public.companies
+  ADD COLUMN IF NOT EXISTS responsible text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS phone text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS address text NOT NULL DEFAULT '';
