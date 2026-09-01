@@ -1,73 +1,100 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+
+import { getSessionContext, type SessionCompany, type SessionContext } from "@/lib/session.functions";
 
 export type Company = {
   id: string;
   name: string;
   document: string;
   segment: string;
-  /** Módulos habilitados (slugs). Controlado pela área administrativa DeviTech. */
   enabledModules: string[];
 };
 
-/**
- * Dados de demonstração. Quando o backend for ligado, substituir por uma query
- * das empresas às quais o usuário autenticado tem vínculo (isolamento por empresa).
- */
-export const demoCompanies: Company[] = [
-  {
-    id: "agro-vale-verde",
-    name: "Agro Vale Verde",
-    document: "12.345.678/0001-90",
-    segment: "Grãos • Soja e milho",
-    enabledModules: "dashboard empresas usuarios funcionarios financeiro compras estoque vendas folha-de-pagamento veiculos propriedades producao relatorios configuracoes".split(" "),
-  },
-  {
-    id: "fazenda-santa-rita",
-    name: "Fazenda Santa Rita",
-    document: "98.765.432/0001-10",
-    segment: "Pecuária de corte",
-    enabledModules: "dashboard empresas usuarios funcionarios financeiro compras estoque vendas veiculos propriedades producao relatorios configuracoes".split(" "),
-  },
-  {
-    id: "cafe-serra-alta",
-    name: "Café Serra Alta",
-    document: "45.678.912/0001-33",
-    segment: "Café especial",
-    enabledModules: "dashboard empresas usuarios funcionarios financeiro estoque vendas propriedades producao relatorios configuracoes".split(" "),
-  },
-];
+const EMPTY_COMPANY: Company = {
+  id: "",
+  name: "Sem empresa vinculada",
+  document: "—",
+  segment: "Solicite o vínculo ao administrador DeviTech",
+  enabledModules: [],
+};
 
 type CompanyContextValue = {
+  session: SessionContext | null;
+  loading: boolean;
   companies: Company[];
   company: Company;
   setCompanyId: (id: string) => void;
   isModuleEnabled: (slug: string) => boolean;
+  canEdit: (slug: string) => boolean;
+  refresh: () => void;
 };
 
 const CompanyContext = createContext<CompanyContextValue | null>(null);
 
 const STORAGE_KEY = "devitech.company";
 
+function toCompany(c: SessionCompany): Company {
+  return {
+    id: c.id,
+    name: c.name,
+    document: c.document ?? "—",
+    segment: c.segment ?? "",
+    enabledModules: c.enabledModules,
+  };
+}
+
 export function CompanyProvider({ children }: { children: ReactNode }) {
-  const [companyId, setCompanyIdState] = useState<string>(demoCompanies[0]!.id);
+  const fetchSession = useServerFn(getSessionContext);
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["session-context"],
+    queryFn: () => fetchSession(),
+    staleTime: 30_000,
+  });
+
+  const [companyId, setCompanyIdState] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved && demoCompanies.some((c) => c.id === saved)) setCompanyIdState(saved);
+    if (saved) setCompanyIdState(saved);
   }, []);
 
   const value = useMemo<CompanyContextValue>(() => {
-    const company = demoCompanies.find((c) => c.id === companyId) ?? demoCompanies[0]!;
+    const session = data ?? null;
+    const companies = (session?.companies ?? []).map(toCompany);
+    const preferred =
+      companies.find((c) => c.id === companyId) ??
+      companies.find((c) => c.id === session?.companyId) ??
+      companies[0] ??
+      EMPTY_COMPANY;
+
+    const isAdmin = session?.isAdmin ?? false;
+    const perms = session?.permissions ?? {};
+    const hasCustomPerms = Object.keys(perms).length > 0;
+
+    const isModuleEnabled = (slug: string) => {
+      if (!preferred.enabledModules.includes(slug)) return false;
+      if (isAdmin) return true;
+      if (!hasCustomPerms) return true;
+      return (perms[slug] ?? "none") !== "none";
+    };
+
     return {
-      companies: demoCompanies,
-      company,
+      session,
+      loading: isLoading,
+      companies,
+      company: preferred,
       setCompanyId: (id: string) => {
+        if (!isAdmin && id !== session?.companyId) return;
         setCompanyIdState(id);
         window.localStorage.setItem(STORAGE_KEY, id);
       },
-      isModuleEnabled: (slug: string) => company.enabledModules.includes(slug),
+      isModuleEnabled,
+      canEdit: (slug: string) => (isAdmin ? true : !hasCustomPerms ? true : perms[slug] === "edit"),
+      refresh: () => void refetch(),
     };
-  }, [companyId]);
+  }, [data, isLoading, companyId, refetch]);
 
   return <CompanyContext.Provider value={value}>{children}</CompanyContext.Provider>;
 }
