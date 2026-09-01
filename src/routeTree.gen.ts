@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminEmpresasRouteImport } from './routes/admin.empresas'
+import { Route as AdminModulosRouteImport } from './routes/admin.modulos'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppComprasRouteImport } from './routes/app.compras'
@@ -53,6 +54,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminEmpresasRoute = AdminEmpresasRouteImport.update({
   id: '/empresas',
   path: '/empresas',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminModulosRoute = AdminModulosRouteImport.update({
+  id: '/modulos',
+  path: '/modulos',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/modulos': typeof AdminModulosRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/compras': typeof AppComprasRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/modulos': typeof AdminModulosRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/compras': typeof AppComprasRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/modulos': typeof AdminModulosRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/compras': typeof AppComprasRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/admin/empresas'
+    | '/admin/modulos'
     | '/admin/usuarios'
     | '/app/compras'
     | '/app/configuracoes'
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin/empresas'
+    | '/admin/modulos'
     | '/admin/usuarios'
     | '/app/compras'
     | '/app/configuracoes'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/admin/empresas'
+    | '/admin/modulos'
     | '/admin/usuarios'
     | '/app/compras'
     | '/app/configuracoes'
@@ -304,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/empresas'
       fullPath: '/admin/empresas'
       preLoaderRoute: typeof AdminEmpresasRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/modulos': {
+      id: '/admin/modulos'
+      path: '/modulos'
+      fullPath: '/admin/modulos'
+      preLoaderRoute: typeof AdminModulosRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/usuarios': {
@@ -416,12 +435,14 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminEmpresasRoute: typeof AdminEmpresasRoute
+  AdminModulosRoute: typeof AdminModulosRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminEmpresasRoute: AdminEmpresasRoute,
+  AdminModulosRoute: AdminModulosRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
