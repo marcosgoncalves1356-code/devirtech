@@ -82,6 +82,147 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_entries: {
+        Row: {
+          amount: number
+          category: string
+          company_id: string
+          created_at: string
+          description: string
+          due_date: string
+          id: string
+          kind: Database["public"]["Enums"]["entry_kind"]
+          paid_at: string | null
+          status: Database["public"]["Enums"]["entry_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          company_id: string
+          created_at?: string
+          description: string
+          due_date?: string
+          id?: string
+          kind: Database["public"]["Enums"]["entry_kind"]
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["entry_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          company_id?: string
+          created_at?: string
+          description?: string
+          due_date?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["entry_kind"]
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["entry_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_entries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_items: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          min_quantity: number
+          name: string
+          quantity: number
+          unit: string
+          unit_cost: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          min_quantity?: number
+          name: string
+          quantity?: number
+          unit?: string
+          unit_cost?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          min_quantity?: number
+          name?: string
+          quantity?: number
+          unit?: string
+          unit_cost?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_entries: {
+        Row: {
+          company_id: string
+          created_at: string
+          deductions: number
+          employees_count: number
+          gross_total: number
+          id: string
+          net_total: number
+          reference_month: string
+          status: Database["public"]["Enums"]["doc_status"]
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          deductions?: number
+          employees_count?: number
+          gross_total?: number
+          id?: string
+          net_total?: number
+          reference_month: string
+          status?: Database["public"]["Enums"]["doc_status"]
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          deductions?: number
+          employees_count?: number
+          gross_total?: number
+          id?: string
+          net_total?: number
+          reference_month?: string
+          status?: Database["public"]["Enums"]["doc_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_entries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company_id: string | null
@@ -116,6 +257,88 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchases: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          purchased_at: string
+          status: Database["public"]["Enums"]["doc_status"]
+          supplier: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          purchased_at?: string
+          status?: Database["public"]["Enums"]["doc_status"]
+          supplier: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          purchased_at?: string
+          status?: Database["public"]["Enums"]["doc_status"]
+          supplier?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          company_id: string
+          created_at: string
+          customer: string
+          id: string
+          sold_at: string
+          status: Database["public"]["Enums"]["doc_status"]
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          customer: string
+          id?: string
+          sold_at?: string
+          status?: Database["public"]["Enums"]["doc_status"]
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          customer?: string
+          id?: string
+          sold_at?: string
+          status?: Database["public"]["Enums"]["doc_status"]
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
@@ -180,6 +403,9 @@ export type Database = {
     Enums: {
       account_status: "active" | "blocked"
       app_role: "devitech_admin" | "company_admin" | "manager" | "operator"
+      doc_status: "draft" | "confirmed" | "canceled"
+      entry_kind: "receivable" | "payable"
+      entry_status: "open" | "paid" | "overdue" | "canceled"
       permission_level: "none" | "view" | "edit"
     }
     CompositeTypes: {
@@ -310,6 +536,9 @@ export const Constants = {
     Enums: {
       account_status: ["active", "blocked"],
       app_role: ["devitech_admin", "company_admin", "manager", "operator"],
+      doc_status: ["draft", "confirmed", "canceled"],
+      entry_kind: ["receivable", "payable"],
+      entry_status: ["open", "paid", "overdue", "canceled"],
       permission_level: ["none", "view", "edit"],
     },
   },
