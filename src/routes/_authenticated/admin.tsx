@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Building2, Users, Blocks, KeyRound, LifeBuoy, LayoutDashboard, ArrowLeft } from "lucide-react";
+import { Building2, Users, Blocks, KeyRound, LifeBuoy, LayoutDashboard, ArrowLeft, Eye } from "lucide-react";
 
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -18,6 +18,7 @@ export const adminNav = [
   { to: "/admin/empresas", label: "Empresas clientes", icon: Building2 },
   { to: "/admin/usuarios", label: "Usuários globais", icon: Users },
   { to: "/admin/modulos", label: "Módulos e planos", icon: Blocks },
+  { to: "/admin/visualizar", label: "Ver como empresa", icon: Eye },
   { to: "/admin/acessos", label: "Acessos e auditoria", icon: KeyRound },
   { to: "/admin/suporte", label: "Suporte", icon: LifeBuoy },
 ] as const;

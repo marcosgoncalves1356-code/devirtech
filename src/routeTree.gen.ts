@@ -19,6 +19,7 @@ import { Route as AuthenticatedAdminEmpresasRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminModulosRouteImport } from './routes/_authenticated/admin.modulos'
 import { Route as AuthenticatedAdminSuporteRouteImport } from './routes/_authenticated/admin.suporte'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedAdminVisualizarRouteImport } from './routes/_authenticated/admin.visualizar'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppAlterarSenhaRouteImport } from './routes/_authenticated/app.alterar-senha'
 import { Route as AuthenticatedAppComprasRouteImport } from './routes/_authenticated/app.compras'
@@ -87,6 +88,12 @@ const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/usuarios',
     path: '/usuarios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminVisualizarRoute =
+  AuthenticatedAdminVisualizarRouteImport.update({
+    id: '/visualizar',
+    path: '/visualizar',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
@@ -185,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/admin/modulos': typeof AuthenticatedAdminModulosRoute
   '/admin/suporte': typeof AuthenticatedAdminSuporteRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/admin/visualizar': typeof AuthenticatedAdminVisualizarRoute
   '/app/alterar-senha': typeof AuthenticatedAppAlterarSenhaRoute
   '/app/compras': typeof AuthenticatedAppComprasRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -209,6 +217,7 @@ export interface FileRoutesByTo {
   '/admin/modulos': typeof AuthenticatedAdminModulosRoute
   '/admin/suporte': typeof AuthenticatedAdminSuporteRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/admin/visualizar': typeof AuthenticatedAdminVisualizarRoute
   '/app/alterar-senha': typeof AuthenticatedAppAlterarSenhaRoute
   '/app/compras': typeof AuthenticatedAppComprasRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -237,6 +246,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/modulos': typeof AuthenticatedAdminModulosRoute
   '/_authenticated/admin/suporte': typeof AuthenticatedAdminSuporteRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/admin/visualizar': typeof AuthenticatedAdminVisualizarRoute
   '/_authenticated/app/alterar-senha': typeof AuthenticatedAppAlterarSenhaRoute
   '/_authenticated/app/compras': typeof AuthenticatedAppComprasRoute
   '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
@@ -265,6 +275,7 @@ export interface FileRouteTypes {
     | '/admin/modulos'
     | '/admin/suporte'
     | '/admin/usuarios'
+    | '/admin/visualizar'
     | '/app/alterar-senha'
     | '/app/compras'
     | '/app/configuracoes'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/admin/modulos'
     | '/admin/suporte'
     | '/admin/usuarios'
+    | '/admin/visualizar'
     | '/app/alterar-senha'
     | '/app/compras'
     | '/app/configuracoes'
@@ -316,6 +328,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/modulos'
     | '/_authenticated/admin/suporte'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/admin/visualizar'
     | '/_authenticated/app/alterar-senha'
     | '/_authenticated/app/compras'
     | '/_authenticated/app/configuracoes'
@@ -409,6 +422,13 @@ declare module '@tanstack/react-router' {
       path: '/usuarios'
       fullPath: '/admin/usuarios'
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/visualizar': {
+      id: '/_authenticated/admin/visualizar'
+      path: '/visualizar'
+      fullPath: '/admin/visualizar'
+      preLoaderRoute: typeof AuthenticatedAdminVisualizarRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/app/': {
@@ -525,6 +545,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminModulosRoute: typeof AuthenticatedAdminModulosRoute
   AuthenticatedAdminSuporteRoute: typeof AuthenticatedAdminSuporteRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedAdminVisualizarRoute: typeof AuthenticatedAdminVisualizarRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
@@ -534,6 +555,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminModulosRoute: AuthenticatedAdminModulosRoute,
   AuthenticatedAdminSuporteRoute: AuthenticatedAdminSuporteRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedAdminVisualizarRoute: AuthenticatedAdminVisualizarRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 

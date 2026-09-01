@@ -62,26 +62,39 @@ const brl = (v: number) =>
 const brlFull = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v || 0);
 
-const PIE_COLORS = ["#22c55e", "#4ade80", "#16a34a", "#86efac", "#0ea5e9", "#f59e0b"];
+const PIE_COLORS = ["#34d399", "#38bdf8", "#a78bfa", "#fbbf24", "#f472b6", "#22d3ee"];
 
 const chartTooltip = {
   contentStyle: {
-    background: "oklch(0.18 0.02 160 / 0.95)",
-    border: "1px solid oklch(0.35 0.03 160)",
-    borderRadius: "0.75rem",
+    background: "oklch(0.24 0.02 200 / 0.96)",
+    border: "1px solid oklch(0.48 0.04 200 / 0.6)",
+    borderRadius: "0.9rem",
     fontSize: "0.75rem",
-    color: "#e5e7eb",
+    color: "#f1f5f9",
   },
-  labelStyle: { color: "#a1a1aa" },
+  labelStyle: { color: "#cbd5e1" },
 };
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <section className={`rounded-2xl border border-border/60 bg-card/60 p-5 backdrop-blur ${className}`}>
+    <section
+      className={`rounded-2xl border border-border/50 bg-card/80 p-5 shadow-lg shadow-black/10 backdrop-blur ${className}`}
+    >
       {children}
     </section>
   );
 }
+
+const ACCENTS = {
+  emerald: { icon: "text-emerald-300", chip: "bg-emerald-400/15", ring: "hover:border-emerald-300/50", bar: "from-emerald-400/70 to-emerald-200/10" },
+  sky: { icon: "text-sky-300", chip: "bg-sky-400/15", ring: "hover:border-sky-300/50", bar: "from-sky-400/70 to-sky-200/10" },
+  violet: { icon: "text-violet-300", chip: "bg-violet-400/15", ring: "hover:border-violet-300/50", bar: "from-violet-400/70 to-violet-200/10" },
+  amber: { icon: "text-amber-300", chip: "bg-amber-400/15", ring: "hover:border-amber-300/50", bar: "from-amber-400/70 to-amber-200/10" },
+  rose: { icon: "text-rose-300", chip: "bg-rose-400/15", ring: "hover:border-rose-300/50", bar: "from-rose-400/70 to-rose-200/10" },
+  cyan: { icon: "text-cyan-300", chip: "bg-cyan-400/15", ring: "hover:border-cyan-300/50", bar: "from-cyan-400/70 to-cyan-200/10" },
+} as const;
+
+type Accent = keyof typeof ACCENTS;
 
 function Kpi({
   label,
@@ -89,22 +102,30 @@ function Kpi({
   hint,
   icon: Icon,
   tone = "default",
+  accent = "emerald",
 }: {
   label: string;
   value: string;
   hint?: string;
   icon: React.ElementType;
   tone?: "default" | "positive" | "negative";
+  accent?: Accent;
 }) {
+  const a = ACCENTS[accent];
   const toneClass =
-    tone === "positive" ? "text-primary" : tone === "negative" ? "text-destructive" : "text-muted-foreground";
+    tone === "positive" ? "text-emerald-300" : tone === "negative" ? "text-rose-300" : "text-muted-foreground";
   return (
-    <article className="rounded-2xl border border-border/60 bg-card/60 p-5 backdrop-blur">
+    <article
+      className={`group relative overflow-hidden rounded-2xl border border-border/50 bg-card/80 p-5 shadow-lg shadow-black/10 backdrop-blur transition-colors ${a.ring}`}
+    >
+      <span className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${a.bar}`} />
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">{label}</span>
-        <Icon className="h-4 w-4 text-primary" />
+        <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${a.chip} ${a.icon}`}>
+          <Icon className="h-4 w-4" />
+        </span>
       </div>
-      <p className="mt-3 text-xl font-semibold tracking-tight">{value}</p>
+      <p className="mt-3 text-xl font-semibold tracking-tight text-foreground">{value}</p>
       {hint ? <p className={`text-xs ${toneClass}`}>{hint}</p> : null}
     </article>
   );
@@ -146,13 +167,14 @@ function Dashboard() {
       ) : (
         <>
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <Kpi label="Faturamento (12m)" value={brl(data.revenue)} hint="Recebimentos liquidados" icon={TrendingUp} tone="positive" />
-            <Kpi label="Despesas (12m)" value={brl(data.expenses)} hint="Pagamentos liquidados" icon={TrendingDown} tone="negative" />
+            <Kpi label="Faturamento (12m)" value={brl(data.revenue)} hint="Recebimentos liquidados" icon={TrendingUp} tone="positive" accent="emerald" />
+            <Kpi label="Despesas (12m)" value={brl(data.expenses)} hint="Pagamentos liquidados" icon={TrendingDown} tone="negative" accent="rose" />
             <Kpi
               label="Saldo"
               value={brl(data.balance)}
               hint={`Margem de ${data.margin.toFixed(1)}%`}
               icon={Wallet}
+              accent="sky"
               tone={data.balance >= 0 ? "positive" : "negative"}
             />
             <Kpi
@@ -160,12 +182,14 @@ function Dashboard() {
               value={brl(data.ticket)}
               hint={`${data.salesCount} vendas no período`}
               icon={Percent}
+              accent="violet"
             />
             <Kpi
               label="Contas a receber"
               value={brl(data.receivableOpen)}
               hint={data.receivableOverdue > 0 ? `${brl(data.receivableOverdue)} em atraso` : "Sem atrasos"}
               icon={ArrowDownRight}
+              accent="cyan"
               tone={data.receivableOverdue > 0 ? "negative" : "positive"}
             />
             <Kpi
@@ -173,6 +197,7 @@ function Dashboard() {
               value={brl(data.payableOpen)}
               hint={data.payableOverdue > 0 ? `${brl(data.payableOverdue)} em atraso` : "Sem atrasos"}
               icon={ArrowUpRight}
+              accent="amber"
               tone={data.payableOverdue > 0 ? "negative" : "positive"}
             />
             <Kpi
@@ -180,6 +205,7 @@ function Dashboard() {
               value={brl(data.inventoryValue)}
               hint={`${data.inventoryItems} itens • ${data.inventoryLow} abaixo do mínimo`}
               icon={Package}
+              accent="emerald"
               tone={data.inventoryLow > 0 ? "negative" : "positive"}
             />
             <Kpi
@@ -187,6 +213,7 @@ function Dashboard() {
               value={brl(data.payrollNet)}
               hint={`${data.payrollEmployees} funcionários`}
               icon={Users}
+              accent="violet"
             />
           </section>
 
@@ -199,28 +226,28 @@ function Dashboard() {
                   <AreaChart data={data.monthly} margin={{ left: -18, right: 8, top: 8 }}>
                     <defs>
                       <linearGradient id="gRev" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#22c55e" stopOpacity={0.5} />
-                        <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
+                        <stop offset="0%" stopColor="#34d399" stopOpacity={0.55} />
+                        <stop offset="100%" stopColor="#34d399" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gExp" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#f87171" stopOpacity={0.4} />
-                        <stop offset="100%" stopColor="#f87171" stopOpacity={0} />
+                        <stop offset="0%" stopColor="#fb7185" stopOpacity={0.45} />
+                        <stop offset="100%" stopColor="#fb7185" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid stroke="oklch(0.35 0.02 160 / 0.35)" vertical={false} />
-                    <XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={11} stroke="#8b8f96" />
+                    <CartesianGrid stroke="oklch(0.55 0.02 200 / 0.28)" vertical={false} />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={11} stroke="#a8b3c2" />
                     <YAxis
                       tickFormatter={(v: number) => `${Math.round(v / 1000)}k`}
                       tickLine={false}
                       axisLine={false}
                       fontSize={11}
-                      stroke="#8b8f96"
+                      stroke="#a8b3c2"
                     />
                     <Tooltip formatter={(v) => brlFull(Number(v))} {...chartTooltip} />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Area type="monotone" dataKey="faturamento" name="Faturamento" stroke="#22c55e" fill="url(#gRev)" strokeWidth={2} />
-                    <Area type="monotone" dataKey="despesas" name="Despesas" stroke="#f87171" fill="url(#gExp)" strokeWidth={2} />
-                    <Area type="monotone" dataKey="saldo" name="Saldo" stroke="#38bdf8" fill="transparent" strokeWidth={2} />
+                    <Area type="monotone" dataKey="faturamento" name="Faturamento" stroke="#34d399" fill="url(#gRev)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="despesas" name="Despesas" stroke="#fb7185" fill="url(#gExp)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="saldo" name="Saldo" stroke="#a78bfa" fill="transparent" strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -267,18 +294,18 @@ function Dashboard() {
               <div className="mt-4 h-60 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={data.salesVsPurchases} margin={{ left: -18, right: 8, top: 8 }}>
-                    <CartesianGrid stroke="oklch(0.35 0.02 160 / 0.35)" vertical={false} />
-                    <XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={11} stroke="#8b8f96" />
+                    <CartesianGrid stroke="oklch(0.55 0.02 200 / 0.28)" vertical={false} />
+                    <XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={11} stroke="#a8b3c2" />
                     <YAxis
                       tickFormatter={(v: number) => `${Math.round(v / 1000)}k`}
                       tickLine={false}
                       axisLine={false}
                       fontSize={11}
-                      stroke="#8b8f96"
+                      stroke="#a8b3c2"
                     />
                     <Tooltip formatter={(v) => brlFull(Number(v))} {...chartTooltip} />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Bar dataKey="vendas" name="Vendas" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="vendas" name="Vendas" fill="#34d399" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="compras" name="Compras" fill="#38bdf8" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -303,7 +330,7 @@ function Dashboard() {
                           {u.status === "overdue" ? " • atrasado" : ""}
                         </p>
                       </div>
-                      <span className={`text-xs font-semibold ${u.kind === "payable" ? "text-destructive" : "text-primary"}`}>
+                      <span className={`text-xs font-semibold ${u.kind === "payable" ? "text-rose-300" : "text-emerald-300"}`}>
                         {brl(u.amount)}
                       </span>
                     </li>

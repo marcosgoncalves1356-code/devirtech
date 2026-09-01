@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Menu, X, LogOut, Bell, Search, ShieldHalf, ChevronDown, Check, Smartphone, KeyRound } from "lucide-react";
+import { Menu, X, LogOut, Bell, Search, ShieldHalf, ChevronDown, Check, Smartphone, KeyRound, Eye } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,9 +12,9 @@ import { modules, moduleGroups, mobileNavSlugs } from "@/lib/modules";
 import { cn } from "@/lib/utils";
 
 function CompanySwitcher({ className }: { className?: string }) {
-  const { companies, company, setCompanyId, session } = useCompany();
+  const { companies, company, setCompanyId, session, viewAs } = useCompany();
   const [open, setOpen] = useState(false);
-  const canSwitch = (session?.isAdmin ?? false) && companies.length > 1;
+  const canSwitch = (session?.isAdmin ?? false) && !viewAs && companies.length > 1;
 
   if (!canSwitch) {
     return (
@@ -127,7 +127,7 @@ function Brand() {
 export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { isModuleEnabled, session } = useCompany();
+  const { isModuleEnabled, session, viewAs, exitViewAs, company } = useCompany();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -145,7 +145,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  const isAdmin = session?.isAdmin ?? false;
+  const isAdmin = (session?.isAdmin ?? false) && !viewAs;
   const mobileItems = modules.filter((m) => mobileNavSlugs.includes(m.slug) && isModuleEnabled(m.slug));
 
   return (
@@ -268,6 +268,30 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
+
+        {viewAs ? (
+          <div className="border-b border-sky-400/40 bg-sky-400/10">
+            <div className="flex flex-wrap items-center gap-3 px-4 py-2.5 text-xs sm:px-6">
+              <Eye className="h-4 w-4 text-sky-400" />
+              <span className="text-foreground">
+                Visualizando como{" "}
+                <strong>{viewAs.userName ? `${viewAs.userName} (${viewAs.role ?? "usuário"})` : "empresa"}</strong> em{" "}
+                <strong>{company.name}</strong> — módulos e permissões reais aplicados.
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-auto h-7"
+                onClick={() => {
+                  exitViewAs();
+                  navigate({ to: "/admin/visualizar" });
+                }}
+              >
+                Sair da visualização
+              </Button>
+            </div>
+          </div>
+        ) : null}
 
         <main className="px-4 pb-28 pt-6 sm:px-6 lg:pb-12">{children}</main>
       </div>
