@@ -53,7 +53,7 @@ export function WelcomeScreen() {
           {company.segment ? <p className="text-xs text-muted-foreground">{company.segment}</p> : null}
         </div>
 
-        <p className="text-2xl font-semibold tracking-tight">👋 Bem-vindo, {firstName}!</p>
+        <p className="text-2xl font-semibold tracking-tight">👋 Bem-vindo(a), {firstName}!</p>
         <p className="mt-2 text-sm text-muted-foreground">
           Este é o seu ERP DeviTech. Todos os módulos liberados para a sua empresa já estão disponíveis no menu, tanto
           no navegador quanto no aplicativo.
