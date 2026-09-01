@@ -145,7 +145,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  const isAdmin = session?.isAdmin ?? false;
+  const isAdmin = (session?.isAdmin ?? false) && !viewAs;
   const mobileItems = modules.filter((m) => mobileNavSlugs.includes(m.slug) && isModuleEnabled(m.slug));
 
   return (
