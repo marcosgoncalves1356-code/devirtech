@@ -4,7 +4,7 @@ import { Building2, Users, Blocks, KeyRound, LifeBuoy, LayoutDashboard, ArrowLef
 import logo from "@/assets/devitech-logo.png";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/_authenticated/admin")({
+export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 

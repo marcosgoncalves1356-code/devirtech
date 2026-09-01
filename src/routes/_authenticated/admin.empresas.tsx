@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { demoCompanies } from "@/lib/company-context";
 import { modules } from "@/lib/modules";
 
-export const Route = createFileRoute("/_authenticated/_authenticated/admin/empresas")({
+export const Route = createFileRoute("/_authenticated/admin/empresas")({
   head: () => ({
     meta: [
       { title: "Empresas clientes — Admin DeviTech" },

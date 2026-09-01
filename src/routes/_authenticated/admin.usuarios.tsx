@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/_authenticated/_authenticated/admin/usuarios")({
+export const Route = createFileRoute("/_authenticated/admin/usuarios")({
   head: () => ({
     meta: [
       { title: "Usuários globais — Admin DeviTech" },

@@ -4,7 +4,7 @@ import { Building2, Users, Blocks, LifeBuoy, ArrowRight } from "lucide-react";
 import { demoCompanies } from "@/lib/company-context";
 import { modules } from "@/lib/modules";
 
-export const Route = createFileRoute("/_authenticated/_authenticated/admin/")({
+export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({
     meta: [
       { title: "Painel administrativo — DeviTech" },
