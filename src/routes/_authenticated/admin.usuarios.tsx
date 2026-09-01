@@ -38,6 +38,7 @@ type Draft = {
   email: string;
   username: string;
   fullName: string;
+  jobTitle: string;
   password?: string;
   companyId: string | null;
   role: "devitech_admin" | "company_admin" | "manager" | "operator";
@@ -103,6 +104,7 @@ function AdminUsers() {
               email: "",
               username: "",
               fullName: "",
+              jobTitle: "",
               password: "",
 
               companyId: (companies[0] as any)?.id ?? null,
@@ -138,6 +140,12 @@ function AdminUsers() {
             />
             <input
               className="field-shell text-sm"
+              placeholder="Cargo (ex.: Gerente de Produção)"
+              value={draft.jobTitle}
+              onChange={(e) => setDraft({ ...draft, jobTitle: e.target.value })}
+            />
+            <input
+              className="field-shell text-sm"
               type="email"
               placeholder="E-mail de acesso"
               value={draft.email}
@@ -169,8 +177,11 @@ function AdminUsers() {
               className="field-shell text-sm"
               value={draft.companyId ?? ""}
               onChange={(e) => setDraft({ ...draft, companyId: e.target.value || null })}
+              required={draft.role !== "devitech_admin"}
             >
-              <option value="">Sem empresa (uso interno DeviTech)</option>
+              <option value="">
+                {draft.role === "devitech_admin" ? "Sem empresa (uso interno DeviTech)" : "Selecione a empresa…"}
+              </option>
               {companies.map((c: any) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -251,7 +262,7 @@ function AdminUsers() {
                   {u.username ? <span className="ml-2 text-xs font-normal text-primary">@{u.username}</span> : null}
                 </h2>
                 <p className="truncate text-xs text-muted-foreground">
-                  {u.email} • {u.company_name ?? "sem empresa"} • {roleLabels[u.role as Draft["role"]] ?? u.role}
+                  {u.email} • {u.company_name ?? "sem empresa"}{u.job_title ? ` • ${u.job_title}` : ""} • {roleLabels[u.role as Draft["role"]] ?? u.role}
                   {u.must_change_password ? " • senha temporária" : ""}
                 </p>
               </div>
@@ -274,7 +285,7 @@ function AdminUsers() {
                     email: u.email,
                     username: u.username ?? "",
                     fullName: u.full_name,
-
+                    jobTitle: u.job_title ?? "",
                     password: "",
                     companyId: u.company_id,
                     role: u.role,
