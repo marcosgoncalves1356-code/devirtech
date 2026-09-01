@@ -101,8 +101,10 @@ function AdminUsers() {
           onClick={() =>
             setDraft({
               email: "",
+              username: "",
               fullName: "",
               password: "",
+
               companyId: (companies[0] as any)?.id ?? null,
               role: "operator",
               status: "active",
