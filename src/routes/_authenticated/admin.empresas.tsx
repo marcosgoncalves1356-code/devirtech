@@ -16,6 +16,8 @@ import {
   MapPin,
   UserRound,
   Search,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -44,6 +46,7 @@ type Draft = {
   responsible: string;
   phone: string;
   address: string;
+  logoUrl: string;
   status: "active" | "blocked";
   enabledModules: string[];
 };
@@ -55,6 +58,7 @@ const emptyDraft: Draft = {
   responsible: "",
   phone: "",
   address: "",
+  logoUrl: "",
   status: "active",
   enabledModules: modules.map((m) => m.slug),
 };
@@ -75,6 +79,7 @@ function toDraft(c: any): Draft {
     responsible: c.responsible ?? "",
     phone: c.phone ?? "",
     address: c.address ?? "",
+    logoUrl: c.logo_url ?? "",
     status: c.status,
     enabledModules: c.enabled_modules ?? [],
   };
@@ -221,6 +226,50 @@ function AdminCompanies() {
               value={draft.address}
               onChange={(e) => setDraft({ ...draft, address: e.target.value })}
             />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-border/60 bg-secondary/30 p-4">
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-background">
+              {draft.logoUrl ? (
+                <img src={draft.logoUrl} alt="Logo da empresa" className="h-full w-full object-contain" />
+              ) : (
+                <ImageIcon className="h-6 w-6 text-muted-foreground" />
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Logo da empresa</p>
+              <p className="text-xs text-muted-foreground">PNG, JPG ou SVG de até 400 KB. Aparece para os usuários da empresa.</p>
+            </div>
+            <input
+              id="company-logo-input"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (!file) return;
+                if (file.size > 400 * 1024) {
+                  setError("A logo deve ter no máximo 400 KB.");
+                  return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => setDraft((d) => (d ? { ...d, logoUrl: String(reader.result) } : d));
+                reader.readAsDataURL(file);
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => document.getElementById("company-logo-input")?.click()}
+            >
+              <Upload className="h-4 w-4" /> {draft.logoUrl ? "Alterar logo" : "Enviar logo"}
+            </Button>
+            {draft.logoUrl ? (
+              <Button type="button" variant="ghost" onClick={() => setDraft({ ...draft, logoUrl: "" })}>
+                <Trash2 className="h-4 w-4 text-destructive" /> Remover
+              </Button>
+            ) : null}
           </div>
 
           <div>

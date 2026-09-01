@@ -10,6 +10,7 @@ export type Company = {
   document: string;
   segment: string;
   enabledModules: string[];
+  logoUrl: string;
 };
 
 export type ViewAs = {
@@ -27,6 +28,7 @@ const EMPTY_COMPANY: Company = {
   document: "—",
   segment: "Solicite o vínculo ao administrador DeviTech",
   enabledModules: [],
+  logoUrl: "",
 };
 
 type CompanyContextValue = {
@@ -67,6 +69,7 @@ function toCompany(c: SessionCompany): Company {
     document: c.document ?? "—",
     segment: c.segment ?? "",
     enabledModules: c.enabledModules,
+    logoUrl: c.logoUrl ?? "",
   };
 }
 

@@ -64,6 +64,7 @@ export const saveCompany = createServerFn({ method: "POST" })
         responsible: z.string().optional().default(""),
         phone: z.string().optional().default(""),
         address: z.string().optional().default(""),
+        logoUrl: z.string().max(1_500_000).optional().default(""),
         status: z.enum(["active", "blocked"]).default("active"),
         enabledModules: z.array(z.string()).default([]),
       })
@@ -78,6 +79,7 @@ export const saveCompany = createServerFn({ method: "POST" })
       responsible: data.responsible,
       phone: data.phone,
       address: data.address,
+      logo_url: data.logoUrl,
       status: data.status,
       enabled_modules: data.enabledModules,
     };
