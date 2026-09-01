@@ -12,9 +12,9 @@ import { modules, moduleGroups, mobileNavSlugs } from "@/lib/modules";
 import { cn } from "@/lib/utils";
 
 function CompanySwitcher({ className }: { className?: string }) {
-  const { companies, company, setCompanyId, session } = useCompany();
+  const { companies, company, setCompanyId, session, viewAs } = useCompany();
   const [open, setOpen] = useState(false);
-  const canSwitch = (session?.isAdmin ?? false) && companies.length > 1;
+  const canSwitch = (session?.isAdmin ?? false) && !viewAs && companies.length > 1;
 
   if (!canSwitch) {
     return (
