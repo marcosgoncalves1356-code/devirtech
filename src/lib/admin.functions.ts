@@ -310,3 +310,29 @@ export const logAccess = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+/* -------------------------- Módulos por empresa -------------------------- */
+
+export const setCompanyModules = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({ companyId: z.string().uuid(), enabledModules: z.array(z.string()) })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const admin = await assertAdmin(context);
+    const unique = Array.from(new Set(data.enabledModules));
+    const { error } = await admin
+      .from("companies")
+      .update({ enabled_modules: unique })
+      .eq("id", data.companyId);
+    if (error) throw new Error(error.message);
+    await admin.from("access_logs").insert({
+      user_id: context.userId,
+      company_id: data.companyId,
+      action: "modulos_atualizados",
+      detail: unique.join(", ") || "nenhum módulo",
+    });
+    return { ok: true, enabledModules: unique };
+  });
