@@ -116,6 +116,13 @@ export const saveUser = createServerFn({ method: "POST" })
     const admin = await assertAdmin(context);
     let userId = data.id;
 
+    const { data: taken } = await admin
+      .from("profiles")
+      .select("id")
+      .ilike("username", data.username)
+      .maybeSingle();
+    if (taken && taken.id !== data.id) throw new Error("Este nome de usuário já está em uso.");
+
     if (!userId) {
       if (!data.password) throw new Error("Defina uma senha inicial para o novo usuário.");
       const { data: created, error } = await admin.auth.admin.createUser({
@@ -128,6 +135,7 @@ export const saveUser = createServerFn({ method: "POST" })
       const { error: pErr } = await admin.from("profiles").insert({
         id: userId,
         email: data.email,
+        username: data.username,
         full_name: data.fullName,
         company_id: data.companyId ?? null,
         status: data.status,
@@ -146,6 +154,7 @@ export const saveUser = createServerFn({ method: "POST" })
         .from("profiles")
         .update({
           email: data.email,
+          username: data.username,
           full_name: data.fullName,
           company_id: data.companyId ?? null,
           status: data.status,
@@ -153,6 +162,7 @@ export const saveUser = createServerFn({ method: "POST" })
         })
         .eq("id", userId);
       if (pErr) throw new Error(pErr.message);
+
     }
 
     await admin.from("user_roles").delete().eq("user_id", userId);
