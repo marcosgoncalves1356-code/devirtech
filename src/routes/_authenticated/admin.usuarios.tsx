@@ -36,6 +36,7 @@ type Level = "none" | "view" | "edit";
 type Draft = {
   id?: string;
   email: string;
+  username: string;
   fullName: string;
   password?: string;
   companyId: string | null;
@@ -43,6 +44,7 @@ type Draft = {
   status: "active" | "blocked";
   permissions: Record<string, Level>;
 };
+
 
 const roleLabels: Record<Draft["role"], string> = {
   devitech_admin: "Administrador DeviTech",
