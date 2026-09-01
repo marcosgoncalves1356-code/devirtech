@@ -95,6 +95,11 @@ export const listUsers = createServerFn({ method: "GET" })
 const userInput = z.object({
   id: z.string().uuid().optional(),
   email: z.string().email(),
+  username: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[a-z0-9._-]{3,32}$/, "Nome de usuário inválido: use 3 a 32 caracteres (letras, números, . _ -)."),
   fullName: z.string().min(2),
   password: z.string().min(8).optional(),
   companyId: z.string().uuid().nullable().optional(),
@@ -102,6 +107,7 @@ const userInput = z.object({
   status: z.enum(["active", "blocked"]).default("active"),
   permissions: z.record(z.string(), z.enum(["none", "view", "edit"])).default({}),
 });
+
 
 export const saveUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
