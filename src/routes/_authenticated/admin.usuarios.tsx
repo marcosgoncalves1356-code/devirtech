@@ -246,7 +246,10 @@ function AdminUsers() {
               className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/60 p-4"
             >
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-sm font-semibold">{u.full_name || u.email}</h2>
+                <h2 className="truncate text-sm font-semibold">
+                  {u.full_name || u.email}
+                  {u.username ? <span className="ml-2 text-xs font-normal text-primary">@{u.username}</span> : null}
+                </h2>
                 <p className="truncate text-xs text-muted-foreground">
                   {u.email} • {u.company_name ?? "sem empresa"} • {roleLabels[u.role as Draft["role"]] ?? u.role}
                   {u.must_change_password ? " • senha temporária" : ""}
@@ -269,7 +272,9 @@ function AdminUsers() {
                   setDraft({
                     id: u.id,
                     email: u.email,
+                    username: u.username ?? "",
                     fullName: u.full_name,
+
                     password: "",
                     companyId: u.company_id,
                     role: u.role,
