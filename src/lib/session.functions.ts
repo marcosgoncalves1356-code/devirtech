@@ -8,6 +8,7 @@ export type SessionCompany = {
   segment: string | null;
   status: "active" | "blocked";
   enabledModules: string[];
+  logoUrl: string;
 };
 
 export type SessionContext = {
