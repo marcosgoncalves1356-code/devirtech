@@ -62,26 +62,39 @@ const brl = (v: number) =>
 const brlFull = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v || 0);
 
-const PIE_COLORS = ["#22c55e", "#4ade80", "#16a34a", "#86efac", "#0ea5e9", "#f59e0b"];
+const PIE_COLORS = ["#34d399", "#38bdf8", "#a78bfa", "#fbbf24", "#f472b6", "#22d3ee"];
 
 const chartTooltip = {
   contentStyle: {
-    background: "oklch(0.18 0.02 160 / 0.95)",
-    border: "1px solid oklch(0.35 0.03 160)",
-    borderRadius: "0.75rem",
+    background: "oklch(0.24 0.02 200 / 0.96)",
+    border: "1px solid oklch(0.48 0.04 200 / 0.6)",
+    borderRadius: "0.9rem",
     fontSize: "0.75rem",
-    color: "#e5e7eb",
+    color: "#f1f5f9",
   },
-  labelStyle: { color: "#a1a1aa" },
+  labelStyle: { color: "#cbd5e1" },
 };
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <section className={`rounded-2xl border border-border/60 bg-card/60 p-5 backdrop-blur ${className}`}>
+    <section
+      className={`rounded-2xl border border-border/50 bg-card/80 p-5 shadow-lg shadow-black/10 backdrop-blur ${className}`}
+    >
       {children}
     </section>
   );
 }
+
+const ACCENTS = {
+  emerald: { icon: "text-emerald-300", chip: "bg-emerald-400/15", ring: "hover:border-emerald-300/50", bar: "from-emerald-400/70 to-emerald-200/10" },
+  sky: { icon: "text-sky-300", chip: "bg-sky-400/15", ring: "hover:border-sky-300/50", bar: "from-sky-400/70 to-sky-200/10" },
+  violet: { icon: "text-violet-300", chip: "bg-violet-400/15", ring: "hover:border-violet-300/50", bar: "from-violet-400/70 to-violet-200/10" },
+  amber: { icon: "text-amber-300", chip: "bg-amber-400/15", ring: "hover:border-amber-300/50", bar: "from-amber-400/70 to-amber-200/10" },
+  rose: { icon: "text-rose-300", chip: "bg-rose-400/15", ring: "hover:border-rose-300/50", bar: "from-rose-400/70 to-rose-200/10" },
+  cyan: { icon: "text-cyan-300", chip: "bg-cyan-400/15", ring: "hover:border-cyan-300/50", bar: "from-cyan-400/70 to-cyan-200/10" },
+} as const;
+
+type Accent = keyof typeof ACCENTS;
 
 function Kpi({
   label,
@@ -89,22 +102,30 @@ function Kpi({
   hint,
   icon: Icon,
   tone = "default",
+  accent = "emerald",
 }: {
   label: string;
   value: string;
   hint?: string;
   icon: React.ElementType;
   tone?: "default" | "positive" | "negative";
+  accent?: Accent;
 }) {
+  const a = ACCENTS[accent];
   const toneClass =
-    tone === "positive" ? "text-primary" : tone === "negative" ? "text-destructive" : "text-muted-foreground";
+    tone === "positive" ? "text-emerald-300" : tone === "negative" ? "text-rose-300" : "text-muted-foreground";
   return (
-    <article className="rounded-2xl border border-border/60 bg-card/60 p-5 backdrop-blur">
+    <article
+      className={`group relative overflow-hidden rounded-2xl border border-border/50 bg-card/80 p-5 shadow-lg shadow-black/10 backdrop-blur transition-colors ${a.ring}`}
+    >
+      <span className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${a.bar}`} />
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">{label}</span>
-        <Icon className="h-4 w-4 text-primary" />
+        <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${a.chip} ${a.icon}`}>
+          <Icon className="h-4 w-4" />
+        </span>
       </div>
-      <p className="mt-3 text-xl font-semibold tracking-tight">{value}</p>
+      <p className="mt-3 text-xl font-semibold tracking-tight text-foreground">{value}</p>
       {hint ? <p className={`text-xs ${toneClass}`}>{hint}</p> : null}
     </article>
   );
