@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { User, Lock, Eye, EyeOff, Apple } from "lucide-react";
 
@@ -130,9 +130,10 @@ function Login() {
             </a>
           </div>
 
-          <Button type="submit" variant="glow" size="xl" className="w-full">
-            Entrar
+          <Button asChild type="submit" variant="glow" size="xl" className="w-full">
+            <Link to="/app">Entrar</Link>
           </Button>
+
         </form>
 
         <div className="my-7 flex items-center gap-4">
