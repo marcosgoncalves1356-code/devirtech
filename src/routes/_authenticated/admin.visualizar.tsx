@@ -61,10 +61,14 @@ function ViewAsPage() {
     startViewAs({
       companyId,
       companyName,
-      userId: user?.id,
-      userName: user?.full_name || user?.username,
-      role: user?.role,
-      permissions: (user?.permissions ?? undefined) as Record<string, Level> | undefined,
+      ...(user
+        ? {
+            userId: user.id as string,
+            userName: (user.full_name || user.username) as string,
+            role: user.role as string,
+            permissions: (user.permissions ?? {}) as Record<string, Level>,
+          }
+        : {}),
     });
     navigate({ to: "/app" });
   }
