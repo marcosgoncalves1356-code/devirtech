@@ -269,6 +269,30 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
+        {viewAs ? (
+          <div className="border-b border-sky-400/40 bg-sky-400/10">
+            <div className="flex flex-wrap items-center gap-3 px-4 py-2.5 text-xs sm:px-6">
+              <Eye className="h-4 w-4 text-sky-400" />
+              <span className="text-foreground">
+                Visualizando como{" "}
+                <strong>{viewAs.userName ? `${viewAs.userName} (${viewAs.role ?? "usuário"})` : "empresa"}</strong> em{" "}
+                <strong>{company.name}</strong> — módulos e permissões reais aplicados.
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-auto h-7"
+                onClick={() => {
+                  exitViewAs();
+                  navigate({ to: "/admin/visualizar" });
+                }}
+              >
+                Sair da visualização
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
         <main className="px-4 pb-28 pt-6 sm:px-6 lg:pb-12">{children}</main>
       </div>
 
