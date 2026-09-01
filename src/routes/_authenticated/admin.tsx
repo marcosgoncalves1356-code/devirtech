@@ -18,6 +18,7 @@ export const adminNav = [
   { to: "/admin/empresas", label: "Empresas clientes", icon: Building2 },
   { to: "/admin/usuarios", label: "Usuários globais", icon: Users },
   { to: "/admin/modulos", label: "Módulos e planos", icon: Blocks },
+  { to: "/admin/visualizar", label: "Ver como empresa", icon: Eye },
   { to: "/admin/acessos", label: "Acessos e auditoria", icon: KeyRound },
   { to: "/admin/suporte", label: "Suporte", icon: LifeBuoy },
 ] as const;
