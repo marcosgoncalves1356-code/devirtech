@@ -130,9 +130,10 @@ function Login() {
             </a>
           </div>
 
-          <Button type="submit" variant="glow" size="xl" className="w-full">
-            Entrar
+          <Button asChild type="submit" variant="glow" size="xl" className="w-full">
+            <Link to="/app">Entrar</Link>
           </Button>
+
         </form>
 
         <div className="my-7 flex items-center gap-4">
