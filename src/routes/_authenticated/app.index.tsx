@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   Percent,
   Receipt,
+  Building2,
 } from "lucide-react";
 import {
   Area,
@@ -32,6 +33,7 @@ import {
 } from "recharts";
 
 import { useCompany } from "@/lib/company-context";
+import { greetingFor } from "@/components/welcome-screen";
 import { modules } from "@/lib/modules";
 import { getDashboardData, type DashboardData } from "@/lib/dashboard.functions";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -132,7 +134,8 @@ function Kpi({
 }
 
 function Dashboard() {
-  const { company, isModuleEnabled } = useCompany();
+  const { company, isModuleEnabled, session } = useCompany();
+  const firstName = (session?.fullName || session?.email || "").split(" ")[0] || "usuário";
   const fetchDashboard = useServerFn(getDashboardData);
 
   const { data, isLoading } = useQuery<DashboardData>({
@@ -146,12 +149,23 @@ function Dashboard() {
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
-      <header>
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Visão geral</p>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{company.name}</h1>
-        <p className="text-sm text-muted-foreground">
-          {company.segment} • CNPJ {company.document}
-        </p>
+      <header className="flex flex-wrap items-center gap-4">
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-background">
+          {company.logoUrl ? (
+            <img src={company.logoUrl} alt={`Logo ${company.name}`} className="h-full w-full object-contain" />
+          ) : (
+            <Building2 className="h-6 w-6 text-muted-foreground" />
+          )}
+        </span>
+        <div className="min-w-0">
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            {greetingFor()}, {firstName}!
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{company.name}</h1>
+          <p className="text-sm text-muted-foreground">
+            {company.segment} • CNPJ {company.document}
+          </p>
+        </div>
       </header>
 
       {!company.id ? (
