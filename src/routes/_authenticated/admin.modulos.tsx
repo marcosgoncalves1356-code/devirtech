@@ -4,7 +4,7 @@ import { Check, Minus } from "lucide-react";
 import { demoCompanies } from "@/lib/company-context";
 import { modules } from "@/lib/modules";
 
-export const Route = createFileRoute("/admin/modulos")({
+export const Route = createFileRoute("/_authenticated/_authenticated/admin/modulos")({
   head: () => ({
     meta: [
       { title: "Módulos e planos — Admin DeviTech" },

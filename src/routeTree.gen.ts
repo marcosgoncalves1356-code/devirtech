@@ -10,218 +10,233 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AppRouteImport } from './routes/app'
-import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as AdminAcessosRouteImport } from './routes/admin.acessos'
-import { Route as AdminEmpresasRouteImport } from './routes/admin.empresas'
-import { Route as AdminModulosRouteImport } from './routes/admin.modulos'
-import { Route as AdminSuporteRouteImport } from './routes/admin.suporte'
-import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
-import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as AppComprasRouteImport } from './routes/app.compras'
-import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
-import { Route as AppEmpresasRouteImport } from './routes/app.empresas'
-import { Route as AppEstoqueRouteImport } from './routes/app.estoque'
-import { Route as AppFinanceiroRouteImport } from './routes/app.financeiro'
-import { Route as AppFolhaDePagamentoRouteImport } from './routes/app.folha-de-pagamento'
-import { Route as AppFuncionariosRouteImport } from './routes/app.funcionarios'
-import { Route as AppProducaoRouteImport } from './routes/app.producao'
-import { Route as AppPropriedadesRouteImport } from './routes/app.propriedades'
-import { Route as AppRelatoriosRouteImport } from './routes/app.relatorios'
-import { Route as AppUsuariosRouteImport } from './routes/app.usuarios'
-import { Route as AppVeiculosRouteImport } from './routes/app.veiculos'
-import { Route as AppVendasRouteImport } from './routes/app.vendas'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAcessosRouteImport } from './routes/_authenticated/admin.acessos'
+import { Route as AuthenticatedAdminEmpresasRouteImport } from './routes/_authenticated/admin.empresas'
+import { Route as AuthenticatedAdminModulosRouteImport } from './routes/_authenticated/admin.modulos'
+import { Route as AuthenticatedAdminSuporteRouteImport } from './routes/_authenticated/admin.suporte'
+import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppComprasRouteImport } from './routes/_authenticated/app.compras'
+import { Route as AuthenticatedAppConfiguracoesRouteImport } from './routes/_authenticated/app.configuracoes'
+import { Route as AuthenticatedAppEmpresasRouteImport } from './routes/_authenticated/app.empresas'
+import { Route as AuthenticatedAppEstoqueRouteImport } from './routes/_authenticated/app.estoque'
+import { Route as AuthenticatedAppFinanceiroRouteImport } from './routes/_authenticated/app.financeiro'
+import { Route as AuthenticatedAppFolhaDePagamentoRouteImport } from './routes/_authenticated/app.folha-de-pagamento'
+import { Route as AuthenticatedAppFuncionariosRouteImport } from './routes/_authenticated/app.funcionarios'
+import { Route as AuthenticatedAppProducaoRouteImport } from './routes/_authenticated/app.producao'
+import { Route as AuthenticatedAppPropriedadesRouteImport } from './routes/_authenticated/app.propriedades'
+import { Route as AuthenticatedAppRelatoriosRouteImport } from './routes/_authenticated/app.relatorios'
+import { Route as AuthenticatedAppUsuariosRouteImport } from './routes/_authenticated/app.usuarios'
+import { Route as AuthenticatedAppVeiculosRouteImport } from './routes/_authenticated/app.veiculos'
+import { Route as AuthenticatedAppVendasRouteImport } from './routes/_authenticated/app.vendas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/_authenticated/admin',
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/app',
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/_authenticated/app',
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AdminAcessosRoute = AdminAcessosRouteImport.update({
-  id: '/acessos',
-  path: '/acessos',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminEmpresasRoute = AdminEmpresasRouteImport.update({
-  id: '/empresas',
-  path: '/empresas',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminModulosRoute = AdminModulosRouteImport.update({
-  id: '/modulos',
-  path: '/modulos',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSuporteRoute = AdminSuporteRouteImport.update({
-  id: '/suporte',
-  path: '/suporte',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
-  id: '/usuarios',
-  path: '/usuarios',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AppIndexRoute = AppIndexRouteImport.update({
+const AuthenticatedAdminAcessosRoute =
+  AuthenticatedAdminAcessosRouteImport.update({
+    id: '/acessos',
+    path: '/acessos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminEmpresasRoute =
+  AuthenticatedAdminEmpresasRouteImport.update({
+    id: '/empresas',
+    path: '/empresas',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminModulosRoute =
+  AuthenticatedAdminModulosRouteImport.update({
+    id: '/modulos',
+    path: '/modulos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSuporteRoute =
+  AuthenticatedAdminSuporteRouteImport.update({
+    id: '/suporte',
+    path: '/suporte',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminUsuariosRoute =
+  AuthenticatedAdminUsuariosRouteImport.update({
+    id: '/usuarios',
+    path: '/usuarios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AppComprasRoute = AppComprasRouteImport.update({
+const AuthenticatedAppComprasRoute = AuthenticatedAppComprasRouteImport.update({
   id: '/compras',
   path: '/compras',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppEmpresasRoute = AppEmpresasRouteImport.update({
-  id: '/empresas',
-  path: '/empresas',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppEstoqueRoute = AppEstoqueRouteImport.update({
+const AuthenticatedAppConfiguracoesRoute =
+  AuthenticatedAppConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppEmpresasRoute =
+  AuthenticatedAppEmpresasRouteImport.update({
+    id: '/empresas',
+    path: '/empresas',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppEstoqueRoute = AuthenticatedAppEstoqueRouteImport.update({
   id: '/estoque',
   path: '/estoque',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
-  id: '/financeiro',
-  path: '/financeiro',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppFolhaDePagamentoRoute = AppFolhaDePagamentoRouteImport.update({
-  id: '/folha-de-pagamento',
-  path: '/folha-de-pagamento',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppFuncionariosRoute = AppFuncionariosRouteImport.update({
-  id: '/funcionarios',
-  path: '/funcionarios',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppProducaoRoute = AppProducaoRouteImport.update({
-  id: '/producao',
-  path: '/producao',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPropriedadesRoute = AppPropriedadesRouteImport.update({
-  id: '/propriedades',
-  path: '/propriedades',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppRelatoriosRoute = AppRelatoriosRouteImport.update({
-  id: '/relatorios',
-  path: '/relatorios',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppUsuariosRoute = AppUsuariosRouteImport.update({
-  id: '/usuarios',
-  path: '/usuarios',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppVeiculosRoute = AppVeiculosRouteImport.update({
-  id: '/veiculos',
-  path: '/veiculos',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppVendasRoute = AppVendasRouteImport.update({
+const AuthenticatedAppFinanceiroRoute =
+  AuthenticatedAppFinanceiroRouteImport.update({
+    id: '/financeiro',
+    path: '/financeiro',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppFolhaDePagamentoRoute =
+  AuthenticatedAppFolhaDePagamentoRouteImport.update({
+    id: '/folha-de-pagamento',
+    path: '/folha-de-pagamento',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppFuncionariosRoute =
+  AuthenticatedAppFuncionariosRouteImport.update({
+    id: '/funcionarios',
+    path: '/funcionarios',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProducaoRoute =
+  AuthenticatedAppProducaoRouteImport.update({
+    id: '/producao',
+    path: '/producao',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppPropriedadesRoute =
+  AuthenticatedAppPropriedadesRouteImport.update({
+    id: '/propriedades',
+    path: '/propriedades',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppRelatoriosRoute =
+  AuthenticatedAppRelatoriosRouteImport.update({
+    id: '/relatorios',
+    path: '/relatorios',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppUsuariosRoute =
+  AuthenticatedAppUsuariosRouteImport.update({
+    id: '/usuarios',
+    path: '/usuarios',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppVeiculosRoute =
+  AuthenticatedAppVeiculosRouteImport.update({
+    id: '/veiculos',
+    path: '/veiculos',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppVendasRoute = AuthenticatedAppVendasRouteImport.update({
   id: '/vendas',
   path: '/vendas',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
-  '/app': typeof AppRouteWithChildren
-  '/admin/acessos': typeof AdminAcessosRoute
-  '/admin/empresas': typeof AdminEmpresasRoute
-  '/admin/modulos': typeof AdminModulosRoute
-  '/admin/suporte': typeof AdminSuporteRoute
-  '/admin/usuarios': typeof AdminUsuariosRoute
-  '/app/compras': typeof AppComprasRoute
-  '/app/configuracoes': typeof AppConfiguracoesRoute
-  '/app/empresas': typeof AppEmpresasRoute
-  '/app/estoque': typeof AppEstoqueRoute
-  '/app/financeiro': typeof AppFinanceiroRoute
-  '/app/folha-de-pagamento': typeof AppFolhaDePagamentoRoute
-  '/app/funcionarios': typeof AppFuncionariosRoute
-  '/app/producao': typeof AppProducaoRoute
-  '/app/propriedades': typeof AppPropriedadesRoute
-  '/app/relatorios': typeof AppRelatoriosRoute
-  '/app/usuarios': typeof AppUsuariosRoute
-  '/app/veiculos': typeof AppVeiculosRoute
-  '/app/vendas': typeof AppVendasRoute
-  '/admin/': typeof AdminIndexRoute
-  '/app/': typeof AppIndexRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/app': typeof AuthenticatedAppRouteWithChildren
+  '/admin/acessos': typeof AuthenticatedAdminAcessosRoute
+  '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
+  '/admin/modulos': typeof AuthenticatedAdminModulosRoute
+  '/admin/suporte': typeof AuthenticatedAdminSuporteRoute
+  '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/app/compras': typeof AuthenticatedAppComprasRoute
+  '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
+  '/app/empresas': typeof AuthenticatedAppEmpresasRoute
+  '/app/estoque': typeof AuthenticatedAppEstoqueRoute
+  '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
+  '/app/folha-de-pagamento': typeof AuthenticatedAppFolhaDePagamentoRoute
+  '/app/funcionarios': typeof AuthenticatedAppFuncionariosRoute
+  '/app/producao': typeof AuthenticatedAppProducaoRoute
+  '/app/propriedades': typeof AuthenticatedAppPropriedadesRoute
+  '/app/relatorios': typeof AuthenticatedAppRelatoriosRoute
+  '/app/usuarios': typeof AuthenticatedAppUsuariosRoute
+  '/app/veiculos': typeof AuthenticatedAppVeiculosRoute
+  '/app/vendas': typeof AuthenticatedAppVendasRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin/acessos': typeof AdminAcessosRoute
-  '/admin/empresas': typeof AdminEmpresasRoute
-  '/admin/modulos': typeof AdminModulosRoute
-  '/admin/suporte': typeof AdminSuporteRoute
-  '/admin/usuarios': typeof AdminUsuariosRoute
-  '/app/compras': typeof AppComprasRoute
-  '/app/configuracoes': typeof AppConfiguracoesRoute
-  '/app/empresas': typeof AppEmpresasRoute
-  '/app/estoque': typeof AppEstoqueRoute
-  '/app/financeiro': typeof AppFinanceiroRoute
-  '/app/folha-de-pagamento': typeof AppFolhaDePagamentoRoute
-  '/app/funcionarios': typeof AppFuncionariosRoute
-  '/app/producao': typeof AppProducaoRoute
-  '/app/propriedades': typeof AppPropriedadesRoute
-  '/app/relatorios': typeof AppRelatoriosRoute
-  '/app/usuarios': typeof AppUsuariosRoute
-  '/app/veiculos': typeof AppVeiculosRoute
-  '/app/vendas': typeof AppVendasRoute
-  '/admin': typeof AdminIndexRoute
-  '/app': typeof AppIndexRoute
+  '/admin/acessos': typeof AuthenticatedAdminAcessosRoute
+  '/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
+  '/admin/modulos': typeof AuthenticatedAdminModulosRoute
+  '/admin/suporte': typeof AuthenticatedAdminSuporteRoute
+  '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/app/compras': typeof AuthenticatedAppComprasRoute
+  '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
+  '/app/empresas': typeof AuthenticatedAppEmpresasRoute
+  '/app/estoque': typeof AuthenticatedAppEstoqueRoute
+  '/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
+  '/app/folha-de-pagamento': typeof AuthenticatedAppFolhaDePagamentoRoute
+  '/app/funcionarios': typeof AuthenticatedAppFuncionariosRoute
+  '/app/producao': typeof AuthenticatedAppProducaoRoute
+  '/app/propriedades': typeof AuthenticatedAppPropriedadesRoute
+  '/app/relatorios': typeof AuthenticatedAppRelatoriosRoute
+  '/app/usuarios': typeof AuthenticatedAppUsuariosRoute
+  '/app/veiculos': typeof AuthenticatedAppVeiculosRoute
+  '/app/vendas': typeof AuthenticatedAppVendasRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
-  '/app': typeof AppRouteWithChildren
-  '/admin/acessos': typeof AdminAcessosRoute
-  '/admin/empresas': typeof AdminEmpresasRoute
-  '/admin/modulos': typeof AdminModulosRoute
-  '/admin/suporte': typeof AdminSuporteRoute
-  '/admin/usuarios': typeof AdminUsuariosRoute
-  '/app/compras': typeof AppComprasRoute
-  '/app/configuracoes': typeof AppConfiguracoesRoute
-  '/app/empresas': typeof AppEmpresasRoute
-  '/app/estoque': typeof AppEstoqueRoute
-  '/app/financeiro': typeof AppFinanceiroRoute
-  '/app/folha-de-pagamento': typeof AppFolhaDePagamentoRoute
-  '/app/funcionarios': typeof AppFuncionariosRoute
-  '/app/producao': typeof AppProducaoRoute
-  '/app/propriedades': typeof AppPropriedadesRoute
-  '/app/relatorios': typeof AppRelatoriosRoute
-  '/app/usuarios': typeof AppUsuariosRoute
-  '/app/veiculos': typeof AppVeiculosRoute
-  '/app/vendas': typeof AppVendasRoute
-  '/admin/': typeof AdminIndexRoute
-  '/app/': typeof AppIndexRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/admin/acessos': typeof AuthenticatedAdminAcessosRoute
+  '/_authenticated/admin/empresas': typeof AuthenticatedAdminEmpresasRoute
+  '/_authenticated/admin/modulos': typeof AuthenticatedAdminModulosRoute
+  '/_authenticated/admin/suporte': typeof AuthenticatedAdminSuporteRoute
+  '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/app/compras': typeof AuthenticatedAppComprasRoute
+  '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
+  '/_authenticated/app/empresas': typeof AuthenticatedAppEmpresasRoute
+  '/_authenticated/app/estoque': typeof AuthenticatedAppEstoqueRoute
+  '/_authenticated/app/financeiro': typeof AuthenticatedAppFinanceiroRoute
+  '/_authenticated/app/folha-de-pagamento': typeof AuthenticatedAppFolhaDePagamentoRoute
+  '/_authenticated/app/funcionarios': typeof AuthenticatedAppFuncionariosRoute
+  '/_authenticated/app/producao': typeof AuthenticatedAppProducaoRoute
+  '/_authenticated/app/propriedades': typeof AuthenticatedAppPropriedadesRoute
+  '/_authenticated/app/relatorios': typeof AuthenticatedAppRelatoriosRoute
+  '/_authenticated/app/usuarios': typeof AuthenticatedAppUsuariosRoute
+  '/_authenticated/app/veiculos': typeof AuthenticatedAppVeiculosRoute
+  '/_authenticated/app/vendas': typeof AuthenticatedAppVendasRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -275,34 +290,34 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/admin'
-    | '/app'
-    | '/admin/acessos'
-    | '/admin/empresas'
-    | '/admin/modulos'
-    | '/admin/suporte'
-    | '/admin/usuarios'
-    | '/app/compras'
-    | '/app/configuracoes'
-    | '/app/empresas'
-    | '/app/estoque'
-    | '/app/financeiro'
-    | '/app/folha-de-pagamento'
-    | '/app/funcionarios'
-    | '/app/producao'
-    | '/app/propriedades'
-    | '/app/relatorios'
-    | '/app/usuarios'
-    | '/app/veiculos'
-    | '/app/vendas'
-    | '/admin/'
-    | '/app/'
+    | '/_authenticated/admin'
+    | '/_authenticated/app'
+    | '/_authenticated/admin/acessos'
+    | '/_authenticated/admin/empresas'
+    | '/_authenticated/admin/modulos'
+    | '/_authenticated/admin/suporte'
+    | '/_authenticated/admin/usuarios'
+    | '/_authenticated/app/compras'
+    | '/_authenticated/app/configuracoes'
+    | '/_authenticated/app/empresas'
+    | '/_authenticated/app/estoque'
+    | '/_authenticated/app/financeiro'
+    | '/_authenticated/app/folha-de-pagamento'
+    | '/_authenticated/app/funcionarios'
+    | '/_authenticated/app/producao'
+    | '/_authenticated/app/propriedades'
+    | '/_authenticated/app/relatorios'
+    | '/_authenticated/app/usuarios'
+    | '/_authenticated/app/veiculos'
+    | '/_authenticated/app/vendas'
+    | '/_authenticated/admin/'
+    | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRouteWithChildren
-  AppRoute: typeof AppRouteWithChildren
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -314,223 +329,225 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin': {
-      id: '/admin'
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
       path: '/admin'
       fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app': {
-      id: '/app'
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
       path: '/app'
       fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
       path: '/'
       fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/acessos': {
-      id: '/admin/acessos'
+    '/_authenticated/admin/acessos': {
+      id: '/_authenticated/admin/acessos'
       path: '/acessos'
       fullPath: '/admin/acessos'
-      preLoaderRoute: typeof AdminAcessosRouteImport
-      parentRoute: typeof AdminRoute
+      preLoaderRoute: typeof AuthenticatedAdminAcessosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/empresas': {
-      id: '/admin/empresas'
+    '/_authenticated/admin/empresas': {
+      id: '/_authenticated/admin/empresas'
       path: '/empresas'
       fullPath: '/admin/empresas'
-      preLoaderRoute: typeof AdminEmpresasRouteImport
-      parentRoute: typeof AdminRoute
+      preLoaderRoute: typeof AuthenticatedAdminEmpresasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/modulos': {
-      id: '/admin/modulos'
+    '/_authenticated/admin/modulos': {
+      id: '/_authenticated/admin/modulos'
       path: '/modulos'
       fullPath: '/admin/modulos'
-      preLoaderRoute: typeof AdminModulosRouteImport
-      parentRoute: typeof AdminRoute
+      preLoaderRoute: typeof AuthenticatedAdminModulosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/suporte': {
-      id: '/admin/suporte'
+    '/_authenticated/admin/suporte': {
+      id: '/_authenticated/admin/suporte'
       path: '/suporte'
       fullPath: '/admin/suporte'
-      preLoaderRoute: typeof AdminSuporteRouteImport
-      parentRoute: typeof AdminRoute
+      preLoaderRoute: typeof AuthenticatedAdminSuporteRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/admin/usuarios': {
-      id: '/admin/usuarios'
+    '/_authenticated/admin/usuarios': {
+      id: '/_authenticated/admin/usuarios'
       path: '/usuarios'
       fullPath: '/admin/usuarios'
-      preLoaderRoute: typeof AdminUsuariosRouteImport
-      parentRoute: typeof AdminRoute
+      preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/app/': {
-      id: '/app/'
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
       path: '/'
       fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/compras': {
-      id: '/app/compras'
+    '/_authenticated/app/compras': {
+      id: '/_authenticated/app/compras'
       path: '/compras'
       fullPath: '/app/compras'
-      preLoaderRoute: typeof AppComprasRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppComprasRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/configuracoes': {
-      id: '/app/configuracoes'
+    '/_authenticated/app/configuracoes': {
+      id: '/_authenticated/app/configuracoes'
       path: '/configuracoes'
       fullPath: '/app/configuracoes'
-      preLoaderRoute: typeof AppConfiguracoesRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/empresas': {
-      id: '/app/empresas'
+    '/_authenticated/app/empresas': {
+      id: '/_authenticated/app/empresas'
       path: '/empresas'
       fullPath: '/app/empresas'
-      preLoaderRoute: typeof AppEmpresasRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppEmpresasRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/estoque': {
-      id: '/app/estoque'
+    '/_authenticated/app/estoque': {
+      id: '/_authenticated/app/estoque'
       path: '/estoque'
       fullPath: '/app/estoque'
-      preLoaderRoute: typeof AppEstoqueRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppEstoqueRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/financeiro': {
-      id: '/app/financeiro'
+    '/_authenticated/app/financeiro': {
+      id: '/_authenticated/app/financeiro'
       path: '/financeiro'
       fullPath: '/app/financeiro'
-      preLoaderRoute: typeof AppFinanceiroRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppFinanceiroRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/folha-de-pagamento': {
-      id: '/app/folha-de-pagamento'
+    '/_authenticated/app/folha-de-pagamento': {
+      id: '/_authenticated/app/folha-de-pagamento'
       path: '/folha-de-pagamento'
       fullPath: '/app/folha-de-pagamento'
-      preLoaderRoute: typeof AppFolhaDePagamentoRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppFolhaDePagamentoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/funcionarios': {
-      id: '/app/funcionarios'
+    '/_authenticated/app/funcionarios': {
+      id: '/_authenticated/app/funcionarios'
       path: '/funcionarios'
       fullPath: '/app/funcionarios'
-      preLoaderRoute: typeof AppFuncionariosRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppFuncionariosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/producao': {
-      id: '/app/producao'
+    '/_authenticated/app/producao': {
+      id: '/_authenticated/app/producao'
       path: '/producao'
       fullPath: '/app/producao'
-      preLoaderRoute: typeof AppProducaoRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppProducaoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/propriedades': {
-      id: '/app/propriedades'
+    '/_authenticated/app/propriedades': {
+      id: '/_authenticated/app/propriedades'
       path: '/propriedades'
       fullPath: '/app/propriedades'
-      preLoaderRoute: typeof AppPropriedadesRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppPropriedadesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/relatorios': {
-      id: '/app/relatorios'
+    '/_authenticated/app/relatorios': {
+      id: '/_authenticated/app/relatorios'
       path: '/relatorios'
       fullPath: '/app/relatorios'
-      preLoaderRoute: typeof AppRelatoriosRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/usuarios': {
-      id: '/app/usuarios'
+    '/_authenticated/app/usuarios': {
+      id: '/_authenticated/app/usuarios'
       path: '/usuarios'
       fullPath: '/app/usuarios'
-      preLoaderRoute: typeof AppUsuariosRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppUsuariosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/veiculos': {
-      id: '/app/veiculos'
+    '/_authenticated/app/veiculos': {
+      id: '/_authenticated/app/veiculos'
       path: '/veiculos'
       fullPath: '/app/veiculos'
-      preLoaderRoute: typeof AppVeiculosRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppVeiculosRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
-    '/app/vendas': {
-      id: '/app/vendas'
+    '/_authenticated/app/vendas': {
+      id: '/_authenticated/app/vendas'
       path: '/vendas'
       fullPath: '/app/vendas'
-      preLoaderRoute: typeof AppVendasRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedAppVendasRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
   }
 }
 
-interface AdminRouteChildren {
-  AdminAcessosRoute: typeof AdminAcessosRoute
-  AdminEmpresasRoute: typeof AdminEmpresasRoute
-  AdminModulosRoute: typeof AdminModulosRoute
-  AdminSuporteRoute: typeof AdminSuporteRoute
-  AdminUsuariosRoute: typeof AdminUsuariosRoute
-  AdminIndexRoute: typeof AdminIndexRoute
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAcessosRoute: typeof AuthenticatedAdminAcessosRoute
+  AuthenticatedAdminEmpresasRoute: typeof AuthenticatedAdminEmpresasRoute
+  AuthenticatedAdminModulosRoute: typeof AuthenticatedAdminModulosRoute
+  AuthenticatedAdminSuporteRoute: typeof AuthenticatedAdminSuporteRoute
+  AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminAcessosRoute: AdminAcessosRoute,
-  AdminEmpresasRoute: AdminEmpresasRoute,
-  AdminModulosRoute: AdminModulosRoute,
-  AdminSuporteRoute: AdminSuporteRoute,
-  AdminUsuariosRoute: AdminUsuariosRoute,
-  AdminIndexRoute: AdminIndexRoute,
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAcessosRoute: AuthenticatedAdminAcessosRoute,
+  AuthenticatedAdminEmpresasRoute: AuthenticatedAdminEmpresasRoute,
+  AuthenticatedAdminModulosRoute: AuthenticatedAdminModulosRoute,
+  AuthenticatedAdminSuporteRoute: AuthenticatedAdminSuporteRoute,
+  AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
-interface AppRouteChildren {
-  AppComprasRoute: typeof AppComprasRoute
-  AppConfiguracoesRoute: typeof AppConfiguracoesRoute
-  AppEmpresasRoute: typeof AppEmpresasRoute
-  AppEstoqueRoute: typeof AppEstoqueRoute
-  AppFinanceiroRoute: typeof AppFinanceiroRoute
-  AppFolhaDePagamentoRoute: typeof AppFolhaDePagamentoRoute
-  AppFuncionariosRoute: typeof AppFuncionariosRoute
-  AppProducaoRoute: typeof AppProducaoRoute
-  AppPropriedadesRoute: typeof AppPropriedadesRoute
-  AppRelatoriosRoute: typeof AppRelatoriosRoute
-  AppUsuariosRoute: typeof AppUsuariosRoute
-  AppVeiculosRoute: typeof AppVeiculosRoute
-  AppVendasRoute: typeof AppVendasRoute
-  AppIndexRoute: typeof AppIndexRoute
+interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppComprasRoute: typeof AuthenticatedAppComprasRoute
+  AuthenticatedAppConfiguracoesRoute: typeof AuthenticatedAppConfiguracoesRoute
+  AuthenticatedAppEmpresasRoute: typeof AuthenticatedAppEmpresasRoute
+  AuthenticatedAppEstoqueRoute: typeof AuthenticatedAppEstoqueRoute
+  AuthenticatedAppFinanceiroRoute: typeof AuthenticatedAppFinanceiroRoute
+  AuthenticatedAppFolhaDePagamentoRoute: typeof AuthenticatedAppFolhaDePagamentoRoute
+  AuthenticatedAppFuncionariosRoute: typeof AuthenticatedAppFuncionariosRoute
+  AuthenticatedAppProducaoRoute: typeof AuthenticatedAppProducaoRoute
+  AuthenticatedAppPropriedadesRoute: typeof AuthenticatedAppPropriedadesRoute
+  AuthenticatedAppRelatoriosRoute: typeof AuthenticatedAppRelatoriosRoute
+  AuthenticatedAppUsuariosRoute: typeof AuthenticatedAppUsuariosRoute
+  AuthenticatedAppVeiculosRoute: typeof AuthenticatedAppVeiculosRoute
+  AuthenticatedAppVendasRoute: typeof AuthenticatedAppVendasRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
-const AppRouteChildren: AppRouteChildren = {
-  AppComprasRoute: AppComprasRoute,
-  AppConfiguracoesRoute: AppConfiguracoesRoute,
-  AppEmpresasRoute: AppEmpresasRoute,
-  AppEstoqueRoute: AppEstoqueRoute,
-  AppFinanceiroRoute: AppFinanceiroRoute,
-  AppFolhaDePagamentoRoute: AppFolhaDePagamentoRoute,
-  AppFuncionariosRoute: AppFuncionariosRoute,
-  AppProducaoRoute: AppProducaoRoute,
-  AppPropriedadesRoute: AppPropriedadesRoute,
-  AppRelatoriosRoute: AppRelatoriosRoute,
-  AppUsuariosRoute: AppUsuariosRoute,
-  AppVeiculosRoute: AppVeiculosRoute,
-  AppVendasRoute: AppVendasRoute,
-  AppIndexRoute: AppIndexRoute,
+const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppComprasRoute: AuthenticatedAppComprasRoute,
+  AuthenticatedAppConfiguracoesRoute: AuthenticatedAppConfiguracoesRoute,
+  AuthenticatedAppEmpresasRoute: AuthenticatedAppEmpresasRoute,
+  AuthenticatedAppEstoqueRoute: AuthenticatedAppEstoqueRoute,
+  AuthenticatedAppFinanceiroRoute: AuthenticatedAppFinanceiroRoute,
+  AuthenticatedAppFolhaDePagamentoRoute: AuthenticatedAppFolhaDePagamentoRoute,
+  AuthenticatedAppFuncionariosRoute: AuthenticatedAppFuncionariosRoute,
+  AuthenticatedAppProducaoRoute: AuthenticatedAppProducaoRoute,
+  AuthenticatedAppPropriedadesRoute: AuthenticatedAppPropriedadesRoute,
+  AuthenticatedAppRelatoriosRoute: AuthenticatedAppRelatoriosRoute,
+  AuthenticatedAppUsuariosRoute: AuthenticatedAppUsuariosRoute,
+  AuthenticatedAppVeiculosRoute: AuthenticatedAppVeiculosRoute,
+  AuthenticatedAppVendasRoute: AuthenticatedAppVendasRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+const AuthenticatedAppRouteWithChildren =
+  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRouteWithChildren,
-  AppRoute: AppRouteWithChildren,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

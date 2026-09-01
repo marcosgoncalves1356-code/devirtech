@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { ModulePage } from "@/components/module-page";
 
-export const Route = createFileRoute("/app/compras")({
+export const Route = createFileRoute("/_authenticated/_authenticated/app/compras")({
   head: () => ({
     meta: [
       { title: "Compras — DeviTech ERP Agro" },

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { KeyRound } from "lucide-react";
 
-export const Route = createFileRoute("/admin/acessos")({
+export const Route = createFileRoute("/_authenticated/_authenticated/admin/acessos")({
   head: () => ({
     meta: [
       { title: "Acessos e auditoria — Admin DeviTech" },
