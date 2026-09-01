@@ -157,7 +157,7 @@ function Login() {
               onCheckedChange={(v) => setRemember(v === true)}
               className="h-5 w-5 shrink-0 !rounded-md border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
             />
-            <span className="truncate">Lembrar meu e-mail</span>
+            <span className="truncate">Lembrar meu acesso</span>
           </label>
 
           {error ? (
