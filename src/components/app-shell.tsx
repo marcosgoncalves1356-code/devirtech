@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Menu, X, LogOut, Bell, Search, ShieldHalf, ChevronDown, Check, Smartphone, KeyRound, Eye } from "lucide-react";
+import { Menu, X, LogOut, Bell, Search, ShieldHalf, ChevronDown, Check, Building2, Smartphone, KeyRound, Eye } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,6 +11,23 @@ import { useCompany } from "@/lib/company-context";
 import { modules, moduleGroups, mobileNavSlugs } from "@/lib/modules";
 import { cn } from "@/lib/utils";
 
+function CompanyLogo({ company, className }: { company: { name: string; logoUrl: string }; className?: string }) {
+  return (
+    <span
+      className={cn(
+        "flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-background",
+        className,
+      )}
+    >
+      {company.logoUrl ? (
+        <img src={company.logoUrl} alt={`Logo ${company.name}`} className="h-full w-full object-contain" />
+      ) : (
+        <Building2 className="h-4 w-4 text-muted-foreground" />
+      )}
+    </span>
+  );
+}
+
 function CompanySwitcher({ className }: { className?: string }) {
   const { companies, company, setCompanyId, session, viewAs } = useCompany();
   const [open, setOpen] = useState(false);
@@ -18,9 +35,12 @@ function CompanySwitcher({ className }: { className?: string }) {
 
   if (!canSwitch) {
     return (
-      <div className={cn("rounded-xl border border-border/70 bg-secondary/60 px-3 py-2", className)}>
-        <span className="block truncate text-sm font-semibold text-foreground">{company.name}</span>
-        <span className="block truncate text-xs text-muted-foreground">{company.segment || company.document}</span>
+      <div className={cn("flex items-center gap-2 rounded-xl border border-border/70 bg-secondary/60 px-3 py-2", className)}>
+        <CompanyLogo company={company} />
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-semibold text-foreground">{company.name}</span>
+          <span className="block truncate text-xs text-muted-foreground">{company.segment || company.document}</span>
+        </span>
       </div>
     );
   }
@@ -32,9 +52,12 @@ function CompanySwitcher({ className }: { className?: string }) {
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between gap-3 rounded-xl border border-border/70 bg-secondary/60 px-3 py-2 text-left transition-colors hover:border-primary/50"
       >
-        <span className="min-w-0">
-          <span className="block truncate text-sm font-semibold text-foreground">{company.name}</span>
-          <span className="block truncate text-xs text-muted-foreground">{company.segment}</span>
+        <span className="flex min-w-0 items-center gap-2">
+          <CompanyLogo company={company} />
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-semibold text-foreground">{company.name}</span>
+            <span className="block truncate text-xs text-muted-foreground">{company.segment}</span>
+          </span>
         </span>
         <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
       </button>

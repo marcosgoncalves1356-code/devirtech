@@ -8,6 +8,7 @@ export type SessionCompany = {
   segment: string | null;
   status: "active" | "blocked";
   enabledModules: string[];
+  logoUrl: string;
 };
 
 export type SessionContext = {
@@ -16,6 +17,7 @@ export type SessionContext = {
   fullName: string;
   status: "active" | "blocked";
   mustChangePassword: boolean;
+  welcomeSeen: boolean;
   isAdmin: boolean;
   roles: string[];
   companyId: string | null;
@@ -31,7 +33,7 @@ export const getSessionContext = createServerFn({ method: "GET" })
     const [{ data: profile }, { data: roleRows }, { data: permRows }] = await Promise.all([
       supabase
         .from("profiles")
-        .select("company_id, full_name, email, status, must_change_password")
+        .select("company_id, full_name, email, status, must_change_password, welcome_seen_at")
         .eq("id", userId)
         .maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", userId),
@@ -43,7 +45,7 @@ export const getSessionContext = createServerFn({ method: "GET" })
 
     const { data: companyRows } = await supabase
       .from("companies")
-      .select("id, name, document, segment, status, enabled_modules")
+      .select("id, name, document, segment, status, enabled_modules, logo_url")
       .order("name");
 
     const companies: SessionCompany[] = (companyRows ?? []).map((c) => ({
@@ -53,6 +55,7 @@ export const getSessionContext = createServerFn({ method: "GET" })
       segment: c.segment,
       status: c.status as "active" | "blocked",
       enabledModules: c.enabled_modules ?? [],
+      logoUrl: c.logo_url ?? "",
     }));
 
     const permissions: Record<string, "none" | "view" | "edit"> = {};
@@ -64,6 +67,7 @@ export const getSessionContext = createServerFn({ method: "GET" })
       fullName: profile?.full_name ?? "",
       status: (profile?.status as "active" | "blocked") ?? "active",
       mustChangePassword: profile?.must_change_password ?? false,
+      welcomeSeen: Boolean(profile?.welcome_seen_at),
       isAdmin,
       roles,
       companyId: profile?.company_id ?? null,
@@ -78,6 +82,17 @@ export const markPasswordChanged = createServerFn({ method: "POST" })
     const { error } = await context.supabase
       .from("profiles")
       .update({ must_change_password: false })
+      .eq("id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const markWelcomeSeen = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { error } = await context.supabase
+      .from("profiles")
+      .update({ welcome_seen_at: new Date().toISOString() })
       .eq("id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };

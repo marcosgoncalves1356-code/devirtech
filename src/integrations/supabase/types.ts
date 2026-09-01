@@ -56,6 +56,7 @@ export type Database = {
           document: string | null
           enabled_modules: string[]
           id: string
+          logo_url: string
           name: string
           phone: string
           responsible: string
@@ -69,6 +70,7 @@ export type Database = {
           document?: string | null
           enabled_modules?: string[]
           id?: string
+          logo_url?: string
           name: string
           phone?: string
           responsible?: string
@@ -82,6 +84,7 @@ export type Database = {
           document?: string | null
           enabled_modules?: string[]
           id?: string
+          logo_url?: string
           name?: string
           phone?: string
           responsible?: string
@@ -244,6 +247,7 @@ export type Database = {
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
           username: string
+          welcome_seen_at: string | null
         }
         Insert: {
           company_id?: string | null
@@ -256,6 +260,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           username: string
+          welcome_seen_at?: string | null
         }
         Update: {
           company_id?: string | null
@@ -268,6 +273,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           username?: string
+          welcome_seen_at?: string | null
         }
         Relationships: [
           {
