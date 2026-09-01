@@ -51,31 +51,40 @@ export type Database = {
       }
       companies: {
         Row: {
+          address: string
           created_at: string
           document: string | null
           enabled_modules: string[]
           id: string
           name: string
+          phone: string
+          responsible: string
           segment: string | null
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
         }
         Insert: {
+          address?: string
           created_at?: string
           document?: string | null
           enabled_modules?: string[]
           id?: string
           name: string
+          phone?: string
+          responsible?: string
           segment?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
         }
         Update: {
+          address?: string
           created_at?: string
           document?: string | null
           enabled_modules?: string[]
           id?: string
           name?: string
+          phone?: string
+          responsible?: string
           segment?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
