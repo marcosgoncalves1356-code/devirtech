@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Menu, X, LogOut, Bell, Search, ShieldHalf, ChevronDown, Check, Smartphone, KeyRound } from "lucide-react";
+import { Menu, X, LogOut, Bell, Search, ShieldHalf, ChevronDown, Check, Smartphone, KeyRound, Eye } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 
