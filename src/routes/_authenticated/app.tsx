@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
 import { CompanyProvider, useCompany } from "@/lib/company-context";
+import { WelcomeScreen } from "@/components/welcome-screen";
 
 export const Route = createFileRoute("/_authenticated/app")({
   component: AppLayout,
@@ -37,7 +38,12 @@ function Gate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {session && !session.mustChangePassword ? <WelcomeScreen /> : null}
+      {children}
+    </>
+  );
 }
 
 function AppLayout() {
