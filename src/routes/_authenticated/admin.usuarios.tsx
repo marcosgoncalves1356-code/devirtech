@@ -38,6 +38,7 @@ type Draft = {
   email: string;
   username: string;
   fullName: string;
+  jobTitle: string;
   password?: string;
   companyId: string | null;
   role: "devitech_admin" | "company_admin" | "manager" | "operator";
@@ -70,8 +71,26 @@ function AdminUsers() {
   const { data: companies = [] } = useQuery({ queryKey: ["admin-companies"], queryFn: () => fetchCompanies() });
 
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [companyFilter, setCompanyFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
   const invalidate = () => void qc.invalidateQueries({ queryKey: ["admin-users"] });
+
+  const term = search.trim().toLowerCase();
+  const visibleUsers = (users as any[]).filter((u) => {
+    const matchCompany =
+      companyFilter === "all"
+        ? true
+        : companyFilter === "none"
+          ? !u.company_id
+          : u.company_id === companyFilter;
+    const matchTerm =
+      !term ||
+      [u.full_name, u.username, u.email, u.job_title].some((v: string | null) =>
+        (v ?? "").toLowerCase().includes(term),
+      );
+    return matchCompany && matchTerm;
+  });
 
   const saveMutation = useMutation({
     mutationFn: (d: Draft) => save({ data: d }),
@@ -103,6 +122,7 @@ function AdminUsers() {
               email: "",
               username: "",
               fullName: "",
+              jobTitle: "",
               password: "",
 
               companyId: (companies[0] as any)?.id ?? null,
@@ -138,6 +158,12 @@ function AdminUsers() {
             />
             <input
               className="field-shell text-sm"
+              placeholder="Cargo (ex.: Gerente de Produção)"
+              value={draft.jobTitle}
+              onChange={(e) => setDraft({ ...draft, jobTitle: e.target.value })}
+            />
+            <input
+              className="field-shell text-sm"
               type="email"
               placeholder="E-mail de acesso"
               value={draft.email}
@@ -169,8 +195,11 @@ function AdminUsers() {
               className="field-shell text-sm"
               value={draft.companyId ?? ""}
               onChange={(e) => setDraft({ ...draft, companyId: e.target.value || null })}
+              required={draft.role !== "devitech_admin"}
             >
-              <option value="">Sem empresa (uso interno DeviTech)</option>
+              <option value="">
+                {draft.role === "devitech_admin" ? "Sem empresa (uso interno DeviTech)" : "Selecione a empresa…"}
+              </option>
               {companies.map((c: any) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -236,11 +265,33 @@ function AdminUsers() {
         </form>
       ) : null}
 
+      <div className="grid gap-3 sm:grid-cols-[1fr_260px]">
+        <input
+          className="field-shell text-sm"
+          placeholder="Buscar por nome, usuário ou e-mail"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <select
+          className="field-shell text-sm"
+          value={companyFilter}
+          onChange={(e) => setCompanyFilter(e.target.value)}
+        >
+          <option value="all">Todas as empresas</option>
+          <option value="none">Sem empresa (DeviTech)</option>
+          {companies.map((c: any) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {isLoading ? (
         <Loader2 className="h-5 w-5 animate-spin text-primary" />
       ) : (
         <div className="grid gap-3">
-          {users.map((u: any) => (
+          {visibleUsers.map((u: any) => (
             <article
               key={u.id}
               className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/60 p-4"
@@ -251,7 +302,7 @@ function AdminUsers() {
                   {u.username ? <span className="ml-2 text-xs font-normal text-primary">@{u.username}</span> : null}
                 </h2>
                 <p className="truncate text-xs text-muted-foreground">
-                  {u.email} • {u.company_name ?? "sem empresa"} • {roleLabels[u.role as Draft["role"]] ?? u.role}
+                  {u.email} • {u.company_name ?? "sem empresa"}{u.job_title ? ` • ${u.job_title}` : ""} • {roleLabels[u.role as Draft["role"]] ?? u.role}
                   {u.must_change_password ? " • senha temporária" : ""}
                 </p>
               </div>
@@ -274,7 +325,7 @@ function AdminUsers() {
                     email: u.email,
                     username: u.username ?? "",
                     fullName: u.full_name,
-
+                    jobTitle: u.job_title ?? "",
                     password: "",
                     companyId: u.company_id,
                     role: u.role,
