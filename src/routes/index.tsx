@@ -1,11 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Mail, Lock, Eye, EyeOff, ShieldCheck, Loader2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { UserRound, Lock, Eye, EyeOff, ShieldCheck, Loader2 } from "lucide-react";
 
 import logo from "@/assets/devitech-logo.png";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
+import { signInWithIdentifier } from "@/lib/auth.functions";
+
 
 export const Route = createFileRoute("/")({
   ssr: false,
