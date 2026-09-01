@@ -113,18 +113,21 @@ function Login() {
 
         <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
           <div className="field-shell">
-            <Mail className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+            <UserRound className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
             <input
-              type="email"
+              type="text"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               autoComplete="username"
-              placeholder="E-mail corporativo"
-              aria-label="E-mail"
+              autoCapitalize="none"
+              spellCheck={false}
+              placeholder="E-mail ou usuário"
+              aria-label="E-mail ou usuário"
               className="w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
             />
           </div>
+
 
           <div className="field-shell">
             <Lock className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
