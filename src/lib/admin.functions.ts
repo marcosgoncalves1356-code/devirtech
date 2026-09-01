@@ -25,6 +25,33 @@ export const listCompanies = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+export const getCompanyDetail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const admin = await assertAdmin(context);
+    const [{ data: company, error }, { data: profiles }, { data: roles }, { data: perms }] = await Promise.all([
+      admin.from("companies").select("*").eq("id", data.id).maybeSingle(),
+      admin.from("profiles").select("*").eq("company_id", data.id).order("full_name"),
+      admin.from("user_roles").select("user_id, role"),
+      admin.from("user_module_permissions").select("user_id, module_slug, level"),
+    ]);
+    if (error) throw new Error(error.message);
+    if (!company) throw new Error("Empresa não encontrada.");
+    const users = (profiles ?? []).map((p: any) => ({
+      id: p.id,
+      full_name: p.full_name,
+      username: p.username,
+      email: p.email,
+      status: p.status,
+      role: (roles ?? []).find((r: any) => r.user_id === p.id)?.role ?? "operator",
+      permissions: Object.fromEntries(
+        (perms ?? []).filter((x: any) => x.user_id === p.id).map((x: any) => [x.module_slug, x.level]),
+      ) as Record<string, string>,
+    }));
+    return { company, users };
+  });
+
 export const saveCompany = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
@@ -34,6 +61,9 @@ export const saveCompany = createServerFn({ method: "POST" })
         name: z.string().min(2),
         document: z.string().optional().default(""),
         segment: z.string().optional().default(""),
+        responsible: z.string().optional().default(""),
+        phone: z.string().optional().default(""),
+        address: z.string().optional().default(""),
         status: z.enum(["active", "blocked"]).default("active"),
         enabledModules: z.array(z.string()).default([]),
       })
@@ -45,6 +75,9 @@ export const saveCompany = createServerFn({ method: "POST" })
       name: data.name,
       document: data.document,
       segment: data.segment,
+      responsible: data.responsible,
+      phone: data.phone,
+      address: data.address,
       status: data.status,
       enabled_modules: data.enabledModules,
     };
@@ -53,8 +86,15 @@ export const saveCompany = createServerFn({ method: "POST" })
       : admin.from("companies").insert(payload);
     const { error } = await query;
     if (error) throw new Error(error.message);
+    await admin.from("access_logs").insert({
+      user_id: context.userId,
+      company_id: data.id ?? null,
+      action: data.id ? "empresa_atualizada" : "empresa_criada",
+      detail: data.name,
+    });
     return { ok: true };
   });
+
 
 export const deleteCompany = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
