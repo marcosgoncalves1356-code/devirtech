@@ -36,6 +36,7 @@ type Level = "none" | "view" | "edit";
 type Draft = {
   id?: string;
   email: string;
+  username: string;
   fullName: string;
   password?: string;
   companyId: string | null;
@@ -43,6 +44,7 @@ type Draft = {
   status: "active" | "blocked";
   permissions: Record<string, Level>;
 };
+
 
 const roleLabels: Record<Draft["role"], string> = {
   devitech_admin: "Administrador DeviTech",
@@ -99,8 +101,10 @@ function AdminUsers() {
           onClick={() =>
             setDraft({
               email: "",
+              username: "",
               fullName: "",
               password: "",
+
               companyId: (companies[0] as any)?.id ?? null,
               role: "operator",
               status: "active",
@@ -140,6 +144,19 @@ function AdminUsers() {
               onChange={(e) => setDraft({ ...draft, email: e.target.value })}
               required
             />
+            <input
+              className="field-shell text-sm"
+              type="text"
+              placeholder="Nome de usuário (ex.: joao.silva)"
+              value={draft.username}
+              onChange={(e) => setDraft({ ...draft, username: e.target.value.toLowerCase().replace(/\s/g, "") })}
+              pattern="[a-z0-9._-]{3,32}"
+              title="Use de 3 a 32 caracteres: letras minúsculas, números, ponto, hífen ou sublinhado."
+              autoCapitalize="none"
+              spellCheck={false}
+              required
+            />
+
             <input
               className="field-shell text-sm"
               type="text"
@@ -229,7 +246,10 @@ function AdminUsers() {
               className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/60 p-4"
             >
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-sm font-semibold">{u.full_name || u.email}</h2>
+                <h2 className="truncate text-sm font-semibold">
+                  {u.full_name || u.email}
+                  {u.username ? <span className="ml-2 text-xs font-normal text-primary">@{u.username}</span> : null}
+                </h2>
                 <p className="truncate text-xs text-muted-foreground">
                   {u.email} • {u.company_name ?? "sem empresa"} • {roleLabels[u.role as Draft["role"]] ?? u.role}
                   {u.must_change_password ? " • senha temporária" : ""}
@@ -252,7 +272,9 @@ function AdminUsers() {
                   setDraft({
                     id: u.id,
                     email: u.email,
+                    username: u.username ?? "",
                     fullName: u.full_name,
+
                     password: "",
                     companyId: u.company_id,
                     role: u.role,

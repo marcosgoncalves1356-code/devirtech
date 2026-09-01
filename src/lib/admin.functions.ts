@@ -95,6 +95,11 @@ export const listUsers = createServerFn({ method: "GET" })
 const userInput = z.object({
   id: z.string().uuid().optional(),
   email: z.string().email(),
+  username: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[a-z0-9._-]{3,32}$/, "Nome de usuário inválido: use 3 a 32 caracteres (letras, números, . _ -)."),
   fullName: z.string().min(2),
   password: z.string().min(8).optional(),
   companyId: z.string().uuid().nullable().optional(),
@@ -103,12 +108,20 @@ const userInput = z.object({
   permissions: z.record(z.string(), z.enum(["none", "view", "edit"])).default({}),
 });
 
+
 export const saveUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => userInput.parse(input))
   .handler(async ({ data, context }) => {
     const admin = await assertAdmin(context);
     let userId = data.id;
+
+    const { data: taken } = await admin
+      .from("profiles")
+      .select("id")
+      .ilike("username", data.username)
+      .maybeSingle();
+    if (taken && taken.id !== data.id) throw new Error("Este nome de usuário já está em uso.");
 
     if (!userId) {
       if (!data.password) throw new Error("Defina uma senha inicial para o novo usuário.");
@@ -122,6 +135,7 @@ export const saveUser = createServerFn({ method: "POST" })
       const { error: pErr } = await admin.from("profiles").insert({
         id: userId,
         email: data.email,
+        username: data.username,
         full_name: data.fullName,
         company_id: data.companyId ?? null,
         status: data.status,
@@ -140,6 +154,7 @@ export const saveUser = createServerFn({ method: "POST" })
         .from("profiles")
         .update({
           email: data.email,
+          username: data.username,
           full_name: data.fullName,
           company_id: data.companyId ?? null,
           status: data.status,
@@ -147,6 +162,7 @@ export const saveUser = createServerFn({ method: "POST" })
         })
         .eq("id", userId);
       if (pErr) throw new Error(pErr.message);
+
     }
 
     await admin.from("user_roles").delete().eq("user_id", userId);

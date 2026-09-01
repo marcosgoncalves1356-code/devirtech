@@ -1,11 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Mail, Lock, Eye, EyeOff, ShieldCheck, Loader2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { UserRound, Lock, Eye, EyeOff, ShieldCheck, Loader2 } from "lucide-react";
 
 import logo from "@/assets/devitech-logo.png";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
+import { signInWithIdentifier } from "@/lib/auth.functions";
+
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -30,12 +33,13 @@ export const Route = createFileRoute("/")({
   component: Login,
 });
 
-const REMEMBER_KEY = "devitech.remember-email";
+const REMEMBER_KEY = "devitech.remember-identifier";
 
 function Login() {
   const navigate = useNavigate();
+  const signIn = useServerFn(signInWithIdentifier);
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +48,7 @@ function Login() {
   useEffect(() => {
     const saved = window.localStorage.getItem(REMEMBER_KEY);
     if (saved) {
-      setEmail(saved);
+      setIdentifier(saved);
       setRemember(true);
     }
     void supabase.auth.getSession().then(({ data }) => {
@@ -56,26 +60,33 @@ function Login() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim().toLowerCase(),
-      password,
-    });
-    setLoading(false);
 
-    if (signInError) {
-      setError(
-        signInError.message.toLowerCase().includes("invalid")
-          ? "E-mail ou senha inválidos. Se você não tem acesso, fale com o administrador DeviTech."
-          : signInError.message,
-      );
-      return;
+    try {
+      const result = await signIn({ data: { identifier: identifier.trim(), password } });
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: result.accessToken,
+        refresh_token: result.refreshToken,
+      });
+      if (sessionError) {
+        setError(sessionError.message);
+        return;
+      }
+
+      if (remember) window.localStorage.setItem(REMEMBER_KEY, identifier.trim());
+      else window.localStorage.removeItem(REMEMBER_KEY);
+
+      navigate({ to: "/app", replace: true });
+    } catch {
+      setError("Não foi possível entrar agora. Tente novamente em instantes.");
+    } finally {
+      setLoading(false);
     }
-
-    if (remember) window.localStorage.setItem(REMEMBER_KEY, email.trim().toLowerCase());
-    else window.localStorage.removeItem(REMEMBER_KEY);
-
-    navigate({ to: "/app", replace: true });
   }
+
 
   return (
     <main className="tech-backdrop relative flex min-h-screen items-center justify-center px-4 py-10">
@@ -102,18 +113,21 @@ function Login() {
 
         <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
           <div className="field-shell">
-            <Mail className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+            <UserRound className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
             <input
-              type="email"
+              type="text"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               autoComplete="username"
-              placeholder="E-mail corporativo"
-              aria-label="E-mail"
+              autoCapitalize="none"
+              spellCheck={false}
+              placeholder="E-mail ou usuário"
+              aria-label="E-mail ou usuário"
               className="w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
             />
           </div>
+
 
           <div className="field-shell">
             <Lock className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
@@ -143,7 +157,7 @@ function Login() {
               onCheckedChange={(v) => setRemember(v === true)}
               className="h-5 w-5 shrink-0 !rounded-md border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
             />
-            <span className="truncate">Lembrar meu e-mail</span>
+            <span className="truncate">Lembrar meu acesso</span>
           </label>
 
           {error ? (
