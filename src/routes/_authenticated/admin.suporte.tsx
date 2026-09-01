@@ -3,7 +3,7 @@ import { LifeBuoy, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/admin/suporte")({
+export const Route = createFileRoute("/_authenticated/admin/suporte")({
   head: () => ({
     meta: [
       { title: "Suporte — Admin DeviTech" },

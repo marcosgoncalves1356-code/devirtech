@@ -4,7 +4,7 @@ import { TrendingUp, Wallet, Sprout, Truck, ArrowRight, AlertTriangle } from "lu
 import { useCompany } from "@/lib/company-context";
 import { modules } from "@/lib/modules";
 
-export const Route = createFileRoute("/app/")({
+export const Route = createFileRoute("/_authenticated/app/")({
   head: () => ({
     meta: [
       { title: "Dashboard — DeviTech ERP Agro" },

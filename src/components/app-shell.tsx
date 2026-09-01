@@ -1,6 +1,9 @@
 import { useState, type ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, LogOut, Bell, Search, ShieldHalf, ChevronDown, Check, Smartphone } from "lucide-react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Menu, X, LogOut, Bell, Search, ShieldHalf, ChevronDown, Check, Smartphone, KeyRound } from "lucide-react";
+
+import { supabase } from "@/integrations/supabase/client";
 
 import logo from "@/assets/devitech-logo.png";
 import { Button } from "@/components/ui/button";
@@ -9,8 +12,18 @@ import { modules, moduleGroups, mobileNavSlugs } from "@/lib/modules";
 import { cn } from "@/lib/utils";
 
 function CompanySwitcher({ className }: { className?: string }) {
-  const { companies, company, setCompanyId } = useCompany();
+  const { companies, company, setCompanyId, session } = useCompany();
   const [open, setOpen] = useState(false);
+  const canSwitch = (session?.isAdmin ?? false) && companies.length > 1;
+
+  if (!canSwitch) {
+    return (
+      <div className={cn("rounded-xl border border-border/70 bg-secondary/60 px-3 py-2", className)}>
+        <span className="block truncate text-sm font-semibold text-foreground">{company.name}</span>
+        <span className="block truncate text-xs text-muted-foreground">{company.segment || company.document}</span>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("relative", className)}>
@@ -114,7 +127,25 @@ function Brand() {
 export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { isModuleEnabled } = useCompany();
+  const { isModuleEnabled, session } = useCompany();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  async function signOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/", replace: true });
+  }
+
+  const initials = (session?.fullName || session?.email || "?")
+    .split(" ")
+    .map((w) => w[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const isAdmin = session?.isAdmin ?? false;
   const mobileItems = modules.filter((m) => mobileNavSlugs.includes(m.slug) && isModuleEnabled(m.slug));
 
   return (
@@ -131,6 +162,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <NavList />
         </div>
         <div className="border-t border-border/60 p-4">
+          {isAdmin ? (
           <Link
             to="/admin"
             className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -138,13 +170,22 @@ export function AppShell({ children }: { children: ReactNode }) {
             <ShieldHalf className="h-[1.05rem] w-[1.05rem]" />
             Área administrativa
           </Link>
+          ) : null}
           <Link
-            to="/"
+            to="/app/alterar-senha"
             className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <KeyRound className="h-[1.05rem] w-[1.05rem]" />
+            Alterar senha
+          </Link>
+          <button
+            type="button"
+            onClick={signOut}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <LogOut className="h-[1.05rem] w-[1.05rem]" />
             Sair
-          </Link>
+          </button>
         </div>
       </aside>
 
@@ -166,6 +207,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <NavList onNavigate={() => setMobileOpen(false)} />
             </div>
             <div className="border-t border-border/60 p-4">
+              {isAdmin ? (
               <Link
                 to="/admin"
                 onClick={() => setMobileOpen(false)}
@@ -173,6 +215,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 <ShieldHalf className="h-[1.05rem] w-[1.05rem]" /> Área administrativa
               </Link>
+              ) : null}
+              <button
+                type="button"
+                onClick={signOut}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="h-[1.05rem] w-[1.05rem]" /> Sair
+              </button>
             </div>
           </div>
         </div>
@@ -206,8 +256,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Button variant="ghost" size="icon" aria-label="Notificações">
                 <Bell className="h-5 w-5" />
               </Button>
+              <span className="hidden text-right text-xs leading-tight sm:block">
+                <span className="block max-w-[10rem] truncate font-medium text-foreground">
+                  {session?.fullName || session?.email}
+                </span>
+                <span className="block text-muted-foreground">{isAdmin ? "Admin DeviTech" : "Usuário"}</span>
+              </span>
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold text-primary">
-                MG
+                {initials}
               </div>
             </div>
           </div>

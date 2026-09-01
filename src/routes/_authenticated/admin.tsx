@@ -1,10 +1,15 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { Building2, Users, Blocks, KeyRound, LifeBuoy, LayoutDashboard, ArrowLeft } from "lucide-react";
 
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Loader2, ShieldAlert } from "lucide-react";
+
 import logo from "@/assets/devitech-logo.png";
+import { getSessionContext } from "@/lib/session.functions";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
@@ -16,6 +21,34 @@ export const adminNav = [
   { to: "/admin/acessos", label: "Acessos e auditoria", icon: KeyRound },
   { to: "/admin/suporte", label: "Suporte", icon: LifeBuoy },
 ] as const;
+
+function AdminGuard({ children }: { children: React.ReactNode }) {
+  const fetchSession = useServerFn(getSessionContext);
+  const { data, isLoading } = useQuery({ queryKey: ["session-context"], queryFn: () => fetchSession() });
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!data?.isAdmin) {
+    return (
+      <div className="mx-auto mt-20 flex max-w-md flex-col items-center gap-3 rounded-2xl border border-destructive/40 bg-destructive/10 p-8 text-center">
+        <ShieldAlert className="h-8 w-8 text-destructive" />
+        <h1 className="text-lg font-semibold">Área restrita</h1>
+        <p className="text-sm text-muted-foreground">
+          Somente o administrador DeviTech pode acessar esta área.
+        </p>
+        <Link to="/app" className="text-sm text-primary">Voltar ao ERP</Link>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
 
 function AdminLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -61,7 +94,9 @@ function AdminLayout() {
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-        <Outlet />
+        <AdminGuard>
+          <Outlet />
+        </AdminGuard>
       </main>
     </div>
   );
