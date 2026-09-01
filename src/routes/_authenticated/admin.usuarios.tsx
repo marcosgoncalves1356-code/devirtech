@@ -147,6 +147,19 @@ function AdminUsers() {
             <input
               className="field-shell text-sm"
               type="text"
+              placeholder="Nome de usuário (ex.: joao.silva)"
+              value={draft.username}
+              onChange={(e) => setDraft({ ...draft, username: e.target.value.toLowerCase().replace(/\s/g, "") })}
+              pattern="[a-z0-9._-]{3,32}"
+              title="Use de 3 a 32 caracteres: letras minúsculas, números, ponto, hífen ou sublinhado."
+              autoCapitalize="none"
+              spellCheck={false}
+              required
+            />
+
+            <input
+              className="field-shell text-sm"
+              type="text"
               placeholder={draft.id ? "Nova senha (opcional)" : "Senha inicial (mín. 8 caracteres)"}
               value={draft.password ?? ""}
               onChange={(e) => setDraft({ ...draft, password: e.target.value })}
