@@ -127,7 +127,7 @@ function Brand() {
 export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { isModuleEnabled, session } = useCompany();
+  const { isModuleEnabled, session, viewAs, exitViewAs, company } = useCompany();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
