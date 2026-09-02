@@ -49,6 +49,47 @@ export type Database = {
           },
         ]
       }
+      access_profiles: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          permissions: Json
+          status: Database["public"]["Enums"]["account_status"]
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          permissions?: Json
+          status?: Database["public"]["Enums"]["account_status"]
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          permissions?: Json
+          status?: Database["public"]["Enums"]["account_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           address: string
