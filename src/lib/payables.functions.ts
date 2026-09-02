@@ -59,7 +59,7 @@ export const savePayable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => payableSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const status = data.paidAt ? "paid" : data.status === "paid" ? "open" : data.status;
+    const status: Payable["status"] = data.paidAt ? "paid" : data.status === "paid" ? "open" : data.status;
     const payload = {
       company_id: data.companyId,
       kind: "payable" as const,
