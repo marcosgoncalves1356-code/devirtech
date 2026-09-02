@@ -14,6 +14,7 @@ export type Payable = {
   due_date: string;
   paid_at: string | null;
   notes: string;
+  cost_center_id: string | null;
   status: "open" | "paid" | "overdue" | "canceled";
   created_at: string;
   updated_at: string;
@@ -26,6 +27,14 @@ const optionalDate = z
   .nullable()
   .transform((v) => (v ? v : null));
 
+const optionalUuid = z
+  .string()
+  .trim()
+  .optional()
+  .nullable()
+  .transform((v) => (v ? v : null))
+  .refine((v) => v === null || z.string().uuid().safeParse(v).success, "Centro de custo inválido.");
+
 const payableSchema = z.object({
   id: z.string().uuid().optional(),
   companyId: z.string().uuid(),
@@ -35,9 +44,11 @@ const payableSchema = z.object({
   amount: z.coerce.number().min(0, "Informe um valor válido."),
   dueDate: z.string().trim().min(1, "Informe a data de vencimento."),
   paidAt: optionalDate,
+  costCenterId: optionalUuid,
   notes: z.string().trim().max(1000).default(""),
   status: z.enum(["open", "paid", "overdue", "canceled"]).default("open"),
 });
+
 
 /** Lista as contas a pagar da empresa (RLS isola por empresa). */
 export const listPayables = createServerFn({ method: "POST" })
