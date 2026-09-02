@@ -377,7 +377,7 @@ export function PayablesPanel() {
                     {p.supplier || "Fornecedor não informado"} — {currency.format(Number(p.amount ?? 0))}
                   </h3>
                   <p className="truncate text-xs text-muted-foreground">
-                    {[p.description, p.category].filter(Boolean).join(" • ")} • Venc. {formatDate(p.due_date)}
+                    {[p.description, p.category, centerName(p.cost_center_id)].filter(Boolean).join(" • ")} • Venc. {formatDate(p.due_date)}
                     {p.paid_at ? ` • Pago em ${formatDate(p.paid_at)}` : ""}
                   </p>
                   {p.notes ? <p className="truncate text-xs text-muted-foreground/80">{p.notes}</p> : null}
