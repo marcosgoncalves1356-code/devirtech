@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Lock, ShoppingCart } from "lucide-react";
 
+import { PurchaseOrdersPanel } from "@/components/purchase-orders-panel";
 import { SuppliersPanel } from "@/components/suppliers-panel";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
@@ -27,7 +28,7 @@ function PurchasesModule() {
   const { company, isModuleEnabled } = useCompany();
   const mod = getModule("compras");
   const enabled = isModuleEnabled("compras");
-  const upcoming = (mod?.features ?? []).filter((f) => f !== "Fornecedores");
+  const upcoming = (mod?.features ?? []).filter((f) => f !== "Fornecedores" && f !== "Pedidos de compra");
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
@@ -62,6 +63,8 @@ function PurchasesModule() {
       ) : (
         <>
           <SuppliersPanel />
+
+          <PurchaseOrdersPanel />
 
           <section className="grid gap-4 sm:grid-cols-3">
             {upcoming.map((f) => (
