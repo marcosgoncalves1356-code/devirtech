@@ -58,6 +58,7 @@ function EmployeesModule() {
         </div>
       ) : (
         <>
+          <OrgStructurePanel />
           <EmployeeRecordsPanel />
 
           <section className="grid gap-4 sm:grid-cols-3">
@@ -71,6 +72,7 @@ function EmployeesModule() {
             ))}
           </section>
         </>
+
       )}
     </div>
   );
