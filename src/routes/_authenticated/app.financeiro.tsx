@@ -65,6 +65,10 @@ function FinanceModule() {
       ) : (
         <>
           <PayablesPanel />
+          <ReceivablesPanel />
+          <CashFlowPanel />
+          <CostCentersPanel />
+
 
           <section className="grid gap-4 sm:grid-cols-3">
             {upcoming.map((f) => (
