@@ -223,18 +223,37 @@ export function EmployeeRecordsPanel() {
               value={draft.address}
               onChange={(e) => setDraft({ ...draft, address: e.target.value })}
             />
-            <input
+            <select
               className="field-shell text-sm"
-              placeholder="Cargo"
               value={draft.jobTitle}
               onChange={(e) => setDraft({ ...draft, jobTitle: e.target.value })}
-            />
-            <input
+            >
+              <option value="">Cargo…</option>
+              {positionNames.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+              {draft.jobTitle && !positionNames.includes(draft.jobTitle) ? (
+                <option value={draft.jobTitle}>{draft.jobTitle}</option>
+              ) : null}
+            </select>
+            <select
               className="field-shell text-sm"
-              placeholder="Departamento / setor"
               value={draft.department}
               onChange={(e) => setDraft({ ...draft, department: e.target.value })}
-            />
+            >
+              <option value="">Departamento / setor…</option>
+              {departmentNames.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+              {draft.department && !departmentNames.includes(draft.department) ? (
+                <option value={draft.department}>{draft.department}</option>
+              ) : null}
+            </select>
+
             <select
               className="field-shell text-sm"
               value={draft.contractType}
