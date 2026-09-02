@@ -94,7 +94,10 @@ export function EmployeeRecordsPanel() {
   const fetchEmployees = useServerFn(listEmployees);
   const save = useServerFn(saveEmployee);
   const remove = useServerFn(deleteEmployee);
+  const fetchDepartments = useServerFn(listDepartments);
+  const fetchPositions = useServerFn(listJobPositions);
   const editable = canEdit("funcionarios");
+
 
   const [draft, setDraft] = useState<Draft | null>(null);
   const [search, setSearch] = useState("");
