@@ -1,37 +1,36 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Loader2, Pencil, Plus, Receipt, RotateCcw, Search, Trash2 } from "lucide-react";
+import { CheckCircle2, HandCoins, Loader2, Pencil, Plus, RotateCcw, Search, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { listCostCenters, type CostCenter } from "@/lib/cost-centers.functions";
 import {
-  deletePayable,
-  listPayables,
-  reopenPayable,
-  savePayable,
-  settlePayable,
-  type Payable,
-} from "@/lib/payables.functions";
+  deleteReceivable,
+  listReceivables,
+  reopenReceivable,
+  saveReceivable,
+  settleReceivable,
+  type Receivable,
+} from "@/lib/receivables.functions";
 
 type Draft = {
   id?: string;
-  supplier: string;
+  customer: string;
   description: string;
   category: string;
   amount: string;
   dueDate: string;
-  paidAt: string;
+  receivedAt: string;
   costCenterId: string;
   notes: string;
   status: "open" | "paid" | "overdue" | "canceled";
 };
 
-
 const statusLabels: Record<Draft["status"], string> = {
   open: "Em aberto",
-  paid: "Pago",
+  paid: "Recebido",
   overdue: "Vencido",
   canceled: "Cancelado",
 };
@@ -50,49 +49,48 @@ function formatDate(value: string | null) {
 
 function emptyDraft(): Draft {
   return {
-    supplier: "",
+    customer: "",
     description: "",
     category: "geral",
     amount: "",
     dueDate: today(),
-    paidAt: "",
+    receivedAt: "",
     costCenterId: "",
     notes: "",
     status: "open",
   };
 }
 
-function toDraft(p: Payable): Draft {
+function toDraft(r: Receivable): Draft {
   return {
-    id: p.id,
-    supplier: p.supplier ?? "",
-    description: p.description ?? "",
-    category: p.category ?? "geral",
-    amount: p.amount ? String(p.amount) : "",
-    dueDate: (p.due_date ?? "").slice(0, 10),
-    paidAt: p.paid_at ? p.paid_at.slice(0, 10) : "",
-    costCenterId: p.cost_center_id ?? "",
-    notes: p.notes ?? "",
-
-    status: (p.status as Draft["status"]) ?? "open",
+    id: r.id,
+    customer: r.supplier ?? "",
+    description: r.description ?? "",
+    category: r.category ?? "geral",
+    amount: r.amount ? String(r.amount) : "",
+    dueDate: (r.due_date ?? "").slice(0, 10),
+    receivedAt: r.paid_at ? r.paid_at.slice(0, 10) : "",
+    costCenterId: r.cost_center_id ?? "",
+    notes: r.notes ?? "",
+    status: (r.status as Draft["status"]) ?? "open",
   };
 }
 
-function effectiveStatus(p: Payable): Draft["status"] {
-  if (p.status === "paid" || p.paid_at) return "paid";
-  if (p.status === "canceled") return "canceled";
-  return p.due_date && p.due_date.slice(0, 10) < today() ? "overdue" : "open";
+function effectiveStatus(r: Receivable): Draft["status"] {
+  if (r.status === "paid" || r.paid_at) return "paid";
+  if (r.status === "canceled") return "canceled";
+  return r.due_date && r.due_date.slice(0, 10) < today() ? "overdue" : "open";
 }
 
-export function PayablesPanel() {
+export function ReceivablesPanel() {
   const { company, canEdit } = useCompany();
   const qc = useQueryClient();
-  const fetchPayables = useServerFn(listPayables);
+  const fetchReceivables = useServerFn(listReceivables);
   const fetchCostCenters = useServerFn(listCostCenters);
-  const save = useServerFn(savePayable);
-  const settle = useServerFn(settlePayable);
-  const reopen = useServerFn(reopenPayable);
-  const remove = useServerFn(deletePayable);
+  const save = useServerFn(saveReceivable);
+  const settle = useServerFn(settleReceivable);
+  const reopen = useServerFn(reopenReceivable);
+  const remove = useServerFn(deleteReceivable);
   const editable = canEdit("financeiro");
 
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -100,9 +98,9 @@ export function PayablesPanel() {
   const [filter, setFilter] = useState<"all" | "open" | "overdue" | "paid">("all");
   const [error, setError] = useState<string | null>(null);
 
-  const { data: payables = [], isLoading } = useQuery({
-    queryKey: ["payables", company.id],
-    queryFn: () => fetchPayables({ data: { companyId: company.id } }),
+  const { data: receivables = [], isLoading } = useQuery({
+    queryKey: ["receivables", company.id],
+    queryFn: () => fetchReceivables({ data: { companyId: company.id } }),
     enabled: Boolean(company.id),
   });
 
@@ -115,7 +113,7 @@ export function PayablesPanel() {
   const centers = costCenters as CostCenter[];
   const centerName = (id: string | null) => centers.find((c) => c.id === id)?.name ?? null;
 
-  const invalidate = () => void qc.invalidateQueries({ queryKey: ["payables", company.id] });
+  const invalidate = () => void qc.invalidateQueries({ queryKey: ["receivables", company.id] });
 
   const saveMutation = useMutation({
     mutationFn: (d: Draft) =>
@@ -123,15 +121,14 @@ export function PayablesPanel() {
         data: {
           id: d.id,
           companyId: company.id,
-          supplier: d.supplier,
+          customer: d.customer,
           description: d.description,
           category: d.category || "geral",
           amount: d.amount ? Number(d.amount) : 0,
           dueDate: d.dueDate,
-          paidAt: d.paidAt || null,
+          receivedAt: d.receivedAt || null,
           costCenterId: d.costCenterId || null,
           notes: d.notes,
-
           status: d.status,
         },
       }),
@@ -144,7 +141,7 @@ export function PayablesPanel() {
   });
 
   const settleMutation = useMutation({
-    mutationFn: (id: string) => settle({ data: { id, paidAt: today() } }),
+    mutationFn: (id: string) => settle({ data: { id, receivedAt: today() } }),
     onSuccess: invalidate,
     onError: (e: Error) => setError(e.message),
   });
@@ -162,17 +159,17 @@ export function PayablesPanel() {
   });
 
   const term = search.trim().toLowerCase();
-  const rows = payables as Payable[];
+  const rows = receivables as Receivable[];
 
   const visible = useMemo(
     () =>
-      rows.filter((p) => {
-        const st = effectiveStatus(p);
+      rows.filter((r) => {
+        const st = effectiveStatus(r);
         if (filter === "open" && st !== "open") return false;
         if (filter === "overdue" && st !== "overdue") return false;
         if (filter === "paid" && st !== "paid") return false;
         if (!term) return true;
-        return [p.supplier, p.description, p.category, p.notes].some((v) =>
+        return [r.supplier, r.description, r.category, r.notes].some((v) =>
           (v ?? "").toLowerCase().includes(term),
         );
       }),
@@ -182,29 +179,29 @@ export function PayablesPanel() {
   const totals = useMemo(() => {
     let open = 0;
     let overdue = 0;
-    let paid = 0;
-    for (const p of rows) {
-      const st = effectiveStatus(p);
-      const value = Number(p.amount ?? 0);
-      if (st === "paid") paid += value;
+    let received = 0;
+    for (const r of rows) {
+      const st = effectiveStatus(r);
+      const value = Number(r.amount ?? 0);
+      if (st === "paid") received += value;
       else if (st === "overdue") overdue += value;
       else if (st === "open") open += value;
     }
-    return { open, overdue, paid };
+    return { open, overdue, received };
   }, [rows]);
 
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-0 flex-1">
-          <h2 className="text-lg font-semibold">Contas a pagar</h2>
+          <h2 className="text-lg font-semibold">Contas a receber</h2>
           <p className="text-sm text-muted-foreground">
-            Cadastro, edição, baixa e consulta dos títulos a pagar de {company.name}.
+            Cadastro, edição, baixa e consulta dos títulos a receber de {company.name}.
           </p>
         </div>
         {editable ? (
           <Button variant="glow" onClick={() => setDraft(emptyDraft())}>
-            <Plus className="h-4 w-4" /> Nova conta a pagar
+            <Plus className="h-4 w-4" /> Nova conta a receber
           </Button>
         ) : null}
       </div>
@@ -219,8 +216,8 @@ export function PayablesPanel() {
           <p className="mt-1 text-xl font-semibold text-destructive">{currency.format(totals.overdue)}</p>
         </article>
         <article className="rounded-2xl border border-primary/40 bg-primary/10 p-4">
-          <p className="text-xs text-muted-foreground">Pago</p>
-          <p className="mt-1 text-xl font-semibold text-primary">{currency.format(totals.paid)}</p>
+          <p className="text-xs text-muted-foreground">Recebido</p>
+          <p className="mt-1 text-xl font-semibold text-primary">{currency.format(totals.received)}</p>
         </article>
       </div>
 
@@ -239,15 +236,15 @@ export function PayablesPanel() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <input
               className="field-shell text-sm sm:col-span-2"
-              placeholder="Fornecedor"
-              value={draft.supplier}
-              onChange={(e) => setDraft({ ...draft, supplier: e.target.value })}
+              placeholder="Cliente"
+              value={draft.customer}
+              onChange={(e) => setDraft({ ...draft, customer: e.target.value })}
               required
               minLength={2}
             />
             <input
               className="field-shell text-sm"
-              placeholder="Categoria (insumos, energia…)"
+              placeholder="Categoria (venda, serviço…)"
               value={draft.category}
               onChange={(e) => setDraft({ ...draft, category: e.target.value })}
             />
@@ -280,12 +277,12 @@ export function PayablesPanel() {
               />
             </label>
             <label className="grid gap-1 text-xs text-muted-foreground">
-              Data de pagamento
+              Data de recebimento
               <input
                 className="field-shell text-sm"
                 type="date"
-                value={draft.paidAt}
-                onChange={(e) => setDraft({ ...draft, paidAt: e.target.value })}
+                value={draft.receivedAt}
+                onChange={(e) => setDraft({ ...draft, receivedAt: e.target.value })}
               />
             </label>
             <select
@@ -303,13 +300,12 @@ export function PayablesPanel() {
                 ))}
             </select>
             <select
-
               className="field-shell text-sm"
               value={draft.status}
               onChange={(e) => setDraft({ ...draft, status: e.target.value as Draft["status"] })}
             >
               <option value="open">Em aberto</option>
-              <option value="paid">Pago</option>
+              <option value="paid">Recebido</option>
               <option value="overdue">Vencido</option>
               <option value="canceled">Cancelado</option>
             </select>
@@ -337,7 +333,7 @@ export function PayablesPanel() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             className="field-shell w-full pl-9 text-sm"
-            placeholder="Buscar por fornecedor, descrição ou categoria"
+            placeholder="Buscar por cliente, descrição ou categoria"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -350,7 +346,7 @@ export function PayablesPanel() {
           <option value="all">Todos os títulos</option>
           <option value="open">Em aberto</option>
           <option value="overdue">Vencidos</option>
-          <option value="paid">Pagos</option>
+          <option value="paid">Recebidos</option>
         </select>
       </div>
 
@@ -358,29 +354,31 @@ export function PayablesPanel() {
         <Loader2 className="h-5 w-5 animate-spin text-primary" />
       ) : visible.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border/60 p-6 text-sm text-muted-foreground">
-          Nenhuma conta a pagar encontrada.
+          Nenhuma conta a receber encontrada.
         </p>
       ) : (
         <div className="grid gap-3">
-          {visible.map((p) => {
-            const st = effectiveStatus(p);
+          {visible.map((r) => {
+            const st = effectiveStatus(r);
+            const center = centerName(r.cost_center_id);
             return (
               <article
-                key={p.id}
+                key={r.id}
                 className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/80 p-4"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                  <Receipt className="h-5 w-5" />
+                  <HandCoins className="h-5 w-5" />
                 </span>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-sm font-semibold">
-                    {p.supplier || "Fornecedor não informado"} — {currency.format(Number(p.amount ?? 0))}
+                    {r.supplier || "Cliente não informado"} — {currency.format(Number(r.amount ?? 0))}
                   </h3>
                   <p className="truncate text-xs text-muted-foreground">
-                    {[p.description, p.category, centerName(p.cost_center_id)].filter(Boolean).join(" • ")} • Venc. {formatDate(p.due_date)}
-                    {p.paid_at ? ` • Pago em ${formatDate(p.paid_at)}` : ""}
+                    {[r.description, r.category, center].filter(Boolean).join(" • ")} • Venc.{" "}
+                    {formatDate(r.due_date)}
+                    {r.paid_at ? ` • Recebido em ${formatDate(r.paid_at)}` : ""}
                   </p>
-                  {p.notes ? <p className="truncate text-xs text-muted-foreground/80">{p.notes}</p> : null}
+                  {r.notes ? <p className="truncate text-xs text-muted-foreground/80">{r.notes}</p> : null}
                 </div>
                 <span
                   className={
@@ -399,7 +397,7 @@ export function PayablesPanel() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => reopenMutation.mutate(p.id)}
+                        onClick={() => reopenMutation.mutate(r.id)}
                         disabled={reopenMutation.isPending}
                       >
                         <RotateCcw className="h-4 w-4" /> Estornar
@@ -408,21 +406,21 @@ export function PayablesPanel() {
                       <Button
                         variant="glow"
                         size="sm"
-                        onClick={() => settleMutation.mutate(p.id)}
+                        onClick={() => settleMutation.mutate(r.id)}
                         disabled={settleMutation.isPending}
                       >
                         <CheckCircle2 className="h-4 w-4" /> Dar baixa
                       </Button>
                     )}
-                    <Button variant="outline" size="sm" onClick={() => setDraft(toDraft(p))}>
+                    <Button variant="outline" size="sm" onClick={() => setDraft(toDraft(r))}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        if (confirm(`Excluir o título de ${p.supplier || "fornecedor"}?`)) {
-                          removeMutation.mutate(p.id);
+                        if (confirm(`Excluir o título de ${r.supplier || "cliente"}?`)) {
+                          removeMutation.mutate(r.id);
                         }
                       }}
                     >

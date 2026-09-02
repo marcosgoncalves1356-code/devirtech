@@ -3,10 +3,11 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export type Payable = {
+export type Receivable = {
   id: string;
   company_id: string;
   kind: "payable" | "receivable";
+  /** coluna reutilizada para armazenar o cliente do título */
   supplier: string;
   description: string;
   category: string;
@@ -35,23 +36,22 @@ const optionalUuid = z
   .transform((v) => (v ? v : null))
   .refine((v) => v === null || z.string().uuid().safeParse(v).success, "Centro de custo inválido.");
 
-const payableSchema = z.object({
+const receivableSchema = z.object({
   id: z.string().uuid().optional(),
   companyId: z.string().uuid(),
-  supplier: z.string().trim().min(2, "Informe o fornecedor.").max(160),
+  customer: z.string().trim().min(2, "Informe o cliente.").max(160),
   description: z.string().trim().min(2, "Informe a descrição do título.").max(240),
   category: z.string().trim().max(120).default("geral"),
   amount: z.coerce.number().min(0, "Informe um valor válido."),
   dueDate: z.string().trim().min(1, "Informe a data de vencimento."),
-  paidAt: optionalDate,
+  receivedAt: optionalDate,
   costCenterId: optionalUuid,
   notes: z.string().trim().max(1000).default(""),
   status: z.enum(["open", "paid", "overdue", "canceled"]).default("open"),
 });
 
-
-/** Lista as contas a pagar da empresa (RLS isola por empresa). */
-export const listPayables = createServerFn({ method: "POST" })
+/** Lista as contas a receber da empresa (RLS isola por empresa). */
+export const listReceivables = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ companyId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
@@ -59,30 +59,33 @@ export const listPayables = createServerFn({ method: "POST" })
       .from("financial_entries")
       .select("*")
       .eq("company_id", data.companyId)
-      .eq("kind", "payable")
+      .eq("kind", "receivable")
       .order("due_date", { ascending: true });
     if (error) throw new Error(error.message);
-    return (rows ?? []) as unknown as Payable[];
+    return (rows ?? []) as unknown as Receivable[];
   });
 
-/** Cria ou atualiza uma conta a pagar. */
-export const savePayable = createServerFn({ method: "POST" })
+/** Cria ou atualiza uma conta a receber. */
+export const saveReceivable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => payableSchema.parse(input))
+  .inputValidator((input: unknown) => receivableSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const status: Payable["status"] = data.paidAt ? "paid" : data.status === "paid" ? "open" : data.status;
+    const status: Receivable["status"] = data.receivedAt
+      ? "paid"
+      : data.status === "paid"
+        ? "open"
+        : data.status;
     const payload = {
       company_id: data.companyId,
-      kind: "payable" as const,
-      supplier: data.supplier,
+      kind: "receivable" as const,
+      supplier: data.customer,
       description: data.description,
       category: data.category || "geral",
       amount: data.amount,
       due_date: data.dueDate,
-      paid_at: data.paidAt,
+      paid_at: data.receivedAt,
       cost_center_id: data.costCenterId,
       notes: data.notes,
-
       status,
     };
 
@@ -94,24 +97,24 @@ export const savePayable = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Registra a baixa (pagamento) de um título. */
-export const settlePayable = createServerFn({ method: "POST" })
+/** Registra o recebimento de um título. */
+export const settleReceivable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ id: z.string().uuid(), paidAt: z.string().trim().min(1) }).parse(input),
+    z.object({ id: z.string().uuid(), receivedAt: z.string().trim().min(1) }).parse(input),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("financial_entries")
-      .update({ paid_at: data.paidAt, status: "paid" })
+      .update({ paid_at: data.receivedAt, status: "paid" })
       .eq("id", data.id)
-      .eq("kind", "payable");
+      .eq("kind", "receivable");
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
-/** Estorna a baixa de um título, voltando para em aberto. */
-export const reopenPayable = createServerFn({ method: "POST" })
+/** Estorna o recebimento de um título. */
+export const reopenReceivable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
@@ -119,13 +122,13 @@ export const reopenPayable = createServerFn({ method: "POST" })
       .from("financial_entries")
       .update({ paid_at: null, status: "open" })
       .eq("id", data.id)
-      .eq("kind", "payable");
+      .eq("kind", "receivable");
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
-/** Remove uma conta a pagar. */
-export const deletePayable = createServerFn({ method: "POST" })
+/** Remove uma conta a receber. */
+export const deleteReceivable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
@@ -133,7 +136,7 @@ export const deletePayable = createServerFn({ method: "POST" })
       .from("financial_entries")
       .delete()
       .eq("id", data.id)
-      .eq("kind", "payable");
+      .eq("kind", "receivable");
     if (error) throw new Error(error.message);
     return { ok: true };
   });

@@ -1,10 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Lock, Wallet } from "lucide-react";
 
+import { CashFlowPanel } from "@/components/cash-flow-panel";
+import { CostCentersPanel } from "@/components/cost-centers-panel";
 import { PayablesPanel } from "@/components/payables-panel";
+import { ReceivablesPanel } from "@/components/receivables-panel";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { getModule } from "@/lib/modules";
+
 
 export const Route = createFileRoute("/_authenticated/app/financeiro")({
   head: () => ({
@@ -24,7 +28,9 @@ function FinanceModule() {
   const { company, isModuleEnabled } = useCompany();
   const mod = getModule("financeiro");
   const enabled = isModuleEnabled("financeiro");
-  const upcoming = (mod?.features ?? []).filter((f) => f !== "Contas a pagar / receber");
+  const hidden = ["Contas a pagar / receber", "Fluxo de caixa", "Centros de custo"];
+  const upcoming = (mod?.features ?? []).filter((f) => !hidden.includes(f));
+
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
@@ -59,6 +65,10 @@ function FinanceModule() {
       ) : (
         <>
           <PayablesPanel />
+          <ReceivablesPanel />
+          <CashFlowPanel />
+          <CostCentersPanel />
+
 
           <section className="grid gap-4 sm:grid-cols-3">
             {upcoming.map((f) => (

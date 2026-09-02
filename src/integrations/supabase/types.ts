@@ -189,6 +189,44 @@ export type Database = {
         }
         Relationships: []
       }
+      cost_centers: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cost_centers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           company_id: string
@@ -309,6 +347,7 @@ export type Database = {
           amount: number
           category: string
           company_id: string
+          cost_center_id: string | null
           created_at: string
           description: string
           due_date: string
@@ -324,6 +363,7 @@ export type Database = {
           amount?: number
           category?: string
           company_id: string
+          cost_center_id?: string | null
           created_at?: string
           description: string
           due_date?: string
@@ -339,6 +379,7 @@ export type Database = {
           amount?: number
           category?: string
           company_id?: string
+          cost_center_id?: string | null
           created_at?: string
           description?: string
           due_date?: string
@@ -356,6 +397,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_entries_cost_center_id_fkey"
+            columns: ["cost_center_id"]
+            isOneToOne: false
+            referencedRelation: "cost_centers"
             referencedColumns: ["id"]
           },
         ]
