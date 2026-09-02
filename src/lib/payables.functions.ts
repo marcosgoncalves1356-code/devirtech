@@ -80,7 +80,9 @@ export const savePayable = createServerFn({ method: "POST" })
       amount: data.amount,
       due_date: data.dueDate,
       paid_at: data.paidAt,
+      cost_center_id: data.costCenterId,
       notes: data.notes,
+
       status,
     };
 
