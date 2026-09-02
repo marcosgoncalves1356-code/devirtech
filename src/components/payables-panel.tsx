@@ -56,6 +56,7 @@ function emptyDraft(): Draft {
     amount: "",
     dueDate: today(),
     paidAt: "",
+    costCenterId: "",
     notes: "",
     status: "open",
   };
@@ -70,7 +71,9 @@ function toDraft(p: Payable): Draft {
     amount: p.amount ? String(p.amount) : "",
     dueDate: (p.due_date ?? "").slice(0, 10),
     paidAt: p.paid_at ? p.paid_at.slice(0, 10) : "",
+    costCenterId: p.cost_center_id ?? "",
     notes: p.notes ?? "",
+
     status: (p.status as Draft["status"]) ?? "open",
   };
 }
