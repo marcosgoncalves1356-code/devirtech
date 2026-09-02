@@ -314,8 +314,10 @@ export type Database = {
           due_date: string
           id: string
           kind: Database["public"]["Enums"]["entry_kind"]
+          notes: string
           paid_at: string | null
           status: Database["public"]["Enums"]["entry_status"]
+          supplier: string
           updated_at: string
         }
         Insert: {
@@ -327,8 +329,10 @@ export type Database = {
           due_date?: string
           id?: string
           kind: Database["public"]["Enums"]["entry_kind"]
+          notes?: string
           paid_at?: string | null
           status?: Database["public"]["Enums"]["entry_status"]
+          supplier?: string
           updated_at?: string
         }
         Update: {
@@ -340,8 +344,10 @@ export type Database = {
           due_date?: string
           id?: string
           kind?: Database["public"]["Enums"]["entry_kind"]
+          notes?: string
           paid_at?: string | null
           status?: Database["public"]["Enums"]["entry_status"]
+          supplier?: string
           updated_at?: string
         }
         Relationships: [
