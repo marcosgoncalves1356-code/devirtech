@@ -290,6 +290,21 @@ export function PayablesPanel() {
             </label>
             <select
               className="field-shell text-sm"
+              value={draft.costCenterId}
+              onChange={(e) => setDraft({ ...draft, costCenterId: e.target.value })}
+            >
+              <option value="">Centro de custo (opcional)</option>
+              {centers
+                .filter((c) => c.status === "active" || c.id === draft.costCenterId)
+                .map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+            </select>
+            <select
+
+              className="field-shell text-sm"
               value={draft.status}
               onChange={(e) => setDraft({ ...draft, status: e.target.value as Draft["status"] })}
             >
