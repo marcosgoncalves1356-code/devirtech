@@ -88,6 +88,7 @@ export function PayablesPanel() {
   const { company, canEdit } = useCompany();
   const qc = useQueryClient();
   const fetchPayables = useServerFn(listPayables);
+  const fetchCostCenters = useServerFn(listCostCenters);
   const save = useServerFn(savePayable);
   const settle = useServerFn(settlePayable);
   const reopen = useServerFn(reopenPayable);
@@ -105,6 +106,15 @@ export function PayablesPanel() {
     enabled: Boolean(company.id),
   });
 
+  const { data: costCenters = [] } = useQuery({
+    queryKey: ["cost-centers", company.id],
+    queryFn: () => fetchCostCenters({ data: { companyId: company.id } }),
+    enabled: Boolean(company.id),
+  });
+
+  const centers = costCenters as CostCenter[];
+  const centerName = (id: string | null) => centers.find((c) => c.id === id)?.name ?? null;
+
   const invalidate = () => void qc.invalidateQueries({ queryKey: ["payables", company.id] });
 
   const saveMutation = useMutation({
@@ -119,7 +129,9 @@ export function PayablesPanel() {
           amount: d.amount ? Number(d.amount) : 0,
           dueDate: d.dueDate,
           paidAt: d.paidAt || null,
+          costCenterId: d.costCenterId || null,
           notes: d.notes,
+
           status: d.status,
         },
       }),
