@@ -1,10 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Lock, Wallet } from "lucide-react";
 
+import { CashFlowPanel } from "@/components/cash-flow-panel";
+import { CostCentersPanel } from "@/components/cost-centers-panel";
 import { PayablesPanel } from "@/components/payables-panel";
+import { ReceivablesPanel } from "@/components/receivables-panel";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { getModule } from "@/lib/modules";
+
 
 export const Route = createFileRoute("/_authenticated/app/financeiro")({
   head: () => ({
