@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Lock, Users } from "lucide-react";
 
 import { AccessProfilesPanel } from "@/components/access-profiles-panel";
+import { ModulePermissionsPanel } from "@/components/module-permissions-panel";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 
@@ -54,7 +55,10 @@ function UsersModule() {
           </Button>
         </div>
       ) : (
-        <AccessProfilesPanel />
+        <div className="space-y-8">
+          <AccessProfilesPanel />
+          <ModulePermissionsPanel />
+        </div>
       )}
     </div>
   );
