@@ -651,6 +651,106 @@ export type Database = {
           },
         ]
       }
+      purchase_receipt_items: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          purchase_item_id: string
+          quantity: number
+          receipt_id: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          purchase_item_id: string
+          quantity?: number
+          receipt_id: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          purchase_item_id?: string
+          quantity?: number
+          receipt_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_receipt_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_receipt_items_purchase_item_id_fkey"
+            columns: ["purchase_item_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_receipt_items_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_receipts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_receipts: {
+        Row: {
+          company_id: string
+          created_at: string
+          document: string
+          id: string
+          notes: string
+          purchase_id: string
+          received_at: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          document?: string
+          id?: string
+          notes?: string
+          purchase_id: string
+          received_at?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          document?: string
+          id?: string
+          notes?: string
+          purchase_id?: string
+          received_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_receipts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_receipts_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       purchases: {
         Row: {
           company_id: string
