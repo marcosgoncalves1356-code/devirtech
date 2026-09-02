@@ -139,15 +139,25 @@ export function ModulePermissionsPanel() {
               </select>
             </label>
             {isAdmin ? (
-              <Button
-                type="button"
-                variant="outline"
-                disabled={clearMutation.isPending || !profileId}
-                onClick={() => clearMutation.mutate()}
-              >
-                {clearMutation.isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}
-                Limpar permissões
-              </Button>
+              <>
+                <Button
+                  type="button"
+                  disabled={selectAllMutation.isPending || !profileId || availableModules.length === 0}
+                  onClick={() => selectAllMutation.mutate()}
+                >
+                  {selectAllMutation.isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}
+                  Selecionar todos
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={clearMutation.isPending || !profileId}
+                  onClick={() => clearMutation.mutate()}
+                >
+                  {clearMutation.isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}
+                  Limpar permissões
+                </Button>
+              </>
             ) : null}
           </div>
 
