@@ -603,6 +603,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          inventory_item_id: string | null
           purchase_id: string
           quantity: number
           total: number
@@ -615,6 +616,7 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          inventory_item_id?: string | null
           purchase_id: string
           quantity?: number
           total?: number
@@ -627,6 +629,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          inventory_item_id?: string | null
           purchase_id?: string
           quantity?: number
           total?: number
@@ -640,6 +643,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
             referencedColumns: ["id"]
           },
           {
@@ -713,6 +723,7 @@ export type Database = {
           purchase_id: string
           received_at: string
           updated_at: string
+          warehouse_id: string | null
         }
         Insert: {
           company_id: string
@@ -723,6 +734,7 @@ export type Database = {
           purchase_id: string
           received_at?: string
           updated_at?: string
+          warehouse_id?: string | null
         }
         Update: {
           company_id?: string
@@ -733,6 +745,7 @@ export type Database = {
           purchase_id?: string
           received_at?: string
           updated_at?: string
+          warehouse_id?: string | null
         }
         Relationships: [
           {
@@ -747,6 +760,13 @@ export type Database = {
             columns: ["purchase_id"]
             isOneToOne: false
             referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_receipts_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
             referencedColumns: ["id"]
           },
         ]
@@ -964,6 +984,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      warehouses: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warehouses_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
