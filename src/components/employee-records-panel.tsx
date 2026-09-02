@@ -99,7 +99,24 @@ export function EmployeeRecordsPanel() {
     enabled: Boolean(company.id),
   });
 
+  const { data: departments = [] } = useQuery({
+    queryKey: ["departments", company.id],
+    queryFn: () => fetchDepartments({ data: { companyId: company.id } }),
+    enabled: Boolean(company.id),
+  });
+  const { data: positions = [] } = useQuery({
+    queryKey: ["job-positions", company.id],
+    queryFn: () => fetchPositions({ data: { companyId: company.id } }),
+    enabled: Boolean(company.id),
+  });
+
+  const departmentNames = (departments as Department[])
+    .filter((d) => d.status === "active")
+    .map((d) => d.name);
+  const positionNames = (positions as JobPosition[]).filter((p) => p.status === "active").map((p) => p.name);
+
   const invalidate = () => void qc.invalidateQueries({ queryKey: ["employees", company.id] });
+
 
   const saveMutation = useMutation({
     mutationFn: (d: Draft) =>
