@@ -6,6 +6,13 @@ import { Loader2, Pencil, Plus, Search, Trash2, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { deleteEmployee, listEmployees, saveEmployee, type Employee } from "@/lib/employees.functions";
+import {
+  listDepartments,
+  listJobPositions,
+  type Department,
+  type JobPosition,
+} from "@/lib/org-structure.functions";
+
 
 type Draft = {
   id?: string;
@@ -87,7 +94,10 @@ export function EmployeeRecordsPanel() {
   const fetchEmployees = useServerFn(listEmployees);
   const save = useServerFn(saveEmployee);
   const remove = useServerFn(deleteEmployee);
+  const fetchDepartments = useServerFn(listDepartments);
+  const fetchPositions = useServerFn(listJobPositions);
   const editable = canEdit("funcionarios");
+
 
   const [draft, setDraft] = useState<Draft | null>(null);
   const [search, setSearch] = useState("");
@@ -99,7 +109,24 @@ export function EmployeeRecordsPanel() {
     enabled: Boolean(company.id),
   });
 
+  const { data: departments = [] } = useQuery({
+    queryKey: ["departments", company.id],
+    queryFn: () => fetchDepartments({ data: { companyId: company.id } }),
+    enabled: Boolean(company.id),
+  });
+  const { data: positions = [] } = useQuery({
+    queryKey: ["job-positions", company.id],
+    queryFn: () => fetchPositions({ data: { companyId: company.id } }),
+    enabled: Boolean(company.id),
+  });
+
+  const departmentNames = (departments as Department[])
+    .filter((d) => d.status === "active")
+    .map((d) => d.name);
+  const positionNames = (positions as JobPosition[]).filter((p) => p.status === "active").map((p) => p.name);
+
   const invalidate = () => void qc.invalidateQueries({ queryKey: ["employees", company.id] });
+
 
   const saveMutation = useMutation({
     mutationFn: (d: Draft) =>
@@ -223,18 +250,37 @@ export function EmployeeRecordsPanel() {
               value={draft.address}
               onChange={(e) => setDraft({ ...draft, address: e.target.value })}
             />
-            <input
+            <select
               className="field-shell text-sm"
-              placeholder="Cargo"
               value={draft.jobTitle}
               onChange={(e) => setDraft({ ...draft, jobTitle: e.target.value })}
-            />
-            <input
+            >
+              <option value="">Cargo…</option>
+              {positionNames.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+              {draft.jobTitle && !positionNames.includes(draft.jobTitle) ? (
+                <option value={draft.jobTitle}>{draft.jobTitle}</option>
+              ) : null}
+            </select>
+            <select
               className="field-shell text-sm"
-              placeholder="Departamento / setor"
               value={draft.department}
               onChange={(e) => setDraft({ ...draft, department: e.target.value })}
-            />
+            >
+              <option value="">Departamento / setor…</option>
+              {departmentNames.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+              {draft.department && !departmentNames.includes(draft.department) ? (
+                <option value={draft.department}>{draft.department}</option>
+              ) : null}
+            </select>
+
             <select
               className="field-shell text-sm"
               value={draft.contractType}

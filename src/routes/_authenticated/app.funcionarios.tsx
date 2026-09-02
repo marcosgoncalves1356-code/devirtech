@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Lock, Users } from "lucide-react";
 
 import { EmployeeRecordsPanel } from "@/components/employee-records-panel";
+import { OrgStructurePanel } from "@/components/org-structure-panel";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { getModule } from "@/lib/modules";
@@ -24,7 +25,7 @@ function EmployeesModule() {
   const { company, isModuleEnabled } = useCompany();
   const mod = getModule("funcionarios");
   const enabled = isModuleEnabled("funcionarios");
-  const upcoming = (mod?.features ?? []).filter((f) => f !== "Ficha do colaborador");
+  const upcoming = (mod?.features ?? []).filter((f) => f !== "Ficha do colaborador" && f !== "Cargos e departamentos");
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
@@ -58,6 +59,7 @@ function EmployeesModule() {
         </div>
       ) : (
         <>
+          <OrgStructurePanel />
           <EmployeeRecordsPanel />
 
           <section className="grid gap-4 sm:grid-cols-3">
@@ -71,6 +73,7 @@ function EmployeesModule() {
             ))}
           </section>
         </>
+
       )}
     </div>
   );
