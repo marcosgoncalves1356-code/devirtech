@@ -679,6 +679,83 @@ export type Database = {
           },
         ]
       }
+      suppliers: {
+        Row: {
+          address: string
+          bank_info: string
+          category: string
+          city: string
+          company_id: string
+          contact_name: string
+          created_at: string
+          document: string
+          email: string
+          id: string
+          name: string
+          notes: string
+          payment_terms: string
+          phone: string
+          state: string
+          state_registration: string
+          status: string
+          trade_name: string
+          updated_at: string
+          zip_code: string
+        }
+        Insert: {
+          address?: string
+          bank_info?: string
+          category?: string
+          city?: string
+          company_id: string
+          contact_name?: string
+          created_at?: string
+          document?: string
+          email?: string
+          id?: string
+          name: string
+          notes?: string
+          payment_terms?: string
+          phone?: string
+          state?: string
+          state_registration?: string
+          status?: string
+          trade_name?: string
+          updated_at?: string
+          zip_code?: string
+        }
+        Update: {
+          address?: string
+          bank_info?: string
+          category?: string
+          city?: string
+          company_id?: string
+          contact_name?: string
+          created_at?: string
+          document?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string
+          payment_terms?: string
+          phone?: string
+          state?: string
+          state_registration?: string
+          status?: string
+          trade_name?: string
+          updated_at?: string
+          zip_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suppliers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_module_permissions: {
         Row: {
           id: string
