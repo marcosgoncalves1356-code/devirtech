@@ -597,34 +597,97 @@ export type Database = {
           },
         ]
       }
+      purchase_items: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          purchase_id: string
+          quantity: number
+          total: number
+          unit: string
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description: string
+          id?: string
+          purchase_id: string
+          quantity?: number
+          total?: number
+          unit?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          purchase_id?: string
+          quantity?: number
+          total?: number
+          unit?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_items_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       purchases: {
         Row: {
           company_id: string
           created_at: string
+          expected_date: string | null
           id: string
+          notes: string
           purchased_at: string
           status: Database["public"]["Enums"]["doc_status"]
           supplier: string
+          supplier_id: string | null
           total: number
           updated_at: string
         }
         Insert: {
           company_id: string
           created_at?: string
+          expected_date?: string | null
           id?: string
+          notes?: string
           purchased_at?: string
           status?: Database["public"]["Enums"]["doc_status"]
           supplier: string
+          supplier_id?: string | null
           total?: number
           updated_at?: string
         }
         Update: {
           company_id?: string
           created_at?: string
+          expected_date?: string | null
           id?: string
+          notes?: string
           purchased_at?: string
           status?: Database["public"]["Enums"]["doc_status"]
           supplier?: string
+          supplier_id?: string | null
           total?: number
           updated_at?: string
         }
@@ -634,6 +697,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
         ]
