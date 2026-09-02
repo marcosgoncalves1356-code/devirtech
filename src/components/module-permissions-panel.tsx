@@ -79,6 +79,17 @@ export function ModulePermissionsPanel() {
     onError: (e: Error) => setError(e.message),
   });
 
+  const selectAllMutation = useMutation({
+    mutationFn: async () => {
+      const allTrue = { can_view: true, can_create: true, can_edit: true, can_delete: true };
+      for (const m of availableModules) {
+        await savePermission({ data: { profileId, moduleSlug: m.slug, actions: allTrue } });
+      }
+    },
+    onSuccess: invalidate,
+    onError: (e: Error) => setError(e.message),
+  });
+
   const availableModules = modules.filter(
     (m) => m.slug !== "dashboard" && company.enabledModules.includes(m.slug),
   );
