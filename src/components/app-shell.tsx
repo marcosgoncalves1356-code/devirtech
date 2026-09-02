@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import logo from "@/assets/devitech-logo.png";
 import { Button } from "@/components/ui/button";
+import { PullToRefresh } from "@/components/pull-to-refresh";
 import { useCompany } from "@/lib/company-context";
 import { modules, moduleGroups, mobileNavSlugs } from "@/lib/modules";
 import { cn } from "@/lib/utils";
@@ -316,7 +317,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         ) : null}
 
-        <main className="px-4 pb-28 pt-6 sm:px-6 lg:pb-12">{children}</main>
+        <PullToRefresh>
+          <main className="px-4 pb-28 pt-6 sm:px-6 lg:pb-12">{children}</main>
+        </PullToRefresh>
       </div>
 
       {/* Barra inferior — versão aplicativo */}
