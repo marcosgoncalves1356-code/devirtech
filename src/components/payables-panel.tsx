@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2, Pencil, Plus, Receipt, RotateCcw, Search, Trash2
 
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
+import { listCostCenters, type CostCenter } from "@/lib/cost-centers.functions";
 import {
   deletePayable,
   listPayables,
@@ -22,9 +23,11 @@ type Draft = {
   amount: string;
   dueDate: string;
   paidAt: string;
+  costCenterId: string;
   notes: string;
   status: "open" | "paid" | "overdue" | "canceled";
 };
+
 
 const statusLabels: Record<Draft["status"], string> = {
   open: "Em aberto",
