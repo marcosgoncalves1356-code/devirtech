@@ -6,6 +6,13 @@ import { Loader2, Pencil, Plus, Search, Trash2, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { deleteEmployee, listEmployees, saveEmployee, type Employee } from "@/lib/employees.functions";
+import {
+  listDepartments,
+  listJobPositions,
+  type Department,
+  type JobPosition,
+} from "@/lib/org-structure.functions";
+
 
 type Draft = {
   id?: string;
