@@ -54,7 +54,10 @@ function UsersModule() {
           </Button>
         </div>
       ) : (
-        <AccessProfilesPanel />
+        <div className="space-y-8">
+          <AccessProfilesPanel />
+          <ModulePermissionsPanel />
+        </div>
       )}
     </div>
   );
