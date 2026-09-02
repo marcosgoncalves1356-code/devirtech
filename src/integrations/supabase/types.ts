@@ -189,6 +189,83 @@ export type Database = {
         }
         Relationships: []
       }
+      employees: {
+        Row: {
+          address: string
+          admission_date: string | null
+          allocation: string
+          birth_date: string | null
+          company_id: string
+          contract_type: string
+          cpf: string
+          created_at: string
+          department: string
+          email: string
+          full_name: string
+          id: string
+          job_title: string
+          notes: string
+          phone: string
+          rg: string
+          salary: number
+          status: string
+          termination_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string
+          admission_date?: string | null
+          allocation?: string
+          birth_date?: string | null
+          company_id: string
+          contract_type?: string
+          cpf?: string
+          created_at?: string
+          department?: string
+          email?: string
+          full_name: string
+          id?: string
+          job_title?: string
+          notes?: string
+          phone?: string
+          rg?: string
+          salary?: number
+          status?: string
+          termination_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          admission_date?: string | null
+          allocation?: string
+          birth_date?: string | null
+          company_id?: string
+          contract_type?: string
+          cpf?: string
+          created_at?: string
+          department?: string
+          email?: string
+          full_name?: string
+          id?: string
+          job_title?: string
+          notes?: string
+          phone?: string
+          rg?: string
+          salary?: number
+          status?: string
+          termination_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_entries: {
         Row: {
           amount: number
