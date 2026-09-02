@@ -28,7 +28,9 @@ function FinanceModule() {
   const { company, isModuleEnabled } = useCompany();
   const mod = getModule("financeiro");
   const enabled = isModuleEnabled("financeiro");
-  const upcoming = (mod?.features ?? []).filter((f) => f !== "Contas a pagar / receber");
+  const hidden = ["Contas a pagar / receber", "Fluxo de caixa", "Centros de custo"];
+  const upcoming = (mod?.features ?? []).filter((f) => !hidden.includes(f));
+
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
