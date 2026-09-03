@@ -1,29 +1,54 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Boxes, Loader2, Package, Pencil, Plus, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Boxes,
+  Loader2,
+  Package,
+  Pencil,
+  Plus,
+  Trash2,
+  Warehouse as WarehouseIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import {
   deleteInventoryItem,
+  deleteStockMovement,
   deleteWarehouse,
   listInventoryItems,
   listReceiptAllocations,
   listStockBalances,
+  listStockMovements,
   listWarehouses,
   saveInventoryItem,
+  saveStockMovement,
   saveWarehouse,
   setPurchaseItemStockLink,
   setReceiptWarehouse,
   type InventoryItem,
   type ReceiptAllocation,
   type StockBalance,
+  type StockMovement,
   type Warehouse,
 } from "@/lib/stock.functions";
 
 type WarehouseDraft = { id?: string; name: string; description: string; status: "active" | "inactive" };
 type ItemDraft = { id?: string; name: string; unit: string; minQuantity: string; unitCost: string };
+type MovementDraft = {
+  id?: string;
+  kind: "in" | "out";
+  warehouseId: string;
+  itemId: string;
+  quantity: string;
+  unitCost: string;
+  movedAt: string;
+  document: string;
+  notes: string;
+};
 
 const money = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 2 });
@@ -44,9 +69,13 @@ export function StockBalancesPanel() {
   const removeItem = useServerFn(deleteInventoryItem);
   const linkWarehouse = useServerFn(setReceiptWarehouse);
   const linkItem = useServerFn(setPurchaseItemStockLink);
+  const fetchMovements = useServerFn(listStockMovements);
+  const persistMovement = useServerFn(saveStockMovement);
+  const removeMovement = useServerFn(deleteStockMovement);
 
   const [warehouseDraft, setWarehouseDraft] = useState<WarehouseDraft | null>(null);
   const [itemDraft, setItemDraft] = useState<ItemDraft | null>(null);
+  const [movementDraft, setMovementDraft] = useState<MovementDraft | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [warehouseFilter, setWarehouseFilter] = useState("all");
 
@@ -73,18 +102,26 @@ export function StockBalancesPanel() {
     queryFn: () => fetchReceipts(args),
     enabled,
   });
+  const movementsQuery = useQuery({
+    queryKey: ["stock-movements", company.id],
+    queryFn: () => fetchMovements(args),
+    enabled,
+  });
 
   const warehouses = (warehousesQuery.data ?? []) as Warehouse[];
   const items = (itemsQuery.data ?? []) as InventoryItem[];
   const balances = (balancesQuery.data ?? []) as StockBalance[];
   const receipts = (receiptsQuery.data ?? []) as ReceiptAllocation[];
+  const movements = (movementsQuery.data ?? []) as StockMovement[];
 
   const invalidateAll = () => {
     void qc.invalidateQueries({ queryKey: ["warehouses", company.id] });
     void qc.invalidateQueries({ queryKey: ["inventory-items", company.id] });
     void qc.invalidateQueries({ queryKey: ["stock-balances", company.id] });
     void qc.invalidateQueries({ queryKey: ["stock-receipts", company.id] });
+    void qc.invalidateQueries({ queryKey: ["stock-movements", company.id] });
   };
+
 
   const onError = (e: Error) => setError(e.message);
 
@@ -147,6 +184,46 @@ export function StockBalancesPanel() {
     onSuccess: invalidateAll,
     onError,
   });
+  const movementMutation = useMutation({
+    mutationFn: (d: MovementDraft) =>
+      persistMovement({
+        data: {
+          id: d.id,
+          companyId: company.id,
+          warehouseId: d.warehouseId || null,
+          itemId: d.itemId,
+          kind: d.kind,
+          quantity: Number(d.quantity || 0),
+          unitCost: Number(d.unitCost || 0),
+          movedAt: d.movedAt,
+          document: d.document,
+          notes: d.notes,
+        },
+      }),
+    onSuccess: () => {
+      setMovementDraft(null);
+      setError(null);
+      invalidateAll();
+    },
+    onError,
+  });
+  const deleteMovementMutation = useMutation({
+    mutationFn: (id: string) => removeMovement({ data: { id } }),
+    onSuccess: invalidateAll,
+    onError,
+  });
+
+  const newMovement = (kind: "in" | "out"): MovementDraft => ({
+    kind,
+    warehouseId: warehouses[0]?.id ?? "",
+    itemId: items[0]?.id ?? "",
+    quantity: "",
+    unitCost: "",
+    movedAt: new Date().toISOString().slice(0, 10),
+    document: "",
+    notes: "",
+  });
+
 
   const filtered = useMemo(
     () =>
@@ -506,7 +583,199 @@ export function StockBalancesPanel() {
         )}
       </section>
 
+      {/* Movimentações manuais */}
+      <section className="space-y-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg font-semibold">Entradas e saídas de estoque</h2>
+            <p className="text-sm text-muted-foreground">
+              Lançamentos manuais que atualizam automaticamente o saldo do item no depósito.
+            </p>
+          </div>
+          {editable ? (
+            <div className="flex gap-2">
+              <Button variant="glow" onClick={() => setMovementDraft(newMovement("in"))}>
+                <ArrowDownLeft className="h-4 w-4" /> Entrada
+              </Button>
+              <Button variant="outline" onClick={() => setMovementDraft(newMovement("out"))}>
+                <ArrowUpRight className="h-4 w-4" /> Saída
+              </Button>
+            </div>
+          ) : null}
+        </div>
+
+        {movementDraft ? (
+          <form
+            className="space-y-4 rounded-2xl border border-primary/40 bg-card/80 p-5"
+            onSubmit={(e) => {
+              e.preventDefault();
+              movementMutation.mutate(movementDraft);
+            }}
+          >
+            <div className="grid gap-3 sm:grid-cols-3">
+              <select
+                className="field-shell text-sm"
+                value={movementDraft.kind}
+                onChange={(e) =>
+                  setMovementDraft({ ...movementDraft, kind: e.target.value as MovementDraft["kind"] })
+                }
+              >
+                <option value="in">Entrada</option>
+                <option value="out">Saída</option>
+              </select>
+              <select
+                className="field-shell text-sm"
+                value={movementDraft.itemId}
+                onChange={(e) => setMovementDraft({ ...movementDraft, itemId: e.target.value })}
+                required
+              >
+                <option value="">Selecione o item</option>
+                {items.map((i) => (
+                  <option key={i.id} value={i.id}>
+                    {i.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="field-shell text-sm"
+                value={movementDraft.warehouseId}
+                onChange={(e) => setMovementDraft({ ...movementDraft, warehouseId: e.target.value })}
+              >
+                <option value="">Sem depósito</option>
+                {warehouses.map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                className="field-shell text-sm"
+                type="number"
+                min="0"
+                step="0.001"
+                placeholder="Quantidade"
+                value={movementDraft.quantity}
+                onChange={(e) => setMovementDraft({ ...movementDraft, quantity: e.target.value })}
+                required
+              />
+              <input
+                className="field-shell text-sm"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Custo unitário"
+                value={movementDraft.unitCost}
+                onChange={(e) => setMovementDraft({ ...movementDraft, unitCost: e.target.value })}
+              />
+              <input
+                className="field-shell text-sm"
+                type="date"
+                value={movementDraft.movedAt}
+                onChange={(e) => setMovementDraft({ ...movementDraft, movedAt: e.target.value })}
+                required
+              />
+              <input
+                className="field-shell text-sm"
+                placeholder="Documento / nota"
+                value={movementDraft.document}
+                onChange={(e) => setMovementDraft({ ...movementDraft, document: e.target.value })}
+              />
+              <input
+                className="field-shell text-sm sm:col-span-2"
+                placeholder="Observação"
+                value={movementDraft.notes}
+                onChange={(e) => setMovementDraft({ ...movementDraft, notes: e.target.value })}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" variant="glow" disabled={movementMutation.isPending}>
+                {movementMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Salvar lançamento"}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setMovementDraft(null)}>
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        ) : null}
+
+        {movements.length === 0 && !loading ? (
+          <p className="rounded-2xl border border-dashed border-border/60 p-6 text-sm text-muted-foreground">
+            Nenhum lançamento manual registrado.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {movements.map((m) => {
+              const item = items.find((i) => i.id === m.item_id);
+              const wh = warehouses.find((w) => w.id === m.warehouse_id);
+              const isOut = m.kind === "out";
+              return (
+                <article
+                  key={m.id}
+                  className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/80 p-4"
+                >
+                  <span
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                      isOut ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"
+                    }`}
+                  >
+                    {isOut ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate text-sm font-semibold">
+                      {item?.name ?? "Item"} • {wh?.name ?? "Sem depósito"}
+                    </h3>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {new Date(`${m.moved_at}T00:00:00`).toLocaleDateString("pt-BR")}
+                      {m.document ? ` • ${m.document}` : ""}
+                      {m.notes ? ` • ${m.notes}` : ""}
+                    </p>
+                  </div>
+                  <span className={`text-sm font-semibold ${isOut ? "text-destructive" : "text-primary"}`}>
+                    {isOut ? "-" : "+"}
+                    {qty(Number(m.quantity))} {item?.unit ?? "un"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{money(Number(m.unit_cost ?? 0))}</span>
+                  {editable ? (
+                    <div className="flex gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setMovementDraft({
+                            id: m.id,
+                            kind: m.kind,
+                            warehouseId: m.warehouse_id ?? "",
+                            itemId: m.item_id,
+                            quantity: String(m.quantity),
+                            unitCost: String(m.unit_cost ?? 0),
+                            movedAt: m.moved_at,
+                            document: m.document ?? "",
+                            notes: m.notes ?? "",
+                          })
+                        }
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm("Excluir este lançamento de estoque?")) deleteMovementMutation.mutate(m.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
       {/* Saldos */}
+
       <section className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="min-w-0 flex-1">
