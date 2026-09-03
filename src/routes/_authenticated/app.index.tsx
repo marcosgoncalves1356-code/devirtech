@@ -170,7 +170,14 @@ function Dashboard() {
             {company.segment} • CNPJ {company.document}
           </p>
         </div>
+        <div className="ms-auto flex items-center gap-2">
+          <DashboardPeriodFilter value={period} onChange={setPeriod} />
+        </div>
       </header>
+
+      <p className="text-xs text-muted-foreground">
+        Período aplicado: <span className="text-foreground">{periodLabel(period)}</span>
+      </p>
 
       {!company.id ? (
         <Card className="border-destructive/40 bg-destructive/10 text-sm">
