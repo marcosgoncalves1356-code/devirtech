@@ -1,29 +1,54 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Boxes, Loader2, Package, Pencil, Plus, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Boxes,
+  Loader2,
+  Package,
+  Pencil,
+  Plus,
+  Trash2,
+  Warehouse as WarehouseIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import {
   deleteInventoryItem,
+  deleteStockMovement,
   deleteWarehouse,
   listInventoryItems,
   listReceiptAllocations,
   listStockBalances,
+  listStockMovements,
   listWarehouses,
   saveInventoryItem,
+  saveStockMovement,
   saveWarehouse,
   setPurchaseItemStockLink,
   setReceiptWarehouse,
   type InventoryItem,
   type ReceiptAllocation,
   type StockBalance,
+  type StockMovement,
   type Warehouse,
 } from "@/lib/stock.functions";
 
 type WarehouseDraft = { id?: string; name: string; description: string; status: "active" | "inactive" };
 type ItemDraft = { id?: string; name: string; unit: string; minQuantity: string; unitCost: string };
+type MovementDraft = {
+  id?: string;
+  kind: "in" | "out";
+  warehouseId: string;
+  itemId: string;
+  quantity: string;
+  unitCost: string;
+  movedAt: string;
+  document: string;
+  notes: string;
+};
 
 const money = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 2 });
