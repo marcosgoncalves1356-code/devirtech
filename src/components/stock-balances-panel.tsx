@@ -69,9 +69,13 @@ export function StockBalancesPanel() {
   const removeItem = useServerFn(deleteInventoryItem);
   const linkWarehouse = useServerFn(setReceiptWarehouse);
   const linkItem = useServerFn(setPurchaseItemStockLink);
+  const fetchMovements = useServerFn(listStockMovements);
+  const persistMovement = useServerFn(saveStockMovement);
+  const removeMovement = useServerFn(deleteStockMovement);
 
   const [warehouseDraft, setWarehouseDraft] = useState<WarehouseDraft | null>(null);
   const [itemDraft, setItemDraft] = useState<ItemDraft | null>(null);
+  const [movementDraft, setMovementDraft] = useState<MovementDraft | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [warehouseFilter, setWarehouseFilter] = useState("all");
 
@@ -98,18 +102,26 @@ export function StockBalancesPanel() {
     queryFn: () => fetchReceipts(args),
     enabled,
   });
+  const movementsQuery = useQuery({
+    queryKey: ["stock-movements", company.id],
+    queryFn: () => fetchMovements(args),
+    enabled,
+  });
 
   const warehouses = (warehousesQuery.data ?? []) as Warehouse[];
   const items = (itemsQuery.data ?? []) as InventoryItem[];
   const balances = (balancesQuery.data ?? []) as StockBalance[];
   const receipts = (receiptsQuery.data ?? []) as ReceiptAllocation[];
+  const movements = (movementsQuery.data ?? []) as StockMovement[];
 
   const invalidateAll = () => {
     void qc.invalidateQueries({ queryKey: ["warehouses", company.id] });
     void qc.invalidateQueries({ queryKey: ["inventory-items", company.id] });
     void qc.invalidateQueries({ queryKey: ["stock-balances", company.id] });
     void qc.invalidateQueries({ queryKey: ["stock-receipts", company.id] });
+    void qc.invalidateQueries({ queryKey: ["stock-movements", company.id] });
   };
+
 
   const onError = (e: Error) => setError(e.message);
 
