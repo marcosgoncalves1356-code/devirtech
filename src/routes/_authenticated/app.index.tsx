@@ -38,6 +38,13 @@ import { greetingFor } from "@/components/welcome-screen";
 import { modules } from "@/lib/modules";
 import { getDashboardData, type DashboardData } from "@/lib/dashboard.functions";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DashboardPeriodFilter,
+  DEFAULT_PERIOD,
+  periodLabel,
+  resolvePeriod,
+  type PeriodFilter,
+} from "@/components/dashboard-period-filter";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   head: () => ({
