@@ -92,6 +92,24 @@ export const getDashboardData = createServerFn({ method: "GET" })
     const inventory = invRes.data ?? [];
     const payroll = (payrollRes.data ?? []).filter((p) => p.status !== "canceled");
 
+    const allDates = [
+      ...entries.map((e) => (e.paid_at ?? e.due_date).slice(0, 10)),
+      ...sales.map((s) => s.sold_at.slice(0, 10)),
+      ...purchases.map((p) => p.purchased_at.slice(0, 10)),
+    ].filter(Boolean);
+
+    const start = startISO
+      ? new Date(`${startISO}T00:00:00`)
+      : new Date(
+          Math.min(
+            new Date(today.getFullYear(), today.getMonth() - 11, 1).getTime(),
+            ...allDates.map((d) => new Date(`${d}T00:00:00`).getTime()),
+          ),
+        );
+    const end = endISO
+      ? new Date(`${endISO}T00:00:00`)
+      : new Date(Math.max(today.getTime(), ...allDates.map((d) => new Date(`${d}T00:00:00`).getTime())));
+
     const months: string[] = [];
     {
       const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
@@ -102,6 +120,7 @@ export const getDashboardData = createServerFn({ method: "GET" })
       }
       if (months.length === 0) months.push(monthKey(start));
     }
+
 
     const bucket = new Map<string, MonthPoint>();
     const svp = new Map<string, { month: string; vendas: number; compras: number }>();
