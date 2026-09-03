@@ -51,46 +51,64 @@ export const getDashboardData = createServerFn({ method: "GET" })
     const today = new Date();
     const isDate = (v?: string | null) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
     const custom = isDate(data.from) && isDate(data.to);
-    const start = custom ? new Date(`${data.from}T00:00:00`) : new Date(today.getFullYear(), today.getMonth() - 11, 1);
-    const startISO = custom ? (data.from as string) : start.toISOString().slice(0, 10);
-    const endISO = custom ? (data.to as string) : today.toISOString().slice(0, 10);
-    const end = new Date(`${endISO}T00:00:00`);
+    const startISO = custom ? (data.from as string) : null;
+    const endISO = custom ? (data.to as string) : null;
     const todayISO = today.toISOString().slice(0, 10);
     const in7 = new Date(today.getTime() + 7 * 86400000).toISOString().slice(0, 10);
 
+    // Sem filtro ativo: mantém a visão padrão (todos os lançamentos da empresa).
+    const range = <T extends { gte: (c: string, v: string) => T; lte: (c: string, v: string) => T }>(
+      q: T,
+      column: string,
+    ) => (startISO && endISO ? q.gte(column, startISO).lte(column, endISO) : q);
+
     const [entriesRes, salesRes, purchasesRes, invRes, payrollRes] = await Promise.all([
-      supabase
-        .from("financial_entries")
-        .select("id, kind, description, category, amount, due_date, paid_at, status")
-        .eq("company_id", companyId)
-        .gte("due_date", startISO)
-        .lte("due_date", endISO),
-      supabase
-        .from("sales")
-        .select("total, sold_at, status")
-        .eq("company_id", companyId)
-        .gte("sold_at", startISO)
-        .lte("sold_at", endISO),
-      supabase
-        .from("purchases")
-        .select("total, purchased_at, status")
-        .eq("company_id", companyId)
-        .gte("purchased_at", startISO)
-        .lte("purchased_at", endISO),
+      range(
+        supabase
+          .from("financial_entries")
+          .select("id, kind, description, category, amount, due_date, paid_at, status")
+          .eq("company_id", companyId),
+        "due_date",
+      ),
+      range(supabase.from("sales").select("total, sold_at, status").eq("company_id", companyId), "sold_at"),
+      range(
+        supabase.from("purchases").select("total, purchased_at, status").eq("company_id", companyId),
+        "purchased_at",
+      ),
       supabase.from("inventory_items").select("id, name, unit, quantity, min_quantity, unit_cost").eq("company_id", companyId),
-      supabase
-        .from("payroll_entries")
-        .select("reference_month, employees_count, net_total, status")
-        .eq("company_id", companyId)
-        .gte("reference_month", startISO)
-        .lte("reference_month", endISO),
+      range(
+        supabase
+          .from("payroll_entries")
+          .select("reference_month, employees_count, net_total, status")
+          .eq("company_id", companyId),
+        "reference_month",
+      ),
     ]);
+
 
     const entries = entriesRes.data ?? [];
     const sales = (salesRes.data ?? []).filter((s) => s.status !== "canceled");
     const purchases = (purchasesRes.data ?? []).filter((p) => p.status !== "canceled");
     const inventory = invRes.data ?? [];
     const payroll = (payrollRes.data ?? []).filter((p) => p.status !== "canceled");
+
+    const allDates = [
+      ...entries.map((e) => (e.paid_at ?? e.due_date).slice(0, 10)),
+      ...sales.map((s) => s.sold_at.slice(0, 10)),
+      ...purchases.map((p) => p.purchased_at.slice(0, 10)),
+    ].filter(Boolean);
+
+    const start = startISO
+      ? new Date(`${startISO}T00:00:00`)
+      : new Date(
+          Math.min(
+            new Date(today.getFullYear(), today.getMonth() - 11, 1).getTime(),
+            ...allDates.map((d) => new Date(`${d}T00:00:00`).getTime()),
+          ),
+        );
+    const end = endISO
+      ? new Date(`${endISO}T00:00:00`)
+      : new Date(Math.max(today.getTime(), ...allDates.map((d) => new Date(`${d}T00:00:00`).getTime())));
 
     const months: string[] = [];
     {
@@ -102,6 +120,7 @@ export const getDashboardData = createServerFn({ method: "GET" })
       }
       if (months.length === 0) months.push(monthKey(start));
     }
+
 
     const bucket = new Map<string, MonthPoint>();
     const svp = new Map<string, { month: string; vendas: number; compras: number }>();
