@@ -43,14 +43,18 @@ const MONTH_LABELS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "s
 
 export const getDashboardData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string }) => input)
+  .inputValidator((input: { companyId: string; from?: string | null; to?: string | null }) => input)
   .handler(async ({ data, context }): Promise<DashboardData> => {
     const { supabase } = context;
     const companyId = data.companyId;
 
     const today = new Date();
-    const start = new Date(today.getFullYear(), today.getMonth() - 11, 1);
-    const startISO = start.toISOString().slice(0, 10);
+    const isDate = (v?: string | null) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+    const custom = isDate(data.from) && isDate(data.to);
+    const start = custom ? new Date(`${data.from}T00:00:00`) : new Date(today.getFullYear(), today.getMonth() - 11, 1);
+    const startISO = custom ? (data.from as string) : start.toISOString().slice(0, 10);
+    const endISO = custom ? (data.to as string) : today.toISOString().slice(0, 10);
+    const end = new Date(`${endISO}T00:00:00`);
     const todayISO = today.toISOString().slice(0, 10);
     const in7 = new Date(today.getTime() + 7 * 86400000).toISOString().slice(0, 10);
 
@@ -59,19 +63,27 @@ export const getDashboardData = createServerFn({ method: "GET" })
         .from("financial_entries")
         .select("id, kind, description, category, amount, due_date, paid_at, status")
         .eq("company_id", companyId)
-        .gte("due_date", startISO),
-      supabase.from("sales").select("total, sold_at, status").eq("company_id", companyId).gte("sold_at", startISO),
+        .gte("due_date", startISO)
+        .lte("due_date", endISO),
+      supabase
+        .from("sales")
+        .select("total, sold_at, status")
+        .eq("company_id", companyId)
+        .gte("sold_at", startISO)
+        .lte("sold_at", endISO),
       supabase
         .from("purchases")
         .select("total, purchased_at, status")
         .eq("company_id", companyId)
-        .gte("purchased_at", startISO),
+        .gte("purchased_at", startISO)
+        .lte("purchased_at", endISO),
       supabase.from("inventory_items").select("id, name, unit, quantity, min_quantity, unit_cost").eq("company_id", companyId),
       supabase
         .from("payroll_entries")
         .select("reference_month, employees_count, net_total, status")
         .eq("company_id", companyId)
-        .gte("reference_month", startISO),
+        .gte("reference_month", startISO)
+        .lte("reference_month", endISO),
     ]);
 
     const entries = entriesRes.data ?? [];
