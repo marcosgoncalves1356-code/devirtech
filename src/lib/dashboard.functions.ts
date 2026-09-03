@@ -139,8 +139,10 @@ export const getDashboardData = createServerFn({ method: "GET" })
     for (const e of entries) {
       const amount = Number(e.amount) || 0;
       const paid = e.status === "paid";
-      const key = (e.paid_at ?? e.due_date).slice(0, 7);
-      const point = bucket.get(key);
+      // Realizado usa a data de pagamento/recebimento; em aberto usa o vencimento.
+      const businessDate = (paid ? (e.paid_at ?? e.due_date) : e.due_date).slice(0, 10);
+      if (!inRange(businessDate)) continue;
+      const point = bucket.get(businessDate.slice(0, 7));
       if (e.kind === "receivable") {
         if (paid) {
           revenue += amount;
@@ -160,6 +162,7 @@ export const getDashboardData = createServerFn({ method: "GET" })
         }
       }
     }
+
     for (const p of bucket.values()) p.saldo = p.faturamento - p.despesas;
 
     let salesTotal = 0;
