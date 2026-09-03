@@ -56,47 +56,45 @@ export const getDashboardData = createServerFn({ method: "GET" })
     const todayISO = today.toISOString().slice(0, 10);
     const in7 = new Date(today.getTime() + 7 * 86400000).toISOString().slice(0, 10);
 
-    // Sem filtro ativo: mantém a visão padrão (todos os lançamentos da empresa).
-    const range = <T extends { gte: (c: string, v: string) => T; lte: (c: string, v: string) => T }>(
-      q: T,
-      column: string,
-    ) => (startISO && endISO ? q.gte(column, startISO).lte(column, endISO) : q);
+    // Cada indicador usa a sua própria data de negócio; por isso buscamos tudo
+    // e aplicamos o período em memória, por data correspondente.
+    const inRange = (d?: string | null) => {
+      if (!startISO || !endISO) return true;
+      if (!d) return false;
+      const v = d.slice(0, 10);
+      return v >= startISO && v <= endISO;
+    };
 
     const [entriesRes, salesRes, purchasesRes, invRes, payrollRes] = await Promise.all([
-      range(
-        supabase
-          .from("financial_entries")
-          .select("id, kind, description, category, amount, due_date, paid_at, status")
-          .eq("company_id", companyId),
-        "due_date",
-      ),
-      range(supabase.from("sales").select("total, sold_at, status").eq("company_id", companyId), "sold_at"),
-      range(
-        supabase.from("purchases").select("total, purchased_at, status").eq("company_id", companyId),
-        "purchased_at",
-      ),
-      supabase.from("inventory_items").select("id, name, unit, quantity, min_quantity, unit_cost").eq("company_id", companyId),
-      range(
-        supabase
-          .from("payroll_entries")
-          .select("reference_month, employees_count, net_total, status")
-          .eq("company_id", companyId),
-        "reference_month",
-      ),
+      supabase
+        .from("financial_entries")
+        .select("id, kind, description, category, amount, due_date, paid_at, status")
+        .eq("company_id", companyId),
+      supabase.from("sales").select("total, sold_at, status").eq("company_id", companyId),
+      supabase.from("purchases").select("total, purchased_at, status").eq("company_id", companyId),
+      supabase
+        .from("inventory_items")
+        .select("id, name, unit, quantity, min_quantity, unit_cost")
+        .eq("company_id", companyId),
+      supabase
+        .from("payroll_entries")
+        .select("reference_month, employees_count, net_total, status")
+        .eq("company_id", companyId),
     ]);
 
-
-    const entries = entriesRes.data ?? [];
-    const sales = (salesRes.data ?? []).filter((s) => s.status !== "canceled");
-    const purchases = (purchasesRes.data ?? []).filter((p) => p.status !== "canceled");
+    const allEntries = entriesRes.data ?? [];
+    const entries = allEntries;
+    const sales = (salesRes.data ?? []).filter((s) => s.status !== "canceled" && inRange(s.sold_at));
+    const purchases = (purchasesRes.data ?? []).filter((p) => p.status !== "canceled" && inRange(p.purchased_at));
     const inventory = invRes.data ?? [];
-    const payroll = (payrollRes.data ?? []).filter((p) => p.status !== "canceled");
+    const payroll = (payrollRes.data ?? []).filter((p) => p.status !== "canceled" && inRange(p.reference_month));
 
     const allDates = [
       ...entries.map((e) => (e.paid_at ?? e.due_date).slice(0, 10)),
-      ...sales.map((s) => s.sold_at.slice(0, 10)),
-      ...purchases.map((p) => p.purchased_at.slice(0, 10)),
+      ...(salesRes.data ?? []).map((s) => s.sold_at.slice(0, 10)),
+      ...(purchasesRes.data ?? []).map((p) => p.purchased_at.slice(0, 10)),
     ].filter(Boolean);
+
 
     const start = startISO
       ? new Date(`${startISO}T00:00:00`)
