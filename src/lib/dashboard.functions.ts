@@ -93,7 +93,15 @@ export const getDashboardData = createServerFn({ method: "GET" })
     const payroll = (payrollRes.data ?? []).filter((p) => p.status !== "canceled");
 
     const months: string[] = [];
-    for (let i = 0; i < 12; i++) months.push(monthKey(new Date(today.getFullYear(), today.getMonth() - 11 + i, 1)));
+    {
+      const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+      const last = new Date(end.getFullYear(), end.getMonth(), 1);
+      while (cursor <= last && months.length < 36) {
+        months.push(monthKey(cursor));
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+      if (months.length === 0) months.push(monthKey(start));
+    }
 
     const bucket = new Map<string, MonthPoint>();
     const svp = new Map<string, { month: string; vendas: number; compras: number }>();
