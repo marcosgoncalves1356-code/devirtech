@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -37,6 +38,13 @@ import { greetingFor } from "@/components/welcome-screen";
 import { modules } from "@/lib/modules";
 import { getDashboardData, type DashboardData } from "@/lib/dashboard.functions";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DashboardPeriodFilter,
+  DEFAULT_PERIOD,
+  periodLabel,
+  resolvePeriod,
+  type PeriodFilter,
+} from "@/components/dashboard-period-filter";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   head: () => ({
@@ -138,9 +146,12 @@ function Dashboard() {
   const firstName = (session?.fullName || session?.email || "").split(" ")[0] || "usuário";
   const fetchDashboard = useServerFn(getDashboardData);
 
+  const [period, setPeriod] = useState<PeriodFilter>(DEFAULT_PERIOD);
+  const range = resolvePeriod(period);
+
   const { data, isLoading } = useQuery<DashboardData>({
-    queryKey: ["dashboard", company.id],
-    queryFn: () => fetchDashboard({ data: { companyId: company.id } }),
+    queryKey: ["dashboard", company.id, range.from, range.to],
+    queryFn: () => fetchDashboard({ data: { companyId: company.id, from: range.from, to: range.to } }),
     enabled: Boolean(company.id),
     staleTime: 60_000,
   });
@@ -166,7 +177,14 @@ function Dashboard() {
             {company.segment} • CNPJ {company.document}
           </p>
         </div>
+        <div className="ms-auto flex items-center gap-2">
+          <DashboardPeriodFilter value={period} onChange={setPeriod} />
+        </div>
       </header>
+
+      <p className="text-xs text-muted-foreground">
+        Período aplicado: <span className="text-foreground">{periodLabel(period)}</span>
+      </p>
 
       {!company.id ? (
         <Card className="border-destructive/40 bg-destructive/10 text-sm">
