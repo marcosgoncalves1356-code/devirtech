@@ -211,21 +211,26 @@ export const listReceiptAllocations = createServerFn({ method: "POST" })
     }));
   });
 
-/** Saldo dos itens por depósito, calculado a partir dos recebimentos de compras. */
+/** Saldo dos itens por depósito (recebimentos de compras + lançamentos manuais). */
 export const listStockBalances = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ companyId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<StockBalance[]> => {
-    const [receipts, warehousesRes, itemsRes] = await Promise.all([
+    const [receipts, warehousesRes, itemsRes, movementsRes] = await Promise.all([
       fetchReceipts(context.supabase, data.companyId),
       context.supabase.from("warehouses").select("id, name").eq("company_id", data.companyId),
       context.supabase
         .from("inventory_items")
         .select("id, name, unit, min_quantity, unit_cost")
         .eq("company_id", data.companyId),
+      context.supabase
+        .from("stock_movements")
+        .select("warehouse_id, item_id, kind, quantity, unit_cost")
+        .eq("company_id", data.companyId),
     ]);
     if (warehousesRes.error) throw new Error(warehousesRes.error.message);
     if (itemsRes.error) throw new Error(itemsRes.error.message);
+    if (movementsRes.error) throw new Error(movementsRes.error.message);
 
     const warehouseName = new Map<string, string>(
       (warehousesRes.data ?? []).map((w: any) => [w.id as string, w.name as string]),
@@ -233,35 +238,194 @@ export const listStockBalances = createServerFn({ method: "POST" })
     const items = new Map<string, any>((itemsRes.data ?? []).map((i: any) => [i.id as string, i]));
 
     const acc = new Map<string, StockBalance>();
+    const ensure = (
+      warehouseId: string | null,
+      itemId: string | null,
+      fallbackName: string,
+      fallbackUnit: string,
+      freeKey?: string,
+    ) => {
+      const key = `${warehouseId ?? "none"}::${itemId ?? `free:${freeKey ?? fallbackName}`}`;
+      const item = itemId ? items.get(itemId) : null;
+      const current = acc.get(key) ?? {
+        warehouse_id: warehouseId,
+        warehouse_name: warehouseId
+          ? (warehouseName.get(warehouseId) ?? "Depósito removido")
+          : "Sem depósito definido",
+        item_id: itemId,
+        item_name: item?.name ?? fallbackName,
+        unit: item?.unit ?? fallbackUnit,
+        quantity: 0,
+        value: 0,
+        min_quantity: Number(item?.min_quantity ?? 0),
+      };
+      acc.set(key, current);
+      return current;
+    };
+
     for (const receipt of receipts) {
       for (const line of receipt.items) {
         const itemId = line.purchase_item?.inventory_item_id ?? null;
         const qty = Number(line.quantity ?? 0);
         if (qty <= 0) continue;
-        const key = `${receipt.warehouse_id ?? "none"}::${itemId ?? `free:${line.purchase_item?.description ?? ""}`}`;
         const item = itemId ? items.get(itemId) : null;
         const unitPrice = Number(item?.unit_cost ?? line.purchase_item?.unit_price ?? 0);
-        const current = acc.get(key) ?? {
-          warehouse_id: receipt.warehouse_id,
-          warehouse_name: receipt.warehouse_id
-            ? (warehouseName.get(receipt.warehouse_id) ?? "Depósito removido")
-            : "Sem depósito definido",
-          item_id: itemId,
-          item_name: item?.name ?? line.purchase_item?.description ?? "Item",
-          unit: item?.unit ?? line.purchase_item?.unit ?? "un",
-          quantity: 0,
-          value: 0,
-          min_quantity: Number(item?.min_quantity ?? 0),
-        };
+        const current = ensure(
+          receipt.warehouse_id,
+          itemId,
+          line.purchase_item?.description ?? "Item",
+          line.purchase_item?.unit ?? "un",
+          line.purchase_item?.description ?? "",
+        );
         current.quantity += qty;
         current.value += qty * unitPrice;
-        acc.set(key, current);
       }
     }
+
+    for (const mov of (movementsRes.data ?? []) as any[]) {
+      const qty = Number(mov.quantity ?? 0);
+      if (qty <= 0) continue;
+      const item = items.get(mov.item_id as string);
+      const unitPrice = Number(mov.unit_cost ?? item?.unit_cost ?? 0);
+      const current = ensure(
+        (mov.warehouse_id as string | null) ?? null,
+        mov.item_id as string,
+        item?.name ?? "Item",
+        item?.unit ?? "un",
+      );
+      const signal = mov.kind === "out" ? -1 : 1;
+      current.quantity += signal * qty;
+      current.value += signal * qty * unitPrice;
+    }
+
     return [...acc.values()].sort(
       (a, b) => a.warehouse_name.localeCompare(b.warehouse_name) || a.item_name.localeCompare(b.item_name),
     );
   });
+
+export type StockMovement = {
+  id: string;
+  company_id: string;
+  warehouse_id: string | null;
+  item_id: string;
+  kind: "in" | "out";
+  quantity: number;
+  unit_cost: number;
+  moved_at: string;
+  document: string;
+  notes: string;
+};
+
+const movementSchema = z.object({
+  id: z.string().uuid().optional(),
+  companyId: z.string().uuid(),
+  warehouseId: z.string().uuid().nullable(),
+  itemId: z.string().uuid(),
+  kind: z.enum(["in", "out"]),
+  quantity: z.coerce.number().positive("Informe uma quantidade maior que zero."),
+  unitCost: z.coerce.number().min(0).default(0),
+  movedAt: z.string().min(4),
+  document: z.string().trim().max(120).default(""),
+  notes: z.string().trim().max(1000).default(""),
+});
+
+/** Lista os lançamentos de entrada e saída de estoque da empresa. */
+export const listStockMovements = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ companyId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("stock_movements")
+      .select("id, company_id, warehouse_id, item_id, kind, quantity, unit_cost, moved_at, document, notes")
+      .eq("company_id", data.companyId)
+      .order("moved_at", { ascending: false })
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as unknown as StockMovement[];
+  });
+
+/** Cria ou atualiza um lançamento de estoque, validando saldo disponível nas saídas. */
+export const saveStockMovement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => movementSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    if (data.kind === "out") {
+      const balances = await computeItemBalance(
+        context.supabase,
+        data.companyId,
+        data.itemId,
+        data.warehouseId,
+        data.id,
+      );
+      if (balances < data.quantity) {
+        throw new Error(
+          `Saldo insuficiente no depósito selecionado. Disponível: ${balances.toLocaleString("pt-BR")}.`,
+        );
+      }
+    }
+
+    const payload = {
+      company_id: data.companyId,
+      warehouse_id: data.warehouseId,
+      item_id: data.itemId,
+      kind: data.kind,
+      quantity: data.quantity,
+      unit_cost: data.unitCost,
+      moved_at: data.movedAt,
+      document: data.document,
+      notes: data.notes,
+    };
+    const query = data.id
+      ? context.supabase.from("stock_movements").update(payload).eq("id", data.id)
+      : context.supabase.from("stock_movements").insert(payload);
+    const { error } = await query;
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Remove um lançamento de estoque. */
+export const deleteStockMovement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("stock_movements").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Saldo atual de um item em um depósito, ignorando opcionalmente um lançamento em edição. */
+async function computeItemBalance(
+  supabase: any,
+  companyId: string,
+  itemId: string,
+  warehouseId: string | null,
+  ignoreMovementId?: string,
+) {
+  const receipts = await fetchReceipts(supabase, companyId);
+  let total = 0;
+  for (const receipt of receipts) {
+    if ((receipt.warehouse_id ?? null) !== warehouseId) continue;
+    for (const line of receipt.items) {
+      if ((line.purchase_item?.inventory_item_id ?? null) !== itemId) continue;
+      total += Number(line.quantity ?? 0);
+    }
+  }
+
+  let query = supabase
+    .from("stock_movements")
+    .select("id, kind, quantity")
+    .eq("company_id", companyId)
+    .eq("item_id", itemId);
+  query = warehouseId ? query.eq("warehouse_id", warehouseId) : query.is("warehouse_id", null);
+  const { data: movements, error } = await query;
+  if (error) throw new Error(error.message);
+  for (const mov of (movements ?? []) as any[]) {
+    if (ignoreMovementId && mov.id === ignoreMovementId) continue;
+    total += (mov.kind === "out" ? -1 : 1) * Number(mov.quantity ?? 0);
+  }
+  return total;
+}
+
 
 /** Define o depósito de entrada de um recebimento de compra. */
 export const setReceiptWarehouse = createServerFn({ method: "POST" })
