@@ -184,6 +184,46 @@ export function StockBalancesPanel() {
     onSuccess: invalidateAll,
     onError,
   });
+  const movementMutation = useMutation({
+    mutationFn: (d: MovementDraft) =>
+      persistMovement({
+        data: {
+          id: d.id,
+          companyId: company.id,
+          warehouseId: d.warehouseId || null,
+          itemId: d.itemId,
+          kind: d.kind,
+          quantity: Number(d.quantity || 0),
+          unitCost: Number(d.unitCost || 0),
+          movedAt: d.movedAt,
+          document: d.document,
+          notes: d.notes,
+        },
+      }),
+    onSuccess: () => {
+      setMovementDraft(null);
+      setError(null);
+      invalidateAll();
+    },
+    onError,
+  });
+  const deleteMovementMutation = useMutation({
+    mutationFn: (id: string) => removeMovement({ data: { id } }),
+    onSuccess: invalidateAll,
+    onError,
+  });
+
+  const newMovement = (kind: "in" | "out"): MovementDraft => ({
+    kind,
+    warehouseId: warehouses[0]?.id ?? "",
+    itemId: items[0]?.id ?? "",
+    quantity: "",
+    unitCost: "",
+    movedAt: new Date().toISOString().slice(0, 10),
+    document: "",
+    notes: "",
+  });
+
 
   const filtered = useMemo(
     () =>
