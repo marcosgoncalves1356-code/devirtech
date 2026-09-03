@@ -138,9 +138,12 @@ function Dashboard() {
   const firstName = (session?.fullName || session?.email || "").split(" ")[0] || "usuário";
   const fetchDashboard = useServerFn(getDashboardData);
 
+  const [period, setPeriod] = useState<PeriodFilter>(DEFAULT_PERIOD);
+  const range = resolvePeriod(period);
+
   const { data, isLoading } = useQuery<DashboardData>({
-    queryKey: ["dashboard", company.id],
-    queryFn: () => fetchDashboard({ data: { companyId: company.id } }),
+    queryKey: ["dashboard", company.id, range.from, range.to],
+    queryFn: () => fetchDashboard({ data: { companyId: company.id, from: range.from, to: range.to } }),
     enabled: Boolean(company.id),
     staleTime: 60_000,
   });
