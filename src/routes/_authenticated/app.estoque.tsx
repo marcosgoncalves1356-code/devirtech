@@ -24,7 +24,7 @@ function StockModule() {
   const { company, isModuleEnabled } = useCompany();
   const mod = getModule("estoque");
   const enabled = isModuleEnabled("estoque");
-  const upcoming = (mod?.features ?? []).filter((f) => f !== "Saldos por depósito");
+  const upcoming = (mod?.features ?? []).filter((f) => f !== "Saldos por depósito" && f !== "Entradas e saídas");
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
