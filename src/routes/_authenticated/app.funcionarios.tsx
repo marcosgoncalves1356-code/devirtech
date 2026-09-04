@@ -3,6 +3,7 @@ import { Lock, Users } from "lucide-react";
 
 import { EmployeeRecordsPanel } from "@/components/employee-records-panel";
 import { OrgStructurePanel } from "@/components/org-structure-panel";
+import { ModuleTabs, UpcomingSubmodule } from "@/components/module-tabs";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { getModule } from "@/lib/modules";
@@ -25,8 +26,6 @@ function EmployeesModule() {
   const { company, isModuleEnabled } = useCompany();
   const mod = getModule("funcionarios");
   const enabled = isModuleEnabled("funcionarios");
-  const upcoming = (mod?.features ?? []).filter((f) => f !== "Ficha do colaborador" && f !== "Cargos e departamentos");
-
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <header className="flex flex-wrap items-start gap-4">
@@ -58,22 +57,22 @@ function EmployeesModule() {
           </Button>
         </div>
       ) : (
-        <>
-          <OrgStructurePanel />
-          <EmployeeRecordsPanel />
-
-          <section className="grid gap-4 sm:grid-cols-3">
-            {upcoming.map((f) => (
-              <article key={f} className="rounded-2xl border border-dashed border-border/60 bg-card/40 p-4">
-                <h2 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Lock className="h-3.5 w-3.5" /> {f}
-                </h2>
-                <p className="mt-1 text-xs text-muted-foreground">Liberação prevista para uma próxima etapa.</p>
-              </article>
-            ))}
-          </section>
-        </>
-
+        <ModuleTabs
+          tabs={[
+            { value: "records", label: "Ficha do colaborador", content: <EmployeeRecordsPanel /> },
+            { value: "structure", label: "Cargos e departamentos", content: <OrgStructurePanel /> },
+            {
+              value: "documents",
+              label: "Documentos e admissão",
+              content: <UpcomingSubmodule name="Documentos e admissão" />,
+            },
+            {
+              value: "allocation",
+              label: "Escalas e alocação",
+              content: <UpcomingSubmodule name="Escalas e alocação" />,
+            },
+          ]}
+        />
       )}
     </div>
   );

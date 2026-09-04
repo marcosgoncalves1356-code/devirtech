@@ -4,6 +4,7 @@ import { Lock, ShoppingCart } from "lucide-react";
 import { PurchaseOrdersPanel } from "@/components/purchase-orders-panel";
 import { PurchaseReceiptsPanel } from "@/components/purchase-receipts-panel";
 import { SuppliersPanel } from "@/components/suppliers-panel";
+import { ModuleTabs, UpcomingSubmodule } from "@/components/module-tabs";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { getModule } from "@/lib/modules";
@@ -29,8 +30,6 @@ function PurchasesModule() {
   const { company, isModuleEnabled } = useCompany();
   const mod = getModule("compras");
   const enabled = isModuleEnabled("compras");
-  const upcoming = (mod?.features ?? []).filter((f) => f !== "Fornecedores" && f !== "Pedidos de compra" && f !== "Recebimento e notas");
-
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <header className="flex flex-wrap items-start gap-4">
@@ -62,24 +61,18 @@ function PurchasesModule() {
           </Button>
         </div>
       ) : (
-        <>
-          <SuppliersPanel />
-
-          <PurchaseOrdersPanel />
-
-          <PurchaseReceiptsPanel />
-
-          <section className="grid gap-4 sm:grid-cols-3">
-            {upcoming.map((f) => (
-              <article key={f} className="rounded-2xl border border-dashed border-border/60 bg-card/40 p-4">
-                <h2 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Lock className="h-3.5 w-3.5" /> {f}
-                </h2>
-                <p className="mt-1 text-xs text-muted-foreground">Liberação prevista para uma próxima etapa.</p>
-              </article>
-            ))}
-          </section>
-        </>
+        <ModuleTabs
+          tabs={[
+            { value: "suppliers", label: "Fornecedores", content: <SuppliersPanel /> },
+            { value: "orders", label: "Pedidos de compra", content: <PurchaseOrdersPanel /> },
+            { value: "receipts", label: "Recebimentos", content: <PurchaseReceiptsPanel /> },
+            {
+              value: "quotes",
+              label: "Requisição e cotação",
+              content: <UpcomingSubmodule name="Requisição e cotação" />,
+            },
+          ]}
+        />
       )}
     </div>
   );

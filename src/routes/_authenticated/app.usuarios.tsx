@@ -3,6 +3,7 @@ import { Lock, Users } from "lucide-react";
 
 import { AccessProfilesPanel } from "@/components/access-profiles-panel";
 import { ModulePermissionsPanel } from "@/components/module-permissions-panel";
+import { ModuleTabs, UpcomingSubmodule } from "@/components/module-tabs";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 
@@ -55,10 +56,22 @@ function UsersModule() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-8">
-          <AccessProfilesPanel />
-          <ModulePermissionsPanel />
-        </div>
+        <ModuleTabs
+          tabs={[
+            { value: "profiles", label: "Perfis e papéis", content: <AccessProfilesPanel /> },
+            { value: "permissions", label: "Permissões por módulo", content: <ModulePermissionsPanel /> },
+            {
+              value: "company-users",
+              label: "Vínculo usuário x empresa",
+              content: <UpcomingSubmodule name="Vínculo usuário x empresa" />,
+            },
+            {
+              value: "audit",
+              label: "Auditoria de acesso",
+              content: <UpcomingSubmodule name="Auditoria de acesso" />,
+            },
+          ]}
+        />
       )}
     </div>
   );
