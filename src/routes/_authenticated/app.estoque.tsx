@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Boxes, Lock } from "lucide-react";
 
 import { StockBalancesPanel } from "@/components/stock-balances-panel";
+import { ModuleTabs, UpcomingSubmodule } from "@/components/module-tabs";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { getModule } from "@/lib/modules";
@@ -24,8 +25,6 @@ function StockModule() {
   const { company, isModuleEnabled } = useCompany();
   const mod = getModule("estoque");
   const enabled = isModuleEnabled("estoque");
-  const upcoming = (mod?.features ?? []).filter((f) => f !== "Saldos por depósito" && f !== "Entradas e saídas");
-
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <header className="flex flex-wrap items-start gap-4">
@@ -57,20 +56,22 @@ function StockModule() {
           </Button>
         </div>
       ) : (
-        <>
-          <StockBalancesPanel />
-
-          <section className="grid gap-4 sm:grid-cols-3">
-            {upcoming.map((f) => (
-              <article key={f} className="rounded-2xl border border-dashed border-border/60 bg-card/40 p-4">
-                <h2 className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Lock className="h-3.5 w-3.5" /> {f}
-                </h2>
-                <p className="mt-1 text-xs text-muted-foreground">Liberação prevista para uma próxima etapa.</p>
-              </article>
-            ))}
-          </section>
-        </>
+        <ModuleTabs
+          tabs={[
+            { value: "balances", label: "Saldos por depósito", content: <StockBalancesPanel view="balances" /> },
+            { value: "movements", label: "Entradas e saídas", content: <StockBalancesPanel view="movements" /> },
+            {
+              value: "batches",
+              label: "Lotes e validade",
+              content: <UpcomingSubmodule name="Lotes e validade" />,
+            },
+            {
+              value: "inventory",
+              label: "Inventário e perdas",
+              content: <UpcomingSubmodule name="Inventário e perdas" />,
+            },
+          ]}
+        />
       )}
     </div>
   );

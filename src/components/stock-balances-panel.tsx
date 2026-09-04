@@ -54,7 +54,7 @@ const money = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 2 });
 const qty = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 3 });
 
-export function StockBalancesPanel() {
+export function StockBalancesPanel({ view = "balances" }: { view?: "balances" | "movements" }) {
   const { company, canEdit } = useCompany();
   const qc = useQueryClient();
   const editable = canEdit("estoque");
@@ -255,6 +255,8 @@ export function StockBalancesPanel() {
         <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm">{error}</p>
       ) : null}
 
+      {view === "balances" ? (
+        <>
       {/* Depósitos */}
       <section className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
@@ -584,6 +586,10 @@ export function StockBalancesPanel() {
       </section>
 
       {/* Movimentações manuais */}
+        </>
+      ) : null}
+
+      {view === "movements" ? (
       <section className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="min-w-0 flex-1">
@@ -773,9 +779,10 @@ export function StockBalancesPanel() {
           </div>
         )}
       </section>
+      ) : null}
 
       {/* Saldos */}
-
+      {view === "balances" ? (
       <section className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="min-w-0 flex-1">
@@ -846,6 +853,7 @@ export function StockBalancesPanel() {
           </div>
         )}
       </section>
+      ) : null}
     </div>
   );
 }
