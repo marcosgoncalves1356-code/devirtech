@@ -1,462 +1,87 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export type Warehouse = {
-  id: string;
-  company_id: string;
-  name: string;
-  description: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-};
+export type Warehouse = { id: string; company_id: string; name: string; description: string; status: string; created_at: string; updated_at: string };
+export type InventoryItem = { id: string; company_id: string; name: string; unit: string; quantity: number; min_quantity: number; unit_cost: number; category: string; status: string };
+export type StockBalance = { warehouse_id: string | null; warehouse_name: string; item_id: string | null; item_name: string; unit: string; quantity: number; value: number; min_quantity: number };
+export type ReceiptAllocation = { receipt_id: string; received_at: string; document: string; purchase_id: string; supplier: string; warehouse_id: string | null; lines: { purchase_item_id: string; description: string; unit: string; quantity: number; unit_price: number; inventory_item_id: string | null }[] };
+export type StockMovement = { id: string; company_id: string; warehouse_id: string | null; item_id: string; kind: "in" | "out"; quantity: number; unit_cost: number; moved_at: string; document: string; notes: string; origin: "manual" | "transfer" | "inventory"; created_by: string | null; transfer_id: string | null; inventory_count_id: string | null; responsible_name: string };
+export type StockTransfer = { id: string; item_id: string; source_warehouse_id: string; destination_warehouse_id: string; quantity: number; unit_cost: number; transferred_at: string; document: string; notes: string; created_by: string | null; responsible_name: string };
+export type InventoryCount = { id: string; item_id: string; warehouse_id: string; system_quantity: number; counted_quantity: number; difference: number; adjustment: number; counted_at: string; status: "draft" | "adjusted" | "canceled"; notes: string; created_by: string | null; responsible_name: string };
 
-export type InventoryItem = {
-  id: string;
-  company_id: string;
-  name: string;
-  unit: string;
-  quantity: number;
-  min_quantity: number;
-  unit_cost: number;
-};
+const companyInput = z.object({ companyId: z.string().uuid() });
+const warehouseSchema = z.object({ id: z.string().uuid().optional(), companyId: z.string().uuid(), name: z.string().trim().min(2, "Informe o nome do depósito.").max(160), description: z.string().trim().max(500).default(""), status: z.enum(["active", "inactive"]).default("active") });
+const itemSchema = z.object({ id: z.string().uuid().optional(), companyId: z.string().uuid(), name: z.string().trim().min(2, "Informe o nome do item.").max(160), unit: z.string().trim().min(1, "Informe a unidade.").max(20), category: z.string().trim().max(120).default(""), status: z.enum(["active", "inactive"]).default("active"), minQuantity: z.coerce.number().min(0).default(0), unitCost: z.coerce.number().min(0).default(0) });
+const movementSchema = z.object({ id: z.string().uuid().optional(), companyId: z.string().uuid(), warehouseId: z.string().uuid(), itemId: z.string().uuid(), kind: z.enum(["in", "out"]), quantity: z.coerce.number().positive("Informe uma quantidade maior que zero."), unitCost: z.coerce.number().min(0).default(0), movedAt: z.string().min(4), document: z.string().trim().max(120).default(""), notes: z.string().trim().max(1000).default("") });
 
-export type StockBalance = {
-  warehouse_id: string | null;
-  warehouse_name: string;
-  item_id: string | null;
-  item_name: string;
-  unit: string;
-  quantity: number;
-  value: number;
-  min_quantity: number;
-};
-
-export type ReceiptAllocation = {
-  receipt_id: string;
-  received_at: string;
-  document: string;
-  purchase_id: string;
-  supplier: string;
-  warehouse_id: string | null;
-  lines: {
-    purchase_item_id: string;
-    description: string;
-    unit: string;
-    quantity: number;
-    unit_price: number;
-    inventory_item_id: string | null;
-  }[];
-};
-
-const warehouseSchema = z.object({
-  id: z.string().uuid().optional(),
-  companyId: z.string().uuid(),
-  name: z.string().trim().min(2, "Informe o nome do depósito.").max(160),
-  description: z.string().trim().max(500).default(""),
-  status: z.enum(["active", "inactive"]).default("active"),
-});
-
-const itemSchema = z.object({
-  id: z.string().uuid().optional(),
-  companyId: z.string().uuid(),
-  name: z.string().trim().min(2, "Informe o nome do item.").max(160),
-  unit: z.string().trim().min(1, "Informe a unidade.").max(20),
-  minQuantity: z.coerce.number().min(0).default(0),
-  unitCost: z.coerce.number().min(0).default(0),
-});
-
-/** Lista os depósitos da empresa. */
-export const listWarehouses = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ companyId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase
-      .from("warehouses")
-      .select("*")
-      .eq("company_id", data.companyId)
-      .order("name", { ascending: true });
-    if (error) throw new Error(error.message);
-    return (rows ?? []) as unknown as Warehouse[];
-  });
-
-/** Cria ou atualiza um depósito. */
-export const saveWarehouse = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => warehouseSchema.parse(input))
-  .handler(async ({ data, context }) => {
-    const payload = {
-      company_id: data.companyId,
-      name: data.name,
-      description: data.description,
-      status: data.status,
-    };
-    const query = data.id
-      ? context.supabase.from("warehouses").update(payload).eq("id", data.id)
-      : context.supabase.from("warehouses").insert(payload);
-    const { error } = await query;
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-/** Remove um depósito (recebimentos ficam sem depósito). */
-export const deleteWarehouse = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("warehouses").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-/** Lista os itens de estoque da empresa. */
-export const listInventoryItems = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ companyId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase
-      .from("inventory_items")
-      .select("id, company_id, name, unit, quantity, min_quantity, unit_cost")
-      .eq("company_id", data.companyId)
-      .order("name", { ascending: true });
-    if (error) throw new Error(error.message);
-    return (rows ?? []) as unknown as InventoryItem[];
-  });
-
-/** Cria ou atualiza um item de estoque. */
-export const saveInventoryItem = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => itemSchema.parse(input))
-  .handler(async ({ data, context }) => {
-    const payload = {
-      company_id: data.companyId,
-      name: data.name,
-      unit: data.unit,
-      min_quantity: data.minQuantity,
-      unit_cost: data.unitCost,
-    };
-    const query = data.id
-      ? context.supabase.from("inventory_items").update(payload).eq("id", data.id)
-      : context.supabase.from("inventory_items").insert(payload);
-    const { error } = await query;
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-/** Remove um item de estoque. */
-export const deleteInventoryItem = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("inventory_items").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-type RawReceipt = {
-  id: string;
-  received_at: string;
-  document: string | null;
-  purchase_id: string;
-  warehouse_id: string | null;
-  purchase: { supplier: string | null } | null;
-  items: {
-    purchase_item_id: string;
-    quantity: number | string;
-    purchase_item: {
-      id: string;
-      description: string | null;
-      unit: string | null;
-      unit_price: number | string | null;
-      inventory_item_id: string | null;
-    } | null;
-  }[];
-};
-
-async function fetchReceipts(supabase: any, companyId: string) {
-  const { data: rows, error } = await supabase
-    .from("purchase_receipts")
-    .select(
-      "id, received_at, document, purchase_id, warehouse_id, purchase:purchases(supplier), items:purchase_receipt_items(purchase_item_id, quantity, purchase_item:purchase_items(id, description, unit, unit_price, inventory_item_id))",
-    )
-    .eq("company_id", companyId)
-    .order("received_at", { ascending: false });
-  if (error) throw new Error(error.message);
-  return (rows ?? []) as RawReceipt[];
+async function assertCompanyRelations(supabase: any, companyId: string, itemId?: string, warehouseIds: string[] = []) {
+  if (itemId) {
+    const { data } = await supabase.from("inventory_items").select("id").eq("id", itemId).eq("company_id", companyId).maybeSingle();
+    if (!data) throw new Error("Item inválido para esta empresa.");
+  }
+  for (const id of warehouseIds) {
+    const { data } = await supabase.from("warehouses").select("id").eq("id", id).eq("company_id", companyId).maybeSingle();
+    if (!data) throw new Error("Depósito inválido para esta empresa.");
+  }
 }
 
-/** Recebimentos de compras com o vínculo de depósito e item de estoque. */
-export const listReceiptAllocations = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ companyId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }): Promise<ReceiptAllocation[]> => {
-    const rows = await fetchReceipts(context.supabase, data.companyId);
-    return rows.map((r) => ({
-      receipt_id: r.id,
-      received_at: r.received_at,
-      document: r.document ?? "",
-      purchase_id: r.purchase_id,
-      supplier: r.purchase?.supplier ?? "",
-      warehouse_id: r.warehouse_id,
-      lines: r.items.map((i) => ({
-        purchase_item_id: i.purchase_item_id,
-        description: i.purchase_item?.description ?? "Item",
-        unit: i.purchase_item?.unit ?? "un",
-        quantity: Number(i.quantity ?? 0),
-        unit_price: Number(i.purchase_item?.unit_price ?? 0),
-        inventory_item_id: i.purchase_item?.inventory_item_id ?? null,
-      })),
-    }));
-  });
+export const listWarehouses = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => companyInput.parse(v)).handler(async ({ data, context }) => {
+  const { data: rows, error } = await context.supabase.from("warehouses").select("*").eq("company_id", data.companyId).order("name");
+  if (error) throw new Error(error.message); return (rows ?? []) as Warehouse[];
+});
+export const saveWarehouse = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => warehouseSchema.parse(v)).handler(async ({ data, context }) => {
+  const payload = { company_id: data.companyId, name: data.name, description: data.description, status: data.status };
+  const q = data.id ? context.supabase.from("warehouses").update(payload).eq("id", data.id).eq("company_id", data.companyId) : context.supabase.from("warehouses").insert(payload);
+  const { error } = await q; if (error) throw new Error(error.message); return { ok: true };
+});
+export const deleteWarehouse = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v)).handler(async ({ data, context }) => { const { error } = await context.supabase.from("warehouses").delete().eq("id", data.id); if (error) throw new Error(error.message); return { ok: true }; });
 
-/** Saldo dos itens por depósito (recebimentos de compras + lançamentos manuais). */
-export const listStockBalances = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ companyId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }): Promise<StockBalance[]> => {
-    const [receipts, warehousesRes, itemsRes, movementsRes] = await Promise.all([
-      fetchReceipts(context.supabase, data.companyId),
-      context.supabase.from("warehouses").select("id, name").eq("company_id", data.companyId),
-      context.supabase
-        .from("inventory_items")
-        .select("id, name, unit, min_quantity, unit_cost")
-        .eq("company_id", data.companyId),
-      context.supabase
-        .from("stock_movements")
-        .select("warehouse_id, item_id, kind, quantity, unit_cost")
-        .eq("company_id", data.companyId),
-    ]);
-    if (warehousesRes.error) throw new Error(warehousesRes.error.message);
-    if (itemsRes.error) throw new Error(itemsRes.error.message);
-    if (movementsRes.error) throw new Error(movementsRes.error.message);
+export const listInventoryItems = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => companyInput.parse(v)).handler(async ({ data, context }) => {
+  const { data: rows, error } = await context.supabase.from("inventory_items").select("id, company_id, name, unit, quantity, min_quantity, unit_cost, category, status").eq("company_id", data.companyId).order("name");
+  if (error) throw new Error(error.message); return (rows ?? []) as InventoryItem[];
+});
+export const saveInventoryItem = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => itemSchema.parse(v)).handler(async ({ data, context }) => {
+  const payload = { company_id: data.companyId, name: data.name, unit: data.unit, category: data.category, status: data.status, min_quantity: data.minQuantity, unit_cost: data.unitCost };
+  const q = data.id ? context.supabase.from("inventory_items").update(payload).eq("id", data.id).eq("company_id", data.companyId) : context.supabase.from("inventory_items").insert(payload);
+  const { error } = await q; if (error) throw new Error(error.message); return { ok: true };
+});
+export const deleteInventoryItem = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v)).handler(async ({ data, context }) => { const { error } = await context.supabase.from("inventory_items").delete().eq("id", data.id); if (error) throw new Error(error.message); return { ok: true }; });
 
-    const warehouseName = new Map<string, string>(
-      (warehousesRes.data ?? []).map((w: any) => [w.id as string, w.name as string]),
-    );
-    const items = new Map<string, any>((itemsRes.data ?? []).map((i: any) => [i.id as string, i]));
+type RawReceipt = { id: string; received_at: string; document: string | null; purchase_id: string; warehouse_id: string | null; purchase: { supplier: string | null } | null; items: { purchase_item_id: string; quantity: number | string; purchase_item: { id: string; description: string | null; unit: string | null; unit_price: number | string | null; inventory_item_id: string | null } | null }[] };
+async function fetchReceipts(supabase: any, companyId: string) { const { data, error } = await supabase.from("purchase_receipts").select("id, received_at, document, purchase_id, warehouse_id, purchase:purchases(supplier), items:purchase_receipt_items(purchase_item_id, quantity, purchase_item:purchase_items(id, description, unit, unit_price, inventory_item_id))").eq("company_id", companyId).order("received_at", { ascending: false }); if (error) throw new Error(error.message); return (data ?? []) as RawReceipt[]; }
+export const listReceiptAllocations = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => companyInput.parse(v)).handler(async ({ data, context }): Promise<ReceiptAllocation[]> => (await fetchReceipts(context.supabase, data.companyId)).map((r) => ({ receipt_id: r.id, received_at: r.received_at, document: r.document ?? "", purchase_id: r.purchase_id, supplier: r.purchase?.supplier ?? "", warehouse_id: r.warehouse_id, lines: r.items.map((i) => ({ purchase_item_id: i.purchase_item_id, description: i.purchase_item?.description ?? "Item", unit: i.purchase_item?.unit ?? "un", quantity: Number(i.quantity), unit_price: Number(i.purchase_item?.unit_price ?? 0), inventory_item_id: i.purchase_item?.inventory_item_id ?? null })) })));
 
-    const acc = new Map<string, StockBalance>();
-    const ensure = (
-      warehouseId: string | null,
-      itemId: string | null,
-      fallbackName: string,
-      fallbackUnit: string,
-      freeKey?: string,
-    ) => {
-      const key = `${warehouseId ?? "none"}::${itemId ?? `free:${freeKey ?? fallbackName}`}`;
-      const item = itemId ? items.get(itemId) : null;
-      const current = acc.get(key) ?? {
-        warehouse_id: warehouseId,
-        warehouse_name: warehouseId
-          ? (warehouseName.get(warehouseId) ?? "Depósito removido")
-          : "Sem depósito definido",
-        item_id: itemId,
-        item_name: item?.name ?? fallbackName,
-        unit: item?.unit ?? fallbackUnit,
-        quantity: 0,
-        value: 0,
-        min_quantity: Number(item?.min_quantity ?? 0),
-      };
-      acc.set(key, current);
-      return current;
-    };
-
-    for (const receipt of receipts) {
-      for (const line of receipt.items) {
-        const itemId = line.purchase_item?.inventory_item_id ?? null;
-        const qty = Number(line.quantity ?? 0);
-        if (qty <= 0) continue;
-        const item = itemId ? items.get(itemId) : null;
-        const unitPrice = Number(item?.unit_cost ?? line.purchase_item?.unit_price ?? 0);
-        const current = ensure(
-          receipt.warehouse_id,
-          itemId,
-          line.purchase_item?.description ?? "Item",
-          line.purchase_item?.unit ?? "un",
-          line.purchase_item?.description ?? "",
-        );
-        current.quantity += qty;
-        current.value += qty * unitPrice;
-      }
-    }
-
-    for (const mov of (movementsRes.data ?? []) as any[]) {
-      const qty = Number(mov.quantity ?? 0);
-      if (qty <= 0) continue;
-      const item = items.get(mov.item_id as string);
-      const unitPrice = Number(mov.unit_cost ?? item?.unit_cost ?? 0);
-      const current = ensure(
-        (mov.warehouse_id as string | null) ?? null,
-        mov.item_id as string,
-        item?.name ?? "Item",
-        item?.unit ?? "un",
-      );
-      const signal = mov.kind === "out" ? -1 : 1;
-      current.quantity += signal * qty;
-      current.value += signal * qty * unitPrice;
-    }
-
-    return [...acc.values()].sort(
-      (a, b) => a.warehouse_name.localeCompare(b.warehouse_name) || a.item_name.localeCompare(b.item_name),
-    );
-  });
-
-export type StockMovement = {
-  id: string;
-  company_id: string;
-  warehouse_id: string | null;
-  item_id: string;
-  kind: "in" | "out";
-  quantity: number;
-  unit_cost: number;
-  moved_at: string;
-  document: string;
-  notes: string;
-};
-
-const movementSchema = z.object({
-  id: z.string().uuid().optional(),
-  companyId: z.string().uuid(),
-  warehouseId: z.string().uuid().nullable(),
-  itemId: z.string().uuid(),
-  kind: z.enum(["in", "out"]),
-  quantity: z.coerce.number().positive("Informe uma quantidade maior que zero."),
-  unitCost: z.coerce.number().min(0).default(0),
-  movedAt: z.string().min(4),
-  document: z.string().trim().max(120).default(""),
-  notes: z.string().trim().max(1000).default(""),
+export const listStockBalances = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => companyInput.parse(v)).handler(async ({ data, context }): Promise<StockBalance[]> => {
+  const [receipts, whRes, itemRes, movRes] = await Promise.all([fetchReceipts(context.supabase, data.companyId), context.supabase.from("warehouses").select("id,name").eq("company_id", data.companyId), context.supabase.from("inventory_items").select("id,name,unit,min_quantity,unit_cost").eq("company_id", data.companyId), context.supabase.from("stock_movements").select("warehouse_id,item_id,kind,quantity,unit_cost").eq("company_id", data.companyId)]);
+  if (whRes.error || itemRes.error || movRes.error) throw new Error((whRes.error ?? itemRes.error ?? movRes.error)?.message ?? "Erro ao calcular saldo.");
+  const wh = new Map((whRes.data ?? []).map((x) => [x.id, x.name])); const items = new Map((itemRes.data ?? []).map((x) => [x.id, x])); const acc = new Map<string, StockBalance>();
+  const ensure = (wid: string | null, iid: string | null, name: string, unit: string, free = "") => { const key = `${wid ?? "none"}::${iid ?? `free:${free || name}`}`; const item = iid ? items.get(iid) : undefined; const row = acc.get(key) ?? { warehouse_id: wid, warehouse_name: wid ? (wh.get(wid) ?? "Depósito removido") : "Recebido — aguardando armazenamento", item_id: iid, item_name: item?.name ?? name, unit: item?.unit ?? unit, quantity: 0, value: 0, min_quantity: Number(item?.min_quantity ?? 0) }; acc.set(key, row); return row; };
+  for (const r of receipts) for (const line of r.items) { const iid = line.purchase_item?.inventory_item_id ?? null; const amount = Number(line.quantity); if (amount <= 0) continue; const item = iid ? items.get(iid) : undefined; const row = ensure(r.warehouse_id, iid, line.purchase_item?.description ?? "Item", line.purchase_item?.unit ?? "un", line.purchase_item?.description ?? ""); row.quantity += amount; row.value += amount * Number(item?.unit_cost ?? line.purchase_item?.unit_price ?? 0); }
+  for (const m of movRes.data ?? []) { const amount = Number(m.quantity); const item = items.get(m.item_id); const row = ensure(m.warehouse_id, m.item_id, item?.name ?? "Item", item?.unit ?? "un"); const sign = m.kind === "out" ? -1 : 1; row.quantity += sign * amount; row.value += sign * amount * Number(m.unit_cost ?? item?.unit_cost ?? 0); }
+  return [...acc.values()].sort((a,b) => a.warehouse_name.localeCompare(b.warehouse_name) || a.item_name.localeCompare(b.item_name));
 });
 
-/** Lista os lançamentos de entrada e saída de estoque da empresa. */
-export const listStockMovements = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ companyId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase
-      .from("stock_movements")
-      .select("id, company_id, warehouse_id, item_id, kind, quantity, unit_cost, moved_at, document, notes")
-      .eq("company_id", data.companyId)
-      .order("moved_at", { ascending: false })
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return (rows ?? []) as unknown as StockMovement[];
-  });
+export const listStockMovements = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => companyInput.parse(v)).handler(async ({ data, context }) => {
+  const { data: rows, error } = await context.supabase.from("stock_movements").select("id,company_id,warehouse_id,item_id,kind,quantity,unit_cost,moved_at,document,notes,origin,created_by,transfer_id,inventory_count_id,responsible:profiles(full_name)").eq("company_id", data.companyId).order("moved_at", { ascending: false }).order("created_at", { ascending: false });
+  if (error) throw new Error(error.message); return (rows ?? []).map((r: any) => ({ ...r, responsible_name: r.responsible?.full_name ?? "Usuário não identificado" })) as StockMovement[];
+});
+export const saveStockMovement = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => movementSchema.parse(v)).handler(async ({ data, context }) => {
+  await assertCompanyRelations(context.supabase, data.companyId, data.itemId, [data.warehouseId]);
+  if (data.kind === "out") { const { data: available, error } = await context.supabase.rpc("stock_quantity_at", { _company_id: data.companyId, _item_id: data.itemId, _warehouse_id: data.warehouseId, _ignore_movement_id: data.id ?? null }); if (error) throw new Error(error.message); if (Number(available) < data.quantity) throw new Error(`Saldo insuficiente no depósito selecionado. Disponível: ${Number(available).toLocaleString("pt-BR")}.`); }
+  const payload = { company_id: data.companyId, warehouse_id: data.warehouseId, item_id: data.itemId, kind: data.kind, quantity: data.quantity, unit_cost: data.unitCost, moved_at: data.movedAt, document: data.document, notes: data.notes, origin: "manual", created_by: context.userId };
+  const q = data.id ? context.supabase.from("stock_movements").update(payload).eq("id", data.id).eq("origin", "manual") : context.supabase.from("stock_movements").insert(payload); const { error } = await q; if (error) throw new Error(error.message);
+  await context.supabase.from("access_logs").insert({ user_id: context.userId, company_id: data.companyId, action: data.id ? "stock.movement.updated" : "stock.movement.created", detail: `${data.kind === "in" ? "Entrada" : "Saída"} manual de estoque` }); return { ok: true };
+});
+export const deleteStockMovement = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v)).handler(async ({ data, context }) => { const { data: row } = await context.supabase.from("stock_movements").select("company_id,origin").eq("id", data.id).maybeSingle(); if (!row || row.origin !== "manual") throw new Error("Somente movimentações manuais podem ser excluídas."); const { error } = await context.supabase.from("stock_movements").delete().eq("id", data.id).eq("origin", "manual"); if (error) throw new Error(error.message); await context.supabase.from("access_logs").insert({ user_id: context.userId, company_id: row.company_id, action: "stock.movement.deleted", detail: `Movimentação excluída ${data.id}` }); return { ok: true }; });
 
-/** Cria ou atualiza um lançamento de estoque, validando saldo disponível nas saídas. */
-export const saveStockMovement = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => movementSchema.parse(input))
-  .handler(async ({ data, context }) => {
-    if (data.kind === "out") {
-      const balances = await computeItemBalance(
-        context.supabase,
-        data.companyId,
-        data.itemId,
-        data.warehouseId,
-        data.id,
-      );
-      if (balances < data.quantity) {
-        throw new Error(
-          `Saldo insuficiente no depósito selecionado. Disponível: ${balances.toLocaleString("pt-BR")}.`,
-        );
-      }
-    }
+export const listStockTransfers = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => companyInput.parse(v)).handler(async ({ data, context }) => { const { data: rows, error } = await context.supabase.from("stock_transfers").select("*,responsible:profiles(full_name)").eq("company_id", data.companyId).order("transferred_at", { ascending: false }); if (error) throw new Error(error.message); return (rows ?? []).map((r: any) => ({ ...r, responsible_name: r.responsible?.full_name ?? "Usuário não identificado" })) as StockTransfer[]; });
+export const createStockTransfer = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => z.object({ companyId: z.string().uuid(), itemId: z.string().uuid(), sourceWarehouseId: z.string().uuid(), destinationWarehouseId: z.string().uuid(), quantity: z.coerce.number().positive(), unitCost: z.coerce.number().min(0), transferredAt: z.string().min(4), document: z.string().trim().max(120).default(""), notes: z.string().trim().max(1000).default("") }).parse(v)).handler(async ({ data, context }) => { const { data: id, error } = await context.supabase.rpc("create_stock_transfer", { _company_id: data.companyId, _item_id: data.itemId, _source_warehouse_id: data.sourceWarehouseId, _destination_warehouse_id: data.destinationWarehouseId, _quantity: data.quantity, _unit_cost: data.unitCost, _transferred_at: data.transferredAt, _document: data.document, _notes: data.notes }); if (error) throw new Error(error.message); return { id }; });
 
-    const payload = {
-      company_id: data.companyId,
-      warehouse_id: data.warehouseId,
-      item_id: data.itemId,
-      kind: data.kind,
-      quantity: data.quantity,
-      unit_cost: data.unitCost,
-      moved_at: data.movedAt,
-      document: data.document,
-      notes: data.notes,
-    };
-    const query = data.id
-      ? context.supabase.from("stock_movements").update(payload).eq("id", data.id)
-      : context.supabase.from("stock_movements").insert(payload);
-    const { error } = await query;
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
+export const listInventoryCounts = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => companyInput.parse(v)).handler(async ({ data, context }) => { const { data: rows, error } = await context.supabase.from("inventory_counts").select("*,responsible:profiles(full_name)").eq("company_id", data.companyId).order("counted_at", { ascending: false }).order("created_at", { ascending: false }); if (error) throw new Error(error.message); return (rows ?? []).map((r: any) => ({ ...r, responsible_name: r.responsible?.full_name ?? "Usuário não identificado" })) as InventoryCount[]; });
+export const createInventoryCount = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => z.object({ companyId: z.string().uuid(), itemId: z.string().uuid(), warehouseId: z.string().uuid(), countedQuantity: z.coerce.number().min(0), countedAt: z.string().min(4), notes: z.string().trim().max(1000).default("") }).parse(v)).handler(async ({ data, context }) => { const { data: id, error } = await context.supabase.rpc("create_inventory_count", { _company_id: data.companyId, _item_id: data.itemId, _warehouse_id: data.warehouseId, _counted_quantity: data.countedQuantity, _counted_at: data.countedAt, _notes: data.notes }); if (error) throw new Error(error.message); return { id }; });
+export const applyInventoryCount = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v)).handler(async ({ data, context }) => { const { error } = await context.supabase.rpc("apply_inventory_count", { _count_id: data.id }); if (error) throw new Error(error.message); return { ok: true }; });
+export const cancelInventoryCount = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v)).handler(async ({ data, context }) => { const { data: row } = await context.supabase.from("inventory_counts").select("company_id,status").eq("id", data.id).maybeSingle(); if (!row || row.status !== "draft") throw new Error("Somente conferências em aberto podem ser canceladas."); const { error } = await context.supabase.from("inventory_counts").update({ status: "canceled" }).eq("id", data.id).eq("status", "draft"); if (error) throw new Error(error.message); await context.supabase.from("access_logs").insert({ user_id: context.userId, company_id: row.company_id, action: "stock.inventory.canceled", detail: `Inventário cancelado ${data.id}` }); return { ok: true }; });
 
-/** Remove um lançamento de estoque. */
-export const deleteStockMovement = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("stock_movements").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-/** Saldo atual de um item em um depósito, ignorando opcionalmente um lançamento em edição. */
-async function computeItemBalance(
-  supabase: any,
-  companyId: string,
-  itemId: string,
-  warehouseId: string | null,
-  ignoreMovementId?: string,
-) {
-  const receipts = await fetchReceipts(supabase, companyId);
-  let total = 0;
-  for (const receipt of receipts) {
-    if ((receipt.warehouse_id ?? null) !== warehouseId) continue;
-    for (const line of receipt.items) {
-      if ((line.purchase_item?.inventory_item_id ?? null) !== itemId) continue;
-      total += Number(line.quantity ?? 0);
-    }
-  }
-
-  let query = supabase
-    .from("stock_movements")
-    .select("id, kind, quantity")
-    .eq("company_id", companyId)
-    .eq("item_id", itemId);
-  query = warehouseId ? query.eq("warehouse_id", warehouseId) : query.is("warehouse_id", null);
-  const { data: movements, error } = await query;
-  if (error) throw new Error(error.message);
-  for (const mov of (movements ?? []) as any[]) {
-    if (ignoreMovementId && mov.id === ignoreMovementId) continue;
-    total += (mov.kind === "out" ? -1 : 1) * Number(mov.quantity ?? 0);
-  }
-  return total;
-}
-
-
-/** Define o depósito de entrada de um recebimento de compra. */
-export const setReceiptWarehouse = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z
-      .object({ receiptId: z.string().uuid(), warehouseId: z.string().uuid().nullable() })
-      .parse(input),
-  )
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("purchase_receipts")
-      .update({ warehouse_id: data.warehouseId })
-      .eq("id", data.receiptId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-/** Vincula um item de pedido de compra a um item de estoque. */
-export const setPurchaseItemStockLink = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z
-      .object({ purchaseItemId: z.string().uuid(), inventoryItemId: z.string().uuid().nullable() })
-      .parse(input),
-  )
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("purchase_items")
-      .update({ inventory_item_id: data.inventoryItemId })
-      .eq("id", data.purchaseItemId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
+export const setReceiptWarehouse = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => z.object({ receiptId: z.string().uuid(), warehouseId: z.string().uuid().nullable() }).parse(v)).handler(async ({ data, context }) => { const { error } = await context.supabase.from("purchase_receipts").update({ warehouse_id: data.warehouseId }).eq("id", data.receiptId); if (error) throw new Error(error.message); return { ok: true }; });
+export const setPurchaseItemStockLink = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => z.object({ purchaseItemId: z.string().uuid(), inventoryItemId: z.string().uuid().nullable() }).parse(v)).handler(async ({ data, context }) => { const { error } = await context.supabase.from("purchase_items").update({ inventory_item_id: data.inventoryItemId }).eq("id", data.purchaseItemId); if (error) throw new Error(error.message); return { ok: true }; });
