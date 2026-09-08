@@ -9,12 +9,22 @@ export type ModuleTab = {
   content: ReactNode;
 };
 
-export function ModuleTabs({ tabs, defaultValue }: { tabs: ModuleTab[]; defaultValue?: string }) {
+export function ModuleTabs({
+  tabs,
+  defaultValue,
+  value,
+  onValueChange,
+}: {
+  tabs: ModuleTab[];
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
+}) {
   const initialValue = defaultValue ?? tabs[0]?.value;
   if (!initialValue) return null;
 
   return (
-    <Tabs defaultValue={initialValue} className="min-w-0">
+    <Tabs defaultValue={initialValue} value={value} onValueChange={onValueChange} className="min-w-0">
       <div className="w-full overflow-x-auto border-b border-border/60 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <TabsList className="h-auto min-w-max justify-start rounded-none bg-transparent p-0">
           {tabs.map((tab) => (
