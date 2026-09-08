@@ -408,36 +408,125 @@ export type Database = {
           },
         ]
       }
+      inventory_counts: {
+        Row: {
+          adjusted_at: string | null
+          adjustment: number
+          company_id: string
+          counted_at: string
+          counted_quantity: number
+          created_at: string
+          created_by: string | null
+          difference: number
+          id: string
+          item_id: string
+          notes: string
+          status: string
+          system_quantity: number
+          updated_at: string
+          warehouse_id: string
+        }
+        Insert: {
+          adjusted_at?: string | null
+          adjustment?: number
+          company_id: string
+          counted_at?: string
+          counted_quantity: number
+          created_at?: string
+          created_by?: string | null
+          difference?: number
+          id?: string
+          item_id: string
+          notes?: string
+          status?: string
+          system_quantity?: number
+          updated_at?: string
+          warehouse_id: string
+        }
+        Update: {
+          adjusted_at?: string | null
+          adjustment?: number
+          company_id?: string
+          counted_at?: string
+          counted_quantity?: number
+          created_at?: string
+          created_by?: string | null
+          difference?: number
+          id?: string
+          item_id?: string
+          notes?: string
+          status?: string
+          system_quantity?: number
+          updated_at?: string
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_counts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_counts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_counts_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_counts_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_items: {
         Row: {
+          category: string
           company_id: string
           created_at: string
           id: string
           min_quantity: number
           name: string
           quantity: number
+          status: string
           unit: string
           unit_cost: number
           updated_at: string
         }
         Insert: {
+          category?: string
           company_id: string
           created_at?: string
           id?: string
           min_quantity?: number
           name: string
           quantity?: number
+          status?: string
           unit?: string
           unit_cost?: number
           updated_at?: string
         }
         Update: {
+          category?: string
           company_id?: string
           created_at?: string
           id?: string
           min_quantity?: number
           name?: string
           quantity?: number
+          status?: string
           unit?: string
           unit_cost?: number
           updated_at?: string
@@ -873,13 +962,17 @@ export type Database = {
         Row: {
           company_id: string
           created_at: string
+          created_by: string | null
           document: string
           id: string
+          inventory_count_id: string | null
           item_id: string
           kind: string
           moved_at: string
           notes: string
+          origin: string
           quantity: number
+          transfer_id: string | null
           unit_cost: number
           updated_at: string
           warehouse_id: string | null
@@ -887,13 +980,17 @@ export type Database = {
         Insert: {
           company_id: string
           created_at?: string
+          created_by?: string | null
           document?: string
           id?: string
+          inventory_count_id?: string | null
           item_id: string
           kind?: string
           moved_at?: string
           notes?: string
+          origin?: string
           quantity?: number
+          transfer_id?: string | null
           unit_cost?: number
           updated_at?: string
           warehouse_id?: string | null
@@ -901,13 +998,17 @@ export type Database = {
         Update: {
           company_id?: string
           created_at?: string
+          created_by?: string | null
           document?: string
           id?: string
+          inventory_count_id?: string | null
           item_id?: string
           kind?: string
           moved_at?: string
           notes?: string
+          origin?: string
           quantity?: number
+          transfer_id?: string | null
           unit_cost?: number
           updated_at?: string
           warehouse_id?: string | null
@@ -921,6 +1022,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "stock_movements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_inventory_count_id_fkey"
+            columns: ["inventory_count_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_counts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "stock_movements_item_id_fkey"
             columns: ["item_id"]
             isOneToOne: false
@@ -928,8 +1043,99 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "stock_movements_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "stock_transfers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "stock_movements_warehouse_id_fkey"
             columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_transfers: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          destination_warehouse_id: string
+          document: string
+          id: string
+          item_id: string
+          notes: string
+          quantity: number
+          source_warehouse_id: string
+          transferred_at: string
+          unit_cost: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          destination_warehouse_id: string
+          document?: string
+          id?: string
+          item_id: string
+          notes?: string
+          quantity: number
+          source_warehouse_id: string
+          transferred_at?: string
+          unit_cost?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          destination_warehouse_id?: string
+          document?: string
+          id?: string
+          item_id?: string
+          notes?: string
+          quantity?: number
+          source_warehouse_id?: string
+          transferred_at?: string
+          unit_cost?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_transfers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfers_destination_warehouse_id_fkey"
+            columns: ["destination_warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfers_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_transfers_source_warehouse_id_fkey"
+            columns: ["source_warehouse_id"]
             isOneToOne: false
             referencedRelation: "warehouses"
             referencedColumns: ["id"]
@@ -1095,6 +1301,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_inventory_count: { Args: { _count_id: string }; Returns: string }
+      create_inventory_count: {
+        Args: {
+          _company_id: string
+          _counted_at: string
+          _counted_quantity: number
+          _item_id: string
+          _notes: string
+          _warehouse_id: string
+        }
+        Returns: string
+      }
+      create_stock_transfer: {
+        Args: {
+          _company_id: string
+          _destination_warehouse_id: string
+          _document: string
+          _item_id: string
+          _notes: string
+          _quantity: number
+          _source_warehouse_id: string
+          _transferred_at: string
+          _unit_cost: number
+        }
+        Returns: string
+      }
       current_company_id: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -1104,6 +1336,15 @@ export type Database = {
         Returns: boolean
       }
       is_devitech_admin: { Args: never; Returns: boolean }
+      stock_quantity_at: {
+        Args: {
+          _company_id: string
+          _ignore_movement_id?: string
+          _item_id: string
+          _warehouse_id: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       account_status: "active" | "blocked"
