@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Boxes, Lock } from "lucide-react";
 
-import { StockBalancesPanel } from "@/components/stock-balances-panel";
-import { ModuleTabs, UpcomingSubmodule } from "@/components/module-tabs";
+import { StockWorkspace } from "@/components/stock-workspace";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { getModule } from "@/lib/modules";
@@ -56,22 +55,7 @@ function StockModule() {
           </Button>
         </div>
       ) : (
-        <ModuleTabs
-          tabs={[
-            { value: "balances", label: "Saldos por depósito", content: <StockBalancesPanel view="balances" /> },
-            { value: "movements", label: "Entradas e saídas", content: <StockBalancesPanel view="movements" /> },
-            {
-              value: "batches",
-              label: "Lotes e validade",
-              content: <UpcomingSubmodule name="Lotes e validade" />,
-            },
-            {
-              value: "inventory",
-              label: "Inventário e perdas",
-              content: <UpcomingSubmodule name="Inventário e perdas" />,
-            },
-          ]}
-        />
+        <StockWorkspace />
       )}
     </div>
   );
