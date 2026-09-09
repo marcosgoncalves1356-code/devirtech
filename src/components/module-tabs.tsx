@@ -24,7 +24,12 @@ export function ModuleTabs({
   if (!initialValue) return null;
 
   return (
-    <Tabs defaultValue={initialValue} value={value} onValueChange={onValueChange} className="min-w-0">
+    <Tabs
+      defaultValue={initialValue}
+      {...(value === undefined ? {} : { value })}
+      {...(onValueChange ? { onValueChange } : {})}
+      className="min-w-0"
+    >
       <div className="w-full overflow-x-auto border-b border-border/60 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <TabsList className="h-auto min-w-max justify-start rounded-none bg-transparent p-0">
           {tabs.map((tab) => (
