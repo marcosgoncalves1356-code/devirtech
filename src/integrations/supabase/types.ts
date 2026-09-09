@@ -227,6 +227,87 @@ export type Database = {
           },
         ]
       }
+      crop_seasons: {
+        Row: {
+          area_unit: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          crop_type: string
+          cultivated_area: number
+          end_date: string | null
+          field_id: string | null
+          id: string
+          name: string
+          notes: string
+          pick_rate: number
+          production_unit: string
+          property_id: string | null
+          season_year: number
+          start_date: string | null
+          status: string
+          terrain_type: string
+          updated_at: string
+        }
+        Insert: {
+          area_unit?: string
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          crop_type?: string
+          cultivated_area?: number
+          end_date?: string | null
+          field_id?: string | null
+          id?: string
+          name: string
+          notes?: string
+          pick_rate?: number
+          production_unit?: string
+          property_id?: string | null
+          season_year: number
+          start_date?: string | null
+          status?: string
+          terrain_type?: string
+          updated_at?: string
+        }
+        Update: {
+          area_unit?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          crop_type?: string
+          cultivated_area?: number
+          end_date?: string | null
+          field_id?: string | null
+          id?: string
+          name?: string
+          notes?: string
+          pick_rate?: number
+          production_unit?: string
+          property_id?: string | null
+          season_year?: number
+          start_date?: string | null
+          status?: string
+          terrain_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crop_seasons_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crop_seasons_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           company_id: string
@@ -404,6 +485,83 @@ export type Database = {
             columns: ["cost_center_id"]
             isOneToOne: false
             referencedRelation: "cost_centers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      harvest_records: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          employee_id: string | null
+          harvested_at: string
+          id: string
+          notes: string
+          picker_name: string
+          quantity: number
+          season_id: string
+          total_amount: number
+          unit_rate: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string | null
+          harvested_at: string
+          id?: string
+          notes?: string
+          picker_name?: string
+          quantity?: number
+          season_id: string
+          total_amount?: number
+          unit_rate?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string | null
+          harvested_at?: string
+          id?: string
+          notes?: string
+          picker_name?: string
+          quantity?: number
+          season_id?: string
+          total_amount?: number
+          unit_rate?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "harvest_records_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "harvest_records_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "harvest_records_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "harvest_records_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "crop_seasons"
             referencedColumns: ["id"]
           },
         ]
@@ -632,6 +790,99 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_activities: {
+        Row: {
+          activity_date: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string
+          employee_id: string | null
+          id: string
+          inventory_item_id: string | null
+          kind: string
+          notes: string
+          quantity: number
+          season_id: string
+          total_cost: number
+          unit: string
+          unit_cost: number
+          updated_at: string
+        }
+        Insert: {
+          activity_date: string
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          employee_id?: string | null
+          id?: string
+          inventory_item_id?: string | null
+          kind: string
+          notes?: string
+          quantity?: number
+          season_id: string
+          total_cost?: number
+          unit?: string
+          unit_cost?: number
+          updated_at?: string
+        }
+        Update: {
+          activity_date?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          employee_id?: string | null
+          id?: string
+          inventory_item_id?: string | null
+          kind?: string
+          notes?: string
+          quantity?: number
+          season_id?: string
+          total_cost?: number
+          unit?: string
+          unit_cost?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_activities_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_activities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_activities_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_activities_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_activities_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "crop_seasons"
             referencedColumns: ["id"]
           },
         ]
