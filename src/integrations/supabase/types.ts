@@ -308,6 +308,80 @@ export type Database = {
           },
         ]
       }
+      customers: {
+        Row: {
+          address: string
+          category: string
+          city: string
+          company_id: string
+          contact_name: string
+          created_at: string
+          document: string
+          email: string
+          id: string
+          name: string
+          notes: string
+          payment_terms: string
+          phone: string
+          state: string
+          state_registration: string
+          status: string
+          trade_name: string
+          updated_at: string
+          zip_code: string
+        }
+        Insert: {
+          address?: string
+          category?: string
+          city?: string
+          company_id: string
+          contact_name?: string
+          created_at?: string
+          document?: string
+          email?: string
+          id?: string
+          name: string
+          notes?: string
+          payment_terms?: string
+          phone?: string
+          state?: string
+          state_registration?: string
+          status?: string
+          trade_name?: string
+          updated_at?: string
+          zip_code?: string
+        }
+        Update: {
+          address?: string
+          category?: string
+          city?: string
+          company_id?: string
+          contact_name?: string
+          created_at?: string
+          document?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string
+          payment_terms?: string
+          phone?: string
+          state?: string
+          state_registration?: string
+          status?: string
+          trade_name?: string
+          updated_at?: string
+          zip_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           company_id: string
@@ -1205,6 +1279,75 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_contracts: {
+        Row: {
+          company_id: string
+          contract_number: string
+          created_at: string
+          customer_id: string
+          end_date: string | null
+          id: string
+          notes: string
+          product: string
+          quantity: number
+          start_date: string
+          status: string
+          total: number
+          unit: string
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          contract_number: string
+          created_at?: string
+          customer_id: string
+          end_date?: string | null
+          id?: string
+          notes?: string
+          product: string
+          quantity?: number
+          start_date?: string
+          status?: string
+          total?: number
+          unit?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          contract_number?: string
+          created_at?: string
+          customer_id?: string
+          end_date?: string | null
+          id?: string
+          notes?: string
+          product?: string
+          quantity?: number
+          start_date?: string
+          status?: string
+          total?: number
+          unit?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_contracts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_contracts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
             referencedColumns: ["id"]
           },
         ]
