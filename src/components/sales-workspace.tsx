@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Building2, FileText, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 
-import { ModuleTabs, UpcomingSubmodule } from "@/components/module-tabs";
+import { ModuleTabs, UpcommingSubmodule } from "@/components/module-tabs";
+import { ReceivablesPanel } from "@/components/receivables-panel";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import {
@@ -142,7 +143,7 @@ export function SalesWorkspace() {
       ) : null}
       <SearchField value={customerSearch} onChange={setCustomerSearch} placeholder="Buscar por nome, documento, contato ou cidade" />
       {customersQuery.isLoading ? <Loader2 className="h-5 w-5 animate-spin text-primary" /> : visibleCustomers.length === 0 ? <Empty text="Nenhum cliente encontrado." /> : (
-        <div className="grid gap-3">{visibleCustomers.map((c) => <article key={c.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/80 p-4"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary"><Building2 className="h-5 w-5" /></span><div className="min-w-0 flex-1"><h3 className="truncate text-sm font-semibold">{c.name}{c.trade_name ? ` — ${c.trade_name}` : ""}</h3><p className="truncate text-xs text-muted-foreground">{[c.document, c.contact_name, c.phone, c.email].filter(Boolean).join(" • ") || "Sem dados de contato"}</p></div><Status active={c.status === "active"} />{editable ? <div className="flex gap-2"><Button variant="outline" size="icon" aria-label={`Editar ${c.name}`} onClick={() => setCustomerDraft(editCustomer(c))}><Pencil className="h-4 w-4" /></Button><Button variant="outline" size="icon" aria-label={`Excluir ${c.name}`} onClick={() => confirm(`Excluir o cliente ${c.name}?`) && customerDelete.mutate(c.id)}><Trash2 className="h-4 w-4" /></Button></div> : null}</article>)}</div>
+        <div className="grid gap-3">{visibleCustomers.map((c) => <article key={c.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/80 p-4"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary"><Building2 className="h-5 w-5" /></span><div className="min-w-0 flex-1"><h3 className="truncate text-sm font-semibold">{c.name}{c.trade_name ? ` — ${c.trade_name}` : ""}</h3><p className="truncate text-xs text-muted-foreground">{[c.document, c.contact_name, c.phone, c.email].filter(Boolean).join(" ∙ ") || "Sem dados de contato"}</p></div><Status active={c.status === "active"} />{editable ? <div className="flex gap-2"><Button variant="outline" size="icon" aria-label={`Editar ${c.name}`} onClick={() => setCustomerDraft(editCustomer(c))}><Pencil className="h-4 w-4" /></Button><Button variant="outline" size="icon" aria-label={`Excluir ${c.name}`} onClick={() => confirm(`Excluir o cliente ${c.name}?`) && customerDelete.mutate(c.id)}><Trash2 className="h-4 w-4" /></Button></div> : null}</article>)}</div>
       )}
     </section>
   );
@@ -172,7 +173,7 @@ export function SalesWorkspace() {
       {customers.length === 0 ? <p className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">Cadastre um cliente antes de criar o primeiro contrato.</p> : null}
       <SearchField value={contractSearch} onChange={setContractSearch} placeholder="Buscar por contrato, cliente ou produto" />
       {contractsQuery.isLoading ? <Loader2 className="h-5 w-5 animate-spin text-primary" /> : visibleContracts.length === 0 ? <Empty text="Nenhum contrato encontrado." /> : (
-        <div className="grid gap-3">{visibleContracts.map((c) => <article key={c.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/80 p-4"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary"><FileText className="h-5 w-5" /></span><div className="min-w-0 flex-1"><h3 className="truncate text-sm font-semibold">Contrato {c.contract_number} — {customerNames.get(c.customer_id) ?? "Cliente"}</h3><p className="truncate text-xs text-muted-foreground">{c.product} • {Number(c.quantity).toLocaleString("pt-BR")} {c.unit} • {money.format(Number(c.total))}</p><p className="text-xs text-muted-foreground/80">Início: {new Date(`${c.start_date}T12:00:00`).toLocaleDateString("pt-BR")}{c.end_date ? ` • Término: ${new Date(`${c.end_date}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}</p></div><span className="rounded-full bg-primary/15 px-3 py-1 text-xs text-primary">{statusNames[c.status]}</span>{editable ? <div className="flex gap-2"><Button variant="outline" size="icon" aria-label={`Editar contrato ${c.contract_number}`} onClick={() => setContractDraft(editContract(c))}><Pencil className="h-4 w-4" /></Button><Button variant="outline" size="icon" aria-label={`Excluir contrato ${c.contract_number}`} onClick={() => confirm(`Excluir o contrato ${c.contract_number}?`) && contractDelete.mutate(c.id)}><Trash2 className="h-4 w-4" /></Button></div> : null}</article>)}</div>
+        <div className="grid gap-3">{visibleContracts.map((c) => <article key={c.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/80 p-4"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary"><FileText className="h-5 w-5" /></span><div className="min-w-0 flex-1"><h3 className="truncate text-sm font-semibold">Contrato {c.contract_number} — {customerNames.get(c.customer_id) ?? "Cliente"}</h3><p className="truncate text-xs text-muted-foreground">{c.product} ∙ {Number(c.quantity).toLocaleString("pt-BR")} {c.unit} ∙ {money.format(Number(c.total))}</p><p className="text-xs text-muted-foreground/80">Início: {new Date(`${c.start_date}T12:00:00`).toLocaleDateString("pt-BR")}{c.end_date ? ` ∙ Término: ${new Date(`${c.end_date}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}</p></div><span className="rounded-full bg-primary/15 px-3 py-1 text-xs text-primary">{statusNames[c.status]}</span>{editable ? <div className="flex gap-2"><Button variant="outline" size="icon" aria-label={`Editar contrato ${c.contract_number}`} onClick={() => setContractDraft(editContract(c))}><Pencil className="h-4 w-4" /></Button><Button variant="outline" size="icon" aria-label={`Excluir contrato ${c.contract_number}`} onClick={() => confirm(`Excluir o contrato ${c.contract_number}?`) && contractDelete.mutate(c.id)}><Trash2 className="h-4 w-4" /></Button></div> : null}</article>)}</div>
       )}
     </section>
   );
@@ -180,14 +181,14 @@ export function SalesWorkspace() {
   return <ModuleTabs tabs={[
     { value: "customers", label: "Clientes", content: customerPanel },
     { value: "contracts", label: "Contratos", content: contractPanel },
-    { value: "orders", label: "Pedidos de venda", content: <UpcomingSubmodule name="Pedidos de venda" /> },
-    { value: "prices", label: "Tabelas de preço", content: <UpcomingSubmodule name="Tabelas de preço" /> },
-    { value: "billing", label: "Faturamento", content: <UpcomingSubmodule name="Faturamento" /> },
+    { value: "orders", label: "Pedidos de venda", content: <UpcommingSubmodule name="Pedidos de venda" /> },
+    { value: "prices", label: "Tabelas de preço", content: <UpcommingSubmodule name="Tabelas de preço" /> },
+    { value: "billing", label: "Faturamento", content: <ReceivablesPanel /> },
   ]} />;
 }
 
 function SearchField({ value, onChange, placeholder }: { value: string; onChange: (value: string) => void; placeholder: string }) {
   return <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input className="field-shell w-full pl-9 text-sm" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} /></div>;
 }
-function Empty({ text }: { text: string }) { return <p className="rounded-2xl border border-dashed border-border/60 p-6 text-sm text-muted-foreground">{text}</p>; }
+function Empty({ text }: { text: string }) { return <p className="rounded-2xl border border-dashed border-border/60 p-6 text-sm text-muted-foreground">{text}; </p>; }
 function Status({ active }: { active: boolean }) { return <span className={active ? "rounded-full bg-primary/15 px-3 py-1 text-xs text-primary" : "rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"}>{active ? "Ativo" : "Inativo"}</span>; }
