@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 export type Customer = {
   id: string;
@@ -81,7 +83,7 @@ const contractSchema = z.object({
 });
 
 async function assertCustomer(
-  supabase: Parameters<Parameters<typeof createServerFn>[0]>[0] extends never ? never : any,
+  supabase: SupabaseClient<Database>,
   companyId: string,
   customerId: string,
 ) {
