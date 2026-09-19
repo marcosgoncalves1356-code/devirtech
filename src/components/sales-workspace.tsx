@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Building2, FileText, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 
 import { ModuleTabs, UpcomingSubmodule } from "@/components/module-tabs";
-import { ReceivablesPanel } from "@/components/receivables-panel";
+import { SalesBillingPanel } from "@/components/sales-billing-panel";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import {
@@ -183,7 +183,7 @@ export function SalesWorkspace() {
     { value: "contracts", label: "Contratos", content: contractPanel },
     { value: "orders", label: "Pedidos de venda", content: <UpcomingSubmodule name="Pedidos de venda" /> },
     { value: "prices", label: "Tabelas de preço", content: <UpcomingSubmodule name="Tabelas de preço" /> },
-    { value: "billing", label: "Faturamento", content: <ReceivablesPanel /> },
+    { value: "billing", label: "Faturamento", content: <SalesBillingPanel /> },
   ]} />;
 }
 
