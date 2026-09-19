@@ -45,6 +45,17 @@ export type SalesContract = {
   updated_at: string;
 };
 
+export type SalesBilling = {
+  id: string;
+  company_id: string;
+  customer: string;
+  total: number;
+  sold_at: string;
+  status: "draft" | "confirmed" | "canceled";
+  created_at: string;
+  updated_at: string;
+};
+
 const companySchema = z.object({ companyId: z.string().uuid() });
 
 const customerSchema = z.object({
@@ -80,6 +91,15 @@ const contractSchema = z.object({
   unitPrice: z.coerce.number().nonnegative("O valor não pode ser negativo."),
   status: z.enum(["draft", "active", "completed", "canceled"]),
   notes: z.string().trim().max(1200).default(""),
+});
+
+const billingSchema = z.object({
+  id: z.string().uuid().optional(),
+  companyId: z.string().uuid(),
+  customer: z.string().trim().min(2, "Informe o cliente.").max(180),
+  soldAt: z.string().date("Informe uma data válida."),
+  total: z.coerce.number().positive("Informe um valor maior que zero."),
+  status: z.enum(["draft", "confirmed", "canceled"]).default("draft"),
 });
 
 async function assertCustomer(
@@ -199,6 +219,73 @@ export const deleteSalesContract = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("sales_contracts")
+      .delete()
+      .eq("id", data.id)
+      .eq("company_id", data.companyId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const listSalesBillings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => companySchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("sales")
+      .select("*")
+      .eq("company_id", data.companyId)
+      .order("sold_at", { ascending: false })
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as SalesBilling[];
+  });
+
+export const saveSalesBilling = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => billingSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const payload = {
+      company_id: data.companyId,
+      customer: data.customer,
+      sold_at: data.soldAt,
+      total: Math.round(data.total * 100) / 100,
+      status: data.status,
+    };
+    const query = data.id
+      ? context.supabase.from("sales").update(payload).eq("id", data.id).eq("company_id", data.companyId)
+      : context.supabase.from("sales").insert(payload);
+    const { error } = await query;
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const setSalesBillingStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      companyId: z.string().uuid(),
+      status: z.enum(["draft", "confirmed", "canceled"]),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("sales")
+      .update({ status: data.status })
+      .eq("id", data.id)
+      .eq("company_id", data.companyId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteSalesBilling = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), companyId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("sales")
       .delete()
       .eq("id", data.id)
       .eq("company_id", data.companyId);
