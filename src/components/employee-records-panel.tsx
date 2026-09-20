@@ -373,7 +373,7 @@ export function EmployeeRecordsPanel() {
           {visible.map((e) => (
             <article
               key={e.id}
-              className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/80 p-4"
+              className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto_auto]"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
                 <UserRound className="h-5 w-5" />
@@ -391,33 +391,35 @@ export function EmployeeRecordsPanel() {
               <span
                 className={
                   e.status === "active"
-                    ? "rounded-full bg-primary/15 px-3 py-1 text-xs text-primary"
-                    : "rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
+                    ? "col-span-2 justify-self-start rounded-full bg-primary/15 px-3 py-1 text-xs text-primary sm:col-span-1"
+                    : "col-span-2 justify-self-start rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground sm:col-span-1"
                 }
               >
                 {e.status === "active" ? "Ativo" : "Inativo"}
               </span>
               {editable ? (
                 <>
-                  <Button variant="ghost" size="icon" aria-label="Editar" onClick={() => setDraft(toDraft(e))}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Excluir"
-                    onClick={async () => {
-                      if (!window.confirm(`Excluir a ficha de ${e.full_name}?`)) return;
-                      try {
-                        await remove({ data: { id: e.id } });
-                        invalidate();
-                      } catch (err) {
-                        setError((err as Error).message);
-                      }
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                  <div className="col-span-2 flex justify-end gap-1 sm:col-span-1">
+                    <Button variant="ghost" size="icon" aria-label="Editar" onClick={() => setDraft(toDraft(e))}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Excluir"
+                      onClick={async () => {
+                        if (!window.confirm(`Excluir a ficha de ${e.full_name}?`)) return;
+                        try {
+                          await remove({ data: { id: e.id } });
+                          invalidate();
+                        } catch (err) {
+                          setError((err as Error).message);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
                 </>
               ) : null}
             </article>
