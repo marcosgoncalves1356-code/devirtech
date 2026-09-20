@@ -144,25 +144,25 @@ export function CashFlowPanel() {
         </select>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid min-w-0 gap-3 min-[360px]:grid-cols-2 sm:grid-cols-3">
         <article className="rounded-2xl border border-primary/40 bg-primary/10 p-4">
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
             <ArrowUpRight className="h-4 w-4 text-primary" /> Entradas
           </p>
-          <p className="mt-1 text-xl font-semibold text-primary">{currency.format(totals.inflow)}</p>
+          <p className="mobile-value mt-1 text-xl font-semibold text-primary">{currency.format(totals.inflow)}</p>
         </article>
         <article className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4">
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
             <ArrowDownRight className="h-4 w-4 text-destructive" /> Saídas
           </p>
-          <p className="mt-1 text-xl font-semibold text-destructive">{currency.format(totals.outflow)}</p>
+          <p className="mobile-value mt-1 text-xl font-semibold text-destructive">{currency.format(totals.outflow)}</p>
         </article>
-        <article className="rounded-2xl border border-border/60 bg-card/80 p-4">
+        <article className="min-w-0 rounded-2xl border border-border/60 bg-card/80 p-4 min-[360px]:col-span-2 sm:col-span-1">
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
             <Scale className="h-4 w-4" /> Saldo
           </p>
           <p
-            className={`mt-1 text-xl font-semibold ${totals.balance < 0 ? "text-destructive" : "text-primary"}`}
+            className={`mobile-value mt-1 text-xl font-semibold ${totals.balance < 0 ? "text-destructive" : "text-primary"}`}
           >
             {currency.format(totals.balance)}
           </p>
@@ -217,7 +217,7 @@ export function CashFlowPanel() {
                   </p>
                 </div>
                 <span
-                  className={`text-sm font-semibold ${m.direction === "in" ? "text-primary" : "text-destructive"}`}
+                  className={`mobile-value max-w-full text-right text-sm font-semibold ${m.direction === "in" ? "text-primary" : "text-destructive"}`}
                 >
                   {m.direction === "in" ? "+" : "-"} {currency.format(m.amount)}
                 </span>
