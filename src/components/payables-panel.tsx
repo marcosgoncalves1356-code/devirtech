@@ -209,18 +209,18 @@ export function PayablesPanel() {
         ) : null}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid min-w-0 gap-3 min-[360px]:grid-cols-2 sm:grid-cols-3">
         <article className="rounded-2xl border border-border/60 bg-card/80 p-4">
           <p className="text-xs text-muted-foreground">Em aberto</p>
-          <p className="mt-1 text-xl font-semibold">{currency.format(totals.open)}</p>
+          <p className="mobile-value mt-1 text-xl font-semibold">{currency.format(totals.open)}</p>
         </article>
         <article className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4">
           <p className="text-xs text-muted-foreground">Vencido</p>
-          <p className="mt-1 text-xl font-semibold text-destructive">{currency.format(totals.overdue)}</p>
+          <p className="mobile-value mt-1 text-xl font-semibold text-destructive">{currency.format(totals.overdue)}</p>
         </article>
-        <article className="rounded-2xl border border-primary/40 bg-primary/10 p-4">
+        <article className="min-w-0 rounded-2xl border border-primary/40 bg-primary/10 p-4 min-[360px]:col-span-2 sm:col-span-1">
           <p className="text-xs text-muted-foreground">Pago</p>
-          <p className="mt-1 text-xl font-semibold text-primary">{currency.format(totals.paid)}</p>
+          <p className="mobile-value mt-1 text-xl font-semibold text-primary">{currency.format(totals.paid)}</p>
         </article>
       </div>
 
@@ -333,7 +333,7 @@ export function PayablesPanel() {
       ) : null}
 
       <div className="flex flex-wrap gap-3">
-        <div className="relative min-w-52 flex-1">
+        <div className="relative min-w-0 flex-1 basis-full sm:min-w-52 sm:basis-auto">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             className="field-shell w-full pl-9 text-sm"

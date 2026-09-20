@@ -843,7 +843,7 @@ export function StockBalancesPanel({ view = "balances" }: { view?: "balances" | 
                         <span className="font-semibold">
                           {qty(row.quantity)} {row.unit}
                         </span>
-                        <span className="w-28 text-right text-xs text-muted-foreground">{money(row.value)}</span>
+                        <span className="mobile-value min-w-[7rem] text-right text-xs text-muted-foreground">{money(row.value)}</span>
                       </div>
                     );
                   })}

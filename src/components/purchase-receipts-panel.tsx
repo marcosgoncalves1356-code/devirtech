@@ -282,9 +282,9 @@ export function PurchaseReceiptsPanel() {
                   {(r.items ?? []).map((i) => {
                     const item = itemById.get(i.purchase_item_id);
                     return (
-                      <li key={i.id} className="flex flex-wrap justify-between gap-2">
-                        <span className="truncate">{item?.description ?? "Item do pedido"}</span>
-                        <strong className="text-foreground">
+                      <li key={i.id} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-2">
+                        <span className="min-w-0 truncate">{item?.description ?? "Item do pedido"}</span>
+                        <strong className="mobile-value max-w-36 text-right text-foreground">
                           {Number(i.quantity)} {item?.unit ?? ""}
                           {item ? ` de ${Number(item.quantity)}` : ""}
                         </strong>

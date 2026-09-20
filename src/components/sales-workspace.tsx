@@ -163,7 +163,7 @@ export function SalesWorkspace() {
             <input className="field-shell text-sm" type="number" min="0" step="0.001" placeholder="Quantidade" value={contractDraft.quantity} onChange={(e) => setContractDraft({ ...contractDraft, quantity: Number(e.target.value) })} />
             <input className="field-shell text-sm" required placeholder="Unidade" value={contractDraft.unit} onChange={(e) => setContractDraft({ ...contractDraft, unit: e.target.value })} />
             <input className="field-shell text-sm" type="number" min="0" step="0.01" placeholder="Valor unitário" value={contractDraft.unitPrice} onChange={(e) => setContractDraft({ ...contractDraft, unitPrice: Number(e.target.value) })} />
-            <div className="field-shell text-sm"><span className="text-xs text-muted-foreground">Valor total</span><strong className="block">{money.format(contractDraft.quantity * contractDraft.unitPrice)}</strong></div>
+            <div className="field-shell text-sm"><span className="shrink-0 text-xs text-muted-foreground">Valor total</span><strong className="mobile-value">{money.format(contractDraft.quantity * contractDraft.unitPrice)}</strong></div>
             <select className="field-shell text-sm" value={contractDraft.status} onChange={(e) => setContractDraft({ ...contractDraft, status: e.target.value as SalesContract["status"] })}>{Object.entries(statusNames).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
             <textarea className="field-shell min-h-20 text-sm sm:col-span-2 lg:col-span-3" placeholder="Observações" value={contractDraft.notes} onChange={(e) => setContractDraft({ ...contractDraft, notes: e.target.value })} />
           </div>

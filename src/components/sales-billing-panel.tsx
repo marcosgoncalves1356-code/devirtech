@@ -123,10 +123,10 @@ export function SalesBillingPanel() {
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
+      <div className="grid min-w-0 grid-cols-1 gap-2 min-[360px]:grid-cols-2 sm:grid-cols-3 sm:gap-3">
         <Summary label="Confirmado" value={totals.confirmed} tone="primary" />
         <Summary label="Em rascunho" value={totals.draft} />
-        <div className="col-span-2 sm:col-span-1"><Summary label="Cancelado" value={totals.canceled} tone="danger" /></div>
+        <div className="min-[360px]:col-span-2 sm:col-span-1"><Summary label="Cancelado" value={totals.canceled} tone="danger" /></div>
       </div>
 
       {error ? <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">{error}</p> : null}
@@ -156,11 +156,11 @@ export function SalesBillingPanel() {
       ) : (
         <div className="grid gap-3">
           {visible.map((row) => (
-            <article key={row.id} className="rounded-lg border border-border/60 bg-card/80 p-4">
-              <div className="flex items-start gap-3">
+            <article key={row.id} className="min-w-0 overflow-hidden rounded-lg border border-border/60 bg-card/80 p-4">
+              <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary"><FileCheck2 className="h-5 w-5" /></span>
-                <div className="min-w-0 flex-1"><h3 className="truncate text-sm font-semibold">{row.customer}</h3><p className="mt-0.5 text-lg font-semibold">{currency.format(Number(row.total))}</p><p className="text-xs text-muted-foreground">Emitido em {formatDate(row.sold_at)}</p></div>
-                <Status status={row.status} />
+                <div className="min-w-0"><h3 className="truncate text-sm font-semibold">{row.customer}</h3><p className="mobile-value mt-0.5 text-lg font-semibold">{currency.format(Number(row.total))}</p><p className="truncate text-xs text-muted-foreground">Emitido em {formatDate(row.sold_at)}</p></div>
+                <div className="col-span-2 justify-self-start sm:col-span-1 sm:justify-self-end"><Status status={row.status} /></div>
               </div>
               {editable ? (
                 <div className="mt-3 grid grid-cols-2 gap-2 border-t border-border/50 pt-3 sm:flex sm:justify-end">
@@ -180,7 +180,7 @@ export function SalesBillingPanel() {
 
 function Summary({ label, value, tone = "muted" }: { label: string; value: number; tone?: "muted" | "primary" | "danger" }) {
   const classes = tone === "primary" ? "border-primary/40 bg-primary/10" : tone === "danger" ? "border-destructive/40 bg-destructive/10" : "border-border/60 bg-card/80";
-  return <article className={`h-full rounded-lg border p-3 sm:p-4 ${classes}`}><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 truncate text-base font-semibold sm:text-xl">{currency.format(value)}</p></article>;
+  return <article className={`min-w-0 overflow-hidden rounded-lg border p-3 sm:p-4 ${classes}`}><p className="truncate text-xs text-muted-foreground">{label}</p><p className="mobile-value mt-1 text-base font-semibold sm:text-xl">{currency.format(value)}</p></article>;
 }
 
 function Status({ status }: { status: SalesBilling["status"] }) {

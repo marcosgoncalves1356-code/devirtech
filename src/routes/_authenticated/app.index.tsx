@@ -320,7 +320,7 @@ function Dashboard() {
               <h2 className="flex items-center gap-2 text-sm font-semibold">
                 <ShoppingCart className="h-4 w-4 text-primary" /> Vendas x Compras
               </h2>
-              <p className="text-xs text-muted-foreground">
+              <p className="break-words text-xs text-muted-foreground">
                 {brl(data.salesTotal)} vendidos • {brl(data.purchasesTotal)} comprados ({data.purchasesCount} compras)
               </p>
               <div className="mt-4 h-60 w-full">
@@ -362,7 +362,7 @@ function Dashboard() {
                           {u.status === "overdue" ? " • atrasado" : ""}
                         </p>
                       </div>
-                      <span className={`text-xs font-semibold ${u.kind === "payable" ? "text-rose-300" : "text-emerald-300"}`}>
+                       <span className={`mobile-value max-w-32 shrink-0 text-right text-xs font-semibold ${u.kind === "payable" ? "text-rose-300" : "text-emerald-300"}`}>
                         {brl(u.amount)}
                       </span>
                     </li>

@@ -615,7 +615,8 @@ export function ProductionWorkspace() {
           {seasons
             .filter((s) => harvestTotals.has(s.id))
             .map((s) => {
-              const totals = harvestTotals.get(s.id)!;
+               const totals = harvestTotals.get(s.id);
+               if (!totals) return null;
               const area = Number(s.cultivated_area) || 0;
               return (
                 <article key={s.id} className="rounded-2xl border border-border/60 bg-card/80 p-4">
