@@ -61,8 +61,8 @@ export function CostCentersPanel() {
   const rows = centers as CostCenter[];
 
   return (
-    <section className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
+    <section className="min-w-0 max-w-full space-y-4">
+      <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-semibold">Centros de custo</h2>
           <p className="text-sm text-muted-foreground">
@@ -71,6 +71,7 @@ export function CostCentersPanel() {
         </div>
         {editable ? (
           <Button
+            className="w-full sm:w-auto"
             variant="glow"
             onClick={() => setDraft({ name: "", description: "", status: "active" })}
           >
@@ -85,13 +86,13 @@ export function CostCentersPanel() {
 
       {draft ? (
         <form
-          className="space-y-4 rounded-2xl border border-primary/40 bg-card/80 p-5"
+          className="min-w-0 max-w-full space-y-4 rounded-2xl border border-primary/40 bg-card/80 p-4 sm:p-5"
           onSubmit={(e) => {
             e.preventDefault();
             saveMutation.mutate(draft);
           }}
         >
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
             <input
               className="field-shell text-sm"
               placeholder="Nome (lavoura, frota, administrativo…)"
@@ -115,7 +116,7 @@ export function CostCentersPanel() {
               <option value="inactive">Inativo</option>
             </select>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button type="submit" variant="glow" disabled={saveMutation.isPending}>
               {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Salvar centro de custo"}
             </Button>
@@ -137,9 +138,9 @@ export function CostCentersPanel() {
           {rows.map((c) => (
             <article
               key={c.id}
-              className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/80 p-4"
+              className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
                 <Layers className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1">
@@ -149,7 +150,7 @@ export function CostCentersPanel() {
                 </p>
               </div>
               {editable ? (
-                <div className="flex gap-2">
+                <div className="col-span-2 flex justify-end gap-2 sm:col-span-1">
                   <Button
                     variant="outline"
                     size="sm"

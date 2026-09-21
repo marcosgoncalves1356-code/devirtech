@@ -28,7 +28,7 @@ export function ModuleTabs({
       defaultValue={initialValue}
       {...(value === undefined ? {} : { value })}
       {...(onValueChange ? { onValueChange } : {})}
-      className="min-w-0"
+      className="min-w-0 max-w-full"
     >
       <div className="w-full overflow-x-auto border-b border-border/60 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <TabsList className="h-auto min-w-max justify-start rounded-none bg-transparent p-0">
@@ -45,7 +45,7 @@ export function ModuleTabs({
       </div>
 
       {tabs.map((tab) => (
-        <TabsContent key={tab.value} value={tab.value} className="mt-6">
+        <TabsContent key={tab.value} value={tab.value} className="mt-6 min-w-0 max-w-full overflow-x-clip">
           {tab.content}
         </TabsContent>
       ))}

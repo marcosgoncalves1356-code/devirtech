@@ -214,3 +214,19 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+
+/* Shared frame for every current and future module page. Horizontal scrolling
+   remains opt-in on tabs and dense data tables instead of leaking to the page. */
+@utility module-frame {
+  min-width: 0;
+  max-width: 100%;
+
+  & :where(section, form, article, fieldset, label, input, select, textarea) {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  & :where(img, svg) {
+    max-width: 100%;
+  }
+}
