@@ -252,7 +252,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
 
-      <div className="min-w-0 max-w-full overflow-x-clip lg:pl-72">
+      <div className="min-w-0 max-w-full lg:pl-72">
         <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
           <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
             <button
@@ -318,7 +318,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         ) : null}
 
         <PullToRefresh>
-          <main className="min-w-0 max-w-full px-4 pb-28 pt-6 sm:px-6 lg:pb-12">{children}</main>
+          <main className="min-w-0 max-w-full px-4 pb-28 pt-6 sm:px-6 lg:pb-12">
+            <div className="min-w-0 max-w-full">{children}</div>
+          </main>
         </PullToRefresh>
       </div>
 

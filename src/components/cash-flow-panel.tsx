@@ -117,8 +117,8 @@ export function CashFlowPanel() {
   const loading = loadingP || loadingR;
 
   return (
-    <section className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
+    <section className="min-w-0 max-w-full space-y-4">
+      <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-semibold">Fluxo de caixa</h2>
           <p className="text-sm text-muted-foreground">
@@ -126,14 +126,14 @@ export function CashFlowPanel() {
           </p>
         </div>
         <select
-          className="field-shell text-sm"
+          className="field-shell text-sm lg:w-auto"
           value={mode}
           onChange={(e) => setMode(e.target.value as typeof mode)}
         >
           <option value="realized">Realizado (baixados)</option>
           <option value="projected">Previsto (todos os títulos)</option>
         </select>
-        <select className="field-shell text-sm" value={center} onChange={(e) => setCenter(e.target.value)}>
+        <select className="field-shell text-sm lg:w-auto" value={center} onChange={(e) => setCenter(e.target.value)}>
           <option value="all">Todos os centros de custo</option>
           <option value="none">Sem centro de custo</option>
           {centers.map((c) => (
@@ -145,19 +145,19 @@ export function CashFlowPanel() {
       </div>
 
       <div className="grid min-w-0 gap-3 min-[360px]:grid-cols-2 sm:grid-cols-3">
-        <article className="rounded-2xl border border-primary/40 bg-primary/10 p-4">
+        <article className="min-w-0 overflow-hidden rounded-2xl border border-primary/40 bg-primary/10 p-4">
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
             <ArrowUpRight className="h-4 w-4 text-primary" /> Entradas
           </p>
           <p className="mobile-value mt-1 text-xl font-semibold text-primary">{currency.format(totals.inflow)}</p>
         </article>
-        <article className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4">
+        <article className="min-w-0 overflow-hidden rounded-2xl border border-destructive/40 bg-destructive/10 p-4">
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
             <ArrowDownRight className="h-4 w-4 text-destructive" /> Saídas
           </p>
           <p className="mobile-value mt-1 text-xl font-semibold text-destructive">{currency.format(totals.outflow)}</p>
         </article>
-        <article className="min-w-0 rounded-2xl border border-border/60 bg-card/80 p-4 min-[360px]:col-span-2 sm:col-span-1">
+        <article className="min-w-0 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-4 min-[360px]:col-span-2 sm:col-span-1">
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
             <Scale className="h-4 w-4" /> Saldo
           </p>
@@ -192,10 +192,10 @@ export function CashFlowPanel() {
             {movements.slice(0, 20).map((m) => (
               <article
                 key={`${m.direction}-${m.id}`}
-                className="flex flex-wrap items-center gap-3 rounded-xl border border-border/60 bg-card/60 px-4 py-3"
+                className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-xl border border-border/60 bg-card/60 px-4 py-3 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
               >
                 <span
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
                     m.direction === "in" ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"
                   }`}
                 >
@@ -217,7 +217,7 @@ export function CashFlowPanel() {
                   </p>
                 </div>
                 <span
-                  className={`mobile-value max-w-full text-right text-sm font-semibold ${m.direction === "in" ? "text-primary" : "text-destructive"}`}
+                  className={`mobile-value col-span-2 max-w-full text-right text-sm font-semibold sm:col-span-1 ${m.direction === "in" ? "text-primary" : "text-destructive"}`}
                 >
                   {m.direction === "in" ? "+" : "-"} {currency.format(m.amount)}
                 </span>

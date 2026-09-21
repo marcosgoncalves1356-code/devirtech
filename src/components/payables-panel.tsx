@@ -194,8 +194,8 @@ export function PayablesPanel() {
   }, [rows]);
 
   return (
-    <section className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
+    <section className="min-w-0 max-w-full space-y-4">
+      <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-semibold">Contas a pagar</h2>
           <p className="text-sm text-muted-foreground">
@@ -203,22 +203,22 @@ export function PayablesPanel() {
           </p>
         </div>
         {editable ? (
-          <Button variant="glow" onClick={() => setDraft(emptyDraft())}>
+          <Button className="w-full sm:w-auto" variant="glow" onClick={() => setDraft(emptyDraft())}>
             <Plus className="h-4 w-4" /> Nova conta a pagar
           </Button>
         ) : null}
       </div>
 
       <div className="grid min-w-0 gap-3 min-[360px]:grid-cols-2 sm:grid-cols-3">
-        <article className="rounded-2xl border border-border/60 bg-card/80 p-4">
+        <article className="min-w-0 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-4">
           <p className="text-xs text-muted-foreground">Em aberto</p>
           <p className="mobile-value mt-1 text-xl font-semibold">{currency.format(totals.open)}</p>
         </article>
-        <article className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4">
+        <article className="min-w-0 overflow-hidden rounded-2xl border border-destructive/40 bg-destructive/10 p-4">
           <p className="text-xs text-muted-foreground">Vencido</p>
           <p className="mobile-value mt-1 text-xl font-semibold text-destructive">{currency.format(totals.overdue)}</p>
         </article>
-        <article className="min-w-0 rounded-2xl border border-primary/40 bg-primary/10 p-4 min-[360px]:col-span-2 sm:col-span-1">
+        <article className="min-w-0 overflow-hidden rounded-2xl border border-primary/40 bg-primary/10 p-4 min-[360px]:col-span-2 sm:col-span-1">
           <p className="text-xs text-muted-foreground">Pago</p>
           <p className="mobile-value mt-1 text-xl font-semibold text-primary">{currency.format(totals.paid)}</p>
         </article>
@@ -230,13 +230,13 @@ export function PayablesPanel() {
 
       {draft ? (
         <form
-          className="space-y-4 rounded-2xl border border-primary/40 bg-card/80 p-5"
+          className="min-w-0 max-w-full space-y-4 rounded-2xl border border-primary/40 bg-card/80 p-4 sm:p-5"
           onSubmit={(e) => {
             e.preventDefault();
             saveMutation.mutate(draft);
           }}
         >
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <input
               className="field-shell text-sm sm:col-span-2"
               placeholder="Fornecedor"
@@ -269,7 +269,7 @@ export function PayablesPanel() {
               onChange={(e) => setDraft({ ...draft, amount: e.target.value })}
               required
             />
-            <label className="grid gap-1 text-xs text-muted-foreground">
+            <label className="grid min-w-0 gap-1 text-xs text-muted-foreground">
               Vencimento
               <input
                 className="field-shell text-sm"
@@ -279,7 +279,7 @@ export function PayablesPanel() {
                 required
               />
             </label>
-            <label className="grid gap-1 text-xs text-muted-foreground">
+            <label className="grid min-w-0 gap-1 text-xs text-muted-foreground">
               Data de pagamento
               <input
                 className="field-shell text-sm"
@@ -321,7 +321,7 @@ export function PayablesPanel() {
             />
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button type="submit" variant="glow" disabled={saveMutation.isPending}>
               {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Salvar título"}
             </Button>
@@ -332,7 +332,7 @@ export function PayablesPanel() {
         </form>
       ) : null}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
         <div className="relative min-w-0 flex-1 basis-full sm:min-w-52 sm:basis-auto">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -343,7 +343,7 @@ export function PayablesPanel() {
           />
         </div>
         <select
-          className="field-shell text-sm"
+          className="field-shell text-sm sm:w-auto"
           value={filter}
           onChange={(e) => setFilter(e.target.value as typeof filter)}
         >
@@ -367,9 +367,9 @@ export function PayablesPanel() {
             return (
               <article
                 key={p.id}
-                className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card/80 p-4"
+                className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
                   <Receipt className="h-5 w-5" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -385,16 +385,16 @@ export function PayablesPanel() {
                 <span
                   className={
                     st === "paid"
-                      ? "rounded-full bg-primary/15 px-3 py-1 text-xs text-primary"
+                      ? "col-span-2 justify-self-start rounded-full bg-primary/15 px-3 py-1 text-xs text-primary sm:col-span-1"
                       : st === "overdue"
-                        ? "rounded-full bg-destructive/15 px-3 py-1 text-xs text-destructive"
-                        : "rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
+                        ? "col-span-2 justify-self-start rounded-full bg-destructive/15 px-3 py-1 text-xs text-destructive sm:col-span-1"
+                        : "col-span-2 justify-self-start rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground sm:col-span-1"
                   }
                 >
                   {statusLabels[st]}
                 </span>
                 {editable ? (
-                  <div className="flex gap-2">
+                  <div className="col-span-2 flex min-w-0 flex-wrap justify-end gap-2 sm:col-span-3">
                     {st === "paid" ? (
                       <Button
                         variant="outline"
