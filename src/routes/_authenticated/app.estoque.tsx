@@ -25,9 +25,9 @@ function StockModule() {
   const mod = getModule("estoque");
   const enabled = isModuleEnabled("estoque");
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6">
-      <header className="flex flex-wrap items-start gap-4">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+    <div className="module-frame mx-auto w-full max-w-6xl space-y-6">
+      <header className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-4">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary">
           <Boxes className="h-6 w-6" />
         </span>
         <div className="min-w-0 flex-1">
@@ -36,7 +36,7 @@ function StockModule() {
             {mod?.description ?? "Controle de insumos, defensivos, sementes, peças e movimentações por depósito."}
           </p>
         </div>
-        <span className="rounded-full border border-border/60 px-3 py-1 text-xs text-muted-foreground">
+        <span className="col-span-2 max-w-full truncate rounded-full border border-border/60 px-3 py-1 text-xs text-muted-foreground sm:col-span-1">
           {company.name}
         </span>
       </header>
