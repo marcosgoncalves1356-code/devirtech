@@ -45,7 +45,7 @@ export function ModuleTabs({
       </div>
 
       {tabs.map((tab) => (
-        <TabsContent key={tab.value} value={tab.value} className="mt-6 min-w-0 max-w-full overflow-x-clip">
+        <TabsContent key={tab.value} value={tab.value} className="mt-6 min-w-0 max-w-full">
           {tab.content}
         </TabsContent>
       ))}
