@@ -1352,6 +1352,117 @@ export type Database = {
           },
         ]
       }
+      sales_order_items: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          order_id: string
+          quantity: number
+          total: number
+          unit: string
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description: string
+          id?: string
+          order_id: string
+          quantity: number
+          total?: number
+          unit?: string
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          order_id?: string
+          quantity?: number
+          total?: number
+          unit?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_order_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_orders: {
+        Row: {
+          company_id: string
+          created_at: string
+          customer_id: string
+          expected_date: string | null
+          id: string
+          notes: string
+          order_number: string
+          ordered_at: string
+          status: Database["public"]["Enums"]["doc_status"]
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          customer_id: string
+          expected_date?: string | null
+          id?: string
+          notes?: string
+          order_number: string
+          ordered_at?: string
+          status?: Database["public"]["Enums"]["doc_status"]
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          customer_id?: string
+          expected_date?: string | null
+          id?: string
+          notes?: string
+          order_number?: string
+          ordered_at?: string
+          status?: Database["public"]["Enums"]["doc_status"]
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_orders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_movements: {
         Row: {
           company_id: string
