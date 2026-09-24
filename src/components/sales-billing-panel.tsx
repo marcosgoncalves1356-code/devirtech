@@ -5,6 +5,7 @@ import { Ban, CheckCircle2, FileCheck2, Loader2, Pencil, Plus, RotateCcw, Search
 
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
+import { listCropSeasons, type CropSeason } from "@/lib/production.functions";
 import {
   deleteSalesBilling,
   listSalesBillings,
@@ -19,6 +20,7 @@ type BillingDraft = {
   soldAt: string;
   total: string;
   status: SalesBilling["status"];
+  seasonId: string;
 };
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -37,7 +39,7 @@ function formatDate(value: string) {
 }
 
 function emptyDraft(): BillingDraft {
-  return { customer: "", soldAt: today(), total: "", status: "draft" };
+  return { customer: "", soldAt: today(), total: "", status: "draft", seasonId: "" };
 }
 
 function toDraft(row: SalesBilling): BillingDraft {
@@ -47,6 +49,7 @@ function toDraft(row: SalesBilling): BillingDraft {
     soldAt: row.sold_at.slice(0, 10),
     total: String(row.total),
     status: row.status,
+    seasonId: row.season_id ?? "",
   };
 }
 
@@ -54,6 +57,7 @@ export function SalesBillingPanel() {
   const { company, canEdit } = useCompany();
   const queryClient = useQueryClient();
   const fetchBillings = useServerFn(listSalesBillings);
+  const fetchSeasons = useServerFn(listCropSeasons);
   const saveBilling = useServerFn(saveSalesBilling);
   const changeStatus = useServerFn(setSalesBillingStatus);
   const removeBilling = useServerFn(deleteSalesBilling);
@@ -69,6 +73,13 @@ export function SalesBillingPanel() {
     queryFn: () => fetchBillings({ data: { companyId: company.id } }),
     enabled: Boolean(company.id),
   });
+  const { data: rawSeasons = [] } = useQuery({
+    queryKey: ["crop-seasons", company.id],
+    queryFn: () => fetchSeasons({ data: { companyId: company.id } }),
+    enabled: Boolean(company.id),
+  });
+  const seasons = rawSeasons as CropSeason[];
+  const seasonName = (id: string | null) => seasons.find((season) => season.id === id)?.name ?? null;
   const refresh = () => void queryClient.invalidateQueries({ queryKey: ["sales-billings", company.id] });
 
   const saveMutation = useMutation({
@@ -77,6 +88,7 @@ export function SalesBillingPanel() {
         ...value,
         companyId: company.id,
         total: Number(value.total),
+        seasonId: value.seasonId || null,
       },
     }),
     onSuccess: () => { setDraft(null); setError(null); refresh(); },
@@ -138,6 +150,7 @@ export function SalesBillingPanel() {
             <label className="grid gap-1 text-xs text-muted-foreground">Data da venda / emissão<input className="field-shell text-sm" type="date" required value={draft.soldAt} onChange={(event) => setDraft({ ...draft, soldAt: event.target.value })} /></label>
             <label className="grid gap-1 text-xs text-muted-foreground">Valor total<input className="field-shell text-sm" type="number" min="0.01" step="0.01" required placeholder="R$ 0,00" value={draft.total} onChange={(event) => setDraft({ ...draft, total: event.target.value })} /></label>
             <label className="grid gap-1 text-xs text-muted-foreground sm:col-span-2">Situação<select className="field-shell text-sm" value={draft.status} onChange={(event) => setDraft({ ...draft, status: event.target.value as SalesBilling["status"] })}><option value="draft">Rascunho</option><option value="confirmed">Confirmado</option><option value="canceled">Cancelado</option></select></label>
+            <label className="grid gap-1 text-xs text-muted-foreground sm:col-span-2">Safra<select className="field-shell text-sm" value={draft.seasonId} onChange={(event) => setDraft({ ...draft, seasonId: event.target.value })}><option value="">Sem safra vinculada</option>{seasons.map((season) => <option key={season.id} value={season.id}>{season.name} • {season.season_year}</option>)}</select></label>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex">
             <Button type="submit" variant="glow" disabled={saveMutation.isPending}>{saveMutation.isPending ? <Loader2 className="animate-spin" /> : <FileCheck2 />} Salvar</Button>
@@ -159,7 +172,7 @@ export function SalesBillingPanel() {
             <article key={row.id} className="min-w-0 overflow-hidden rounded-lg border border-border/60 bg-card/80 p-4">
               <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary"><FileCheck2 className="h-5 w-5" /></span>
-                <div className="min-w-0"><h3 className="truncate text-sm font-semibold">{row.customer}</h3><p className="mobile-value mt-0.5 text-lg font-semibold">{currency.format(Number(row.total))}</p><p className="truncate text-xs text-muted-foreground">Emitido em {formatDate(row.sold_at)}</p></div>
+                <div className="min-w-0"><h3 className="truncate text-sm font-semibold">{row.customer}</h3><p className="mobile-value mt-0.5 text-lg font-semibold">{currency.format(Number(row.total))}</p><p className="truncate text-xs text-muted-foreground">Emitido em {formatDate(row.sold_at)}{seasonName(row.season_id) ? ` • ${seasonName(row.season_id)}` : ""}</p></div>
                 <div className="col-span-2 justify-self-start sm:col-span-1 sm:justify-self-end"><Status status={row.status} /></div>
               </div>
               {editable ? (

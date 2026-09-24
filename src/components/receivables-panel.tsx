@@ -6,6 +6,7 @@ import { CheckCircle2, HandCoins, Loader2, Pencil, Plus, RotateCcw, Search, Tras
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { listCostCenters, type CostCenter } from "@/lib/cost-centers.functions";
+import { listCropSeasons, type CropSeason } from "@/lib/production.functions";
 import {
   deleteReceivable,
   listReceivables,
@@ -24,6 +25,7 @@ type Draft = {
   dueDate: string;
   receivedAt: string;
   costCenterId: string;
+  seasonId: string;
   notes: string;
   status: "open" | "paid" | "overdue" | "canceled";
 };
@@ -56,6 +58,7 @@ function emptyDraft(): Draft {
     dueDate: today(),
     receivedAt: "",
     costCenterId: "",
+    seasonId: "",
     notes: "",
     status: "open",
   };
@@ -71,6 +74,7 @@ function toDraft(r: Receivable): Draft {
     dueDate: (r.due_date ?? "").slice(0, 10),
     receivedAt: r.paid_at ? r.paid_at.slice(0, 10) : "",
     costCenterId: r.cost_center_id ?? "",
+    seasonId: r.season_id ?? "",
     notes: r.notes ?? "",
     status: (r.status as Draft["status"]) ?? "open",
   };
@@ -87,6 +91,7 @@ export function ReceivablesPanel() {
   const qc = useQueryClient();
   const fetchReceivables = useServerFn(listReceivables);
   const fetchCostCenters = useServerFn(listCostCenters);
+  const fetchSeasons = useServerFn(listCropSeasons);
   const save = useServerFn(saveReceivable);
   const settle = useServerFn(settleReceivable);
   const reopen = useServerFn(reopenReceivable);
@@ -109,9 +114,16 @@ export function ReceivablesPanel() {
     queryFn: () => fetchCostCenters({ data: { companyId: company.id } }),
     enabled: Boolean(company.id),
   });
+  const { data: cropSeasons = [] } = useQuery({
+    queryKey: ["crop-seasons", company.id],
+    queryFn: () => fetchSeasons({ data: { companyId: company.id } }),
+    enabled: Boolean(company.id),
+  });
 
   const centers = costCenters as CostCenter[];
   const centerName = (id: string | null) => centers.find((c) => c.id === id)?.name ?? null;
+  const seasons = cropSeasons as CropSeason[];
+  const seasonName = (id: string | null) => seasons.find((season) => season.id === id)?.name ?? null;
 
   const invalidate = () => void qc.invalidateQueries({ queryKey: ["receivables", company.id] });
 
@@ -128,6 +140,7 @@ export function ReceivablesPanel() {
           dueDate: d.dueDate,
           receivedAt: d.receivedAt || null,
           costCenterId: d.costCenterId || null,
+          seasonId: d.seasonId || null,
           notes: d.notes,
           status: d.status,
         },
@@ -299,6 +312,10 @@ export function ReceivablesPanel() {
                   </option>
                 ))}
             </select>
+            <select className="field-shell text-sm" value={draft.seasonId} onChange={(e) => setDraft({ ...draft, seasonId: e.target.value })}>
+              <option value="">Safra (opcional)</option>
+              {seasons.map((season) => <option key={season.id} value={season.id}>{season.name} • {season.season_year}</option>)}
+            </select>
             <select
               className="field-shell text-sm"
               value={draft.status}
@@ -374,7 +391,7 @@ export function ReceivablesPanel() {
                     {r.supplier || "Cliente não informado"} — {currency.format(Number(r.amount ?? 0))}
                   </h3>
                   <p className="truncate text-xs text-muted-foreground">
-                    {[r.description, r.category, center].filter(Boolean).join(" • ")} • Venc.{" "}
+                    {[r.description, r.category, center, seasonName(r.season_id)].filter(Boolean).join(" • ")} • Venc.{" "}
                     {formatDate(r.due_date)}
                     {r.paid_at ? ` • Recebido em ${formatDate(r.paid_at)}` : ""}
                   </p>
