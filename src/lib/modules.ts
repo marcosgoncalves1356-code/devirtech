@@ -28,7 +28,16 @@ export type ErpModule = {
   icon: LucideIcon;
   /** Recursos previstos, usados nos placeholders de cada módulo. */
   features: string[];
+  submodules: ErpSubmodule[];
 };
+
+export type ErpSubmodule = {
+  value: string;
+  label: string;
+  implemented: boolean;
+};
+
+const sub = (value: string, label: string, implemented = false): ErpSubmodule => ({ value, label, implemented });
 
 export const modules: ErpModule[] = [
   {
@@ -40,6 +49,7 @@ export const modules: ErpModule[] = [
     group: "Visão geral",
     icon: LayoutDashboard,
     features: ["Indicadores de safra", "Fluxo de caixa resumido", "Alertas e pendências", "Atalhos por módulo"],
+    submodules: [],
   },
   {
     slug: "empresas",
@@ -50,6 +60,7 @@ export const modules: ErpModule[] = [
     group: "Cadastros",
     icon: Building2,
     features: ["Dados cadastrais e fiscais", "Filiais e centros de custo", "Logotipo e identidade", "Parâmetros por empresa"],
+    submodules: [sub("registration", "Dados cadastrais"), sub("branches", "Filiais e centros de custo"), sub("identity", "Logotipo e identidade"), sub("parameters", "Parâmetros por empresa")],
   },
   {
     slug: "usuarios",
@@ -60,6 +71,7 @@ export const modules: ErpModule[] = [
     group: "Cadastros",
     icon: ShieldCheck,
     features: ["Perfis e papéis", "Permissões por módulo", "Vínculo usuário x empresa", "Auditoria de acesso"],
+    submodules: [sub("profiles", "Perfis e papéis", true), sub("permissions", "Permissões por módulo e submódulo", true), sub("company-users", "Vínculo usuário x empresa"), sub("audit", "Auditoria de acesso")],
   },
   {
     slug: "funcionarios",
@@ -70,6 +82,7 @@ export const modules: ErpModule[] = [
     group: "Cadastros",
     icon: Users,
     features: ["Ficha do colaborador", "Cargos e departamentos", "Documentos e admissão", "Escalas e alocação"],
+    submodules: [sub("records", "Ficha do colaborador", true), sub("structure", "Cargos e departamentos", true), sub("documents", "Documentos e admissão"), sub("allocation", "Escalas e alocação")],
   },
   {
     slug: "financeiro",
@@ -80,6 +93,7 @@ export const modules: ErpModule[] = [
     group: "Operação",
     icon: Wallet,
     features: ["Contas a pagar / receber", "Fluxo de caixa", "Conciliação bancária", "Centros de custo"],
+    submodules: [sub("payables", "Contas a pagar", true), sub("receivables", "Contas a receber", true), sub("cash-flow", "Fluxo de caixa", true), sub("reconciliation", "Conciliação bancária"), sub("cost-centers", "Centros de custo", true)],
   },
   {
     slug: "compras",
@@ -90,6 +104,7 @@ export const modules: ErpModule[] = [
     group: "Operação",
     icon: ShoppingCart,
     features: ["Requisição e cotação", "Pedidos de compra", "Fornecedores", "Recebimento e notas"],
+    submodules: [sub("suppliers", "Fornecedores", true), sub("orders", "Pedidos de compra", true), sub("receipts", "Recebimentos", true), sub("quotes", "Requisição e cotação")],
   },
   {
     slug: "estoque",
@@ -100,6 +115,7 @@ export const modules: ErpModule[] = [
     group: "Operação",
     icon: Boxes,
     features: ["Saldos por depósito", "Entradas e saídas", "Lotes e validade", "Inventário e perdas"],
+    submodules: [sub("overview", "Visão geral", true), sub("items", "Itens", true), sub("warehouses", "Depósitos", true), sub("movements", "Movimentações", true), sub("inventory", "Inventário", true)],
   },
   {
     slug: "vendas",
@@ -110,6 +126,7 @@ export const modules: ErpModule[] = [
     group: "Operação",
     icon: Receipt,
     features: ["Clientes e contratos", "Pedidos de venda", "Tabelas de preço", "Faturamento"],
+    submodules: [sub("customers", "Clientes", true), sub("contracts", "Contratos", true), sub("orders", "Pedidos de venda", true), sub("prices", "Tabelas de preço", true), sub("billing", "Faturamento", true)],
   },
   {
     slug: "folha-de-pagamento",
@@ -120,6 +137,7 @@ export const modules: ErpModule[] = [
     group: "Operação",
     icon: BadgeDollarSign,
     features: ["Apuração mensal", "Proventos e descontos", "Encargos e guias", "Holerites"],
+    submodules: [sub("monthly", "Apuração mensal"), sub("earnings", "Proventos e descontos"), sub("charges", "Encargos e guias"), sub("payslips", "Holerites")],
   },
   {
     slug: "veiculos",
@@ -130,6 +148,7 @@ export const modules: ErpModule[] = [
     group: "Campo",
     icon: Truck,
     features: ["Frota e implementos", "Abastecimentos", "Manutenção preventiva", "Consumo e custo/hora"],
+    submodules: [sub("fleet", "Frota e implementos"), sub("fuel", "Abastecimentos"), sub("maintenance", "Manutenção preventiva"), sub("costs", "Consumo e custo/hora")],
   },
   {
     slug: "propriedades",
@@ -140,6 +159,7 @@ export const modules: ErpModule[] = [
     group: "Campo",
     icon: MapPinned,
     features: ["Fazendas e talhões", "Áreas e matrículas", "Mapas e georreferência", "Arrendamentos"],
+    submodules: [sub("farms", "Fazendas e talhões"), sub("areas", "Áreas e matrículas"), sub("maps", "Mapas e georreferência"), sub("leases", "Arrendamentos")],
   },
   {
     slug: "producao",
@@ -150,6 +170,7 @@ export const modules: ErpModule[] = [
     group: "Campo",
     icon: Sprout,
     features: ["Safras e ciclos", "Ordens de serviço", "Aplicações e plantio", "Colheita e produtividade"],
+    submodules: [sub("seasons", "Safras", true), sub("activities", "Plantio e aplicações", true), sub("harvest", "Colheita e produtividade", true), sub("service-orders", "Ordens de serviço")],
   },
   {
     slug: "relatorios",
@@ -160,6 +181,7 @@ export const modules: ErpModule[] = [
     group: "Gestão",
     icon: BarChart3,
     features: ["Visão geral", "Produção e produtividade", "Custos da safra", "Financeiro da safra", "Comparativo de safras"],
+    submodules: [sub("overview", "Visão geral", true), sub("production", "Produção e produtividade", true), sub("costs", "Custos da safra", true), sub("financial", "Financeiro da safra", true), sub("comparison", "Comparativo de safras", true)],
   },
   {
     slug: "configuracoes",
@@ -170,6 +192,7 @@ export const modules: ErpModule[] = [
     group: "Gestão",
     icon: Settings,
     features: ["Preferências gerais", "Integrações e APIs", "Notificações", "Backup e dados"],
+    submodules: [sub("preferences", "Preferências gerais"), sub("integrations", "Integrações e APIs"), sub("notifications", "Notificações"), sub("backup", "Backup e dados")],
   },
 ];
 
@@ -178,6 +201,14 @@ export const moduleGroups: ModuleGroup[] = ["Visão geral", "Cadastros", "Opera�
 export function getModule(slug: string): ErpModule | undefined {
   return modules.find((m) => m.slug === slug);
 }
+
+export function getSubmoduleKey(moduleSlug: string, value: string) {
+  return `${moduleSlug}.${value}`;
+}
+
+export const allSubmoduleKeys = modules.flatMap((module) =>
+  module.submodules.map((submodule) => getSubmoduleKey(module.slug, submodule.value)),
+);
 
 /** Itens fixos da barra inferior no modo aplicativo. */
 export const mobileNavSlugs = ["dashboard", "financeiro", "producao", "estoque"];

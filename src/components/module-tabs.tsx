@@ -1,7 +1,8 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Lock } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCompany } from "@/lib/company-context";
 
 export type ModuleTab = {
   value: string;
@@ -14,13 +15,20 @@ export function ModuleTabs({
   defaultValue,
   value,
   onValueChange,
+  moduleSlug,
 }: {
   tabs: ModuleTab[];
   defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
+  moduleSlug?: string;
 }) {
-  const initialValue = defaultValue ?? tabs[0]?.value;
+  const { canViewSubmodule } = useCompany();
+  const visibleTabs = moduleSlug ? tabs.filter((tab) => canViewSubmodule(moduleSlug, tab.value)) : tabs;
+  const initialValue = defaultValue && visibleTabs.some((tab) => tab.value === defaultValue) ? defaultValue : visibleTabs[0]?.value;
+  useEffect(() => {
+    if (value !== undefined && initialValue && !visibleTabs.some((tab) => tab.value === value)) onValueChange?.(initialValue);
+  }, [initialValue, onValueChange, value, visibleTabs]);
   if (!initialValue) return null;
 
   return (
@@ -32,7 +40,7 @@ export function ModuleTabs({
     >
       <div className="w-full overflow-x-auto border-b border-border/60 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <TabsList className="h-auto min-w-max justify-start rounded-none bg-transparent p-0">
-          {tabs.map((tab) => (
+          {visibleTabs.map((tab) => (
             <TabsTrigger
               key={tab.value}
               value={tab.value}
@@ -44,7 +52,7 @@ export function ModuleTabs({
         </TabsList>
       </div>
 
-      {tabs.map((tab) => (
+      {visibleTabs.map((tab) => (
         <TabsContent key={tab.value} value={tab.value} className="mt-6 min-w-0 max-w-full">
           {tab.content}
         </TabsContent>
