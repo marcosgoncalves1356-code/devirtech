@@ -3,9 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Building2, FileText, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 
-import { ModuleTabs, UpcomingSubmodule } from "@/components/module-tabs";
+import { ModuleTabs } from "@/components/module-tabs";
 import { SalesBillingPanel } from "@/components/sales-billing-panel";
 import { SalesOrdersPanel } from "@/components/sales-orders-panel";
+import { SalesPriceListsPanel } from "@/components/sales-price-lists-panel";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import {
@@ -183,7 +184,7 @@ export function SalesWorkspace() {
     { value: "customers", label: "Clientes", content: customerPanel },
     { value: "contracts", label: "Contratos", content: contractPanel },
     { value: "orders", label: "Pedidos de venda", content: <SalesOrdersPanel /> },
-    { value: "prices", label: "Tabelas de preço", content: <UpcomingSubmodule name="Tabelas de preço" /> },
+    { value: "prices", label: "Tabelas de preço", content: <SalesPriceListsPanel /> },
     { value: "billing", label: "Faturamento", content: <SalesBillingPanel /> },
   ]} />;
 }
