@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { BarChart3, Loader2, Scale, Sprout, TrendingDown, TrendingUp, Wheat } from "lucide-react";
@@ -31,18 +31,18 @@ export function ReportsWorkspace() {
   const seasons = rawSeasons as CropSeason[];
   useEffect(() => { if (!seasonId && seasons[0]?.id) setSeasonId(seasons[0].id); }, [seasonId, seasons]);
   const { data, isLoading, error } = useQuery({ queryKey: ["season-report", company.id, seasonId], queryFn: () => fetchReport({ data: { companyId: company.id, seasonId } }), enabled: Boolean(company.id && seasonId) });
+  const reportData = data as ReportsData | undefined;
+  const report = reportData?.report;
+  const compareRows = reportData?.comparisons ?? [];
 
   if (loadingSeasons) return <Loader2 className="h-5 w-5 animate-spin text-primary" />;
   if (seasons.length === 0) return <p className="rounded-lg border border-dashed border-border/60 p-6 text-sm text-muted-foreground">Cadastre uma safra no módulo Produção para gerar relatórios.</p>;
-  const reportData = data as ReportsData | undefined;
-  const report = reportData?.report;
   const selector = <label className="grid min-w-0 gap-1 text-xs text-muted-foreground sm:max-w-sm">Safra<select className="field-shell text-sm" value={seasonId} onChange={(event) => setSeasonId(event.target.value)}>{seasons.map((season) => <option key={season.id} value={season.id}>{season.name} • {season.season_year}</option>)}</select></label>;
   if (isLoading || !report) return <div className="space-y-4">{selector}{error ? <p className="text-sm text-destructive">{error.message}</p> : <Loader2 className="h-5 w-5 animate-spin text-primary" />}</div>;
 
   const p = report.production;
   const f = report.financial;
   const monthRows = report.harvestByMonth.map((row) => ({ label: row.month.split("-").reverse().join("/"), value: row.quantity }));
-  const compareRows = useMemo(() => reportData.comparisons, [reportData.comparisons]);
 
   return <section className="min-w-0 max-w-full space-y-5">
     <div className="grid gap-3 border-b border-border/60 pb-5 sm:grid-cols-[minmax(0,1fr)_minmax(15rem,22rem)] sm:items-end"><div className="min-w-0"><h2 className="text-lg font-semibold">Relatórios por safra</h2><p className="text-sm text-muted-foreground">Produção, custos e resultado financeiro consolidados pela safra selecionada.</p></div>{selector}</div>
