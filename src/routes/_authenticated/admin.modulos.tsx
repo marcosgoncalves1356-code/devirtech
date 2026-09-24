@@ -6,7 +6,7 @@ import { Blocks, Check, Loader2, Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { listCompanies, setCompanyModules } from "@/lib/admin.functions";
-import { modules } from "@/lib/modules";
+import { getSubmoduleKey, modules } from "@/lib/modules";
 
 export const Route = createFileRoute("/_authenticated/admin/modulos")({
   head: () => ({
@@ -41,7 +41,7 @@ function AdminModules() {
   const [pending, setPending] = useState<string | null>(null);
 
   const update = useMutation({
-    mutationFn: (vars: { companyId: string; enabledModules: string[] }) => saveModules({ data: vars }),
+    mutationFn: (vars: { companyId: string; enabledModules: string[]; enabledSubmodules: string[] }) => saveModules({ data: vars }),
     onMutate: (vars) => setPending(vars.companyId),
     onSuccess: () => {
       setError(null);
@@ -65,7 +65,13 @@ function AdminModules() {
     update.mutate({
       companyId: company.id,
       enabledModules: Array.from(new Set([...CORE_MODULES, ...next])),
+      enabledSubmodules: company.enabled_submodules ?? [],
     });
+  const setSubmodule = (company: any, moduleSlug: string, value: string, on: boolean) => {
+    const key = getSubmoduleKey(moduleSlug, value);
+    const current: string[] = company.enabled_submodules ?? [];
+    update.mutate({ companyId: company.id, enabledModules: company.enabled_modules ?? [], enabledSubmodules: on ? [...current, key] : current.filter((item) => item !== key) });
+  };
 
   return (
     <div className="space-y-6">
@@ -166,6 +172,18 @@ function AdminModules() {
                         </span>
                         <span className="min-w-0 flex-1 truncate">{m.label}</span>
                       </button>
+                      {on && m.submodules.length ? (
+                        <div className="col-span-full mb-2 ml-3 grid gap-1 border-l border-border/60 pl-3">
+                          {m.submodules.map((submodule) => {
+                            const key = getSubmoduleKey(m.slug, submodule.value);
+                            const subOn = (company.enabled_submodules ?? []).includes(key);
+                            return <label key={key} className="flex items-center gap-2 py-1 text-xs text-muted-foreground">
+                              <input type="checkbox" checked={subOn} disabled={busy} onChange={(event) => setSubmodule(company, m.slug, submodule.value, event.target.checked)} />
+                              {submodule.label}{!submodule.implemented ? " (em breve)" : ""}
+                            </label>;
+                          })}
+                        </div>
+                      ) : null}
                     );
                   })}
                 </div>

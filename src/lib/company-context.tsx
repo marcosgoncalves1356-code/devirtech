@@ -10,6 +10,7 @@ export type Company = {
   document: string;
   segment: string;
   enabledModules: string[];
+  enabledSubmodules: string[];
   logoUrl: string;
 };
 
@@ -28,6 +29,7 @@ const EMPTY_COMPANY: Company = {
   document: "—",
   segment: "Solicite o vínculo ao administrador DeviTech",
   enabledModules: [],
+  enabledSubmodules: [],
   logoUrl: "",
 };
 
@@ -39,6 +41,9 @@ type CompanyContextValue = {
   setCompanyId: (id: string) => void;
   isModuleEnabled: (slug: string) => boolean;
   canEdit: (slug: string) => boolean;
+  canViewSubmodule: (moduleSlug: string, submoduleValue: string) => boolean;
+  canCreate: (resource: string) => boolean;
+  canDelete: (resource: string) => boolean;
   refresh: () => void;
   viewAs: ViewAs | null;
   exitViewAs: () => void;
@@ -69,6 +74,7 @@ function toCompany(c: SessionCompany): Company {
     document: c.document ?? "—",
     segment: c.segment ?? "",
     enabledModules: c.enabledModules,
+    enabledSubmodules: c.enabledSubmodules,
     logoUrl: c.logoUrl ?? "",
   };
 }
@@ -111,6 +117,8 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
     const isAdmin = impersonating ? false : sessionIsAdmin;
     const perms = impersonating ? (impersonating.permissions ?? {}) : (session?.permissions ?? {});
     const hasCustomPerms = Object.keys(perms).length > 0;
+    const actionPermissions = impersonating ? {} : (session?.actionPermissions ?? {});
+    const hasProfilePermissions = Object.keys(actionPermissions).length > 0;
 
     const isModuleEnabled = (slug: string) => {
       if (!preferred.enabledModules.includes(slug)) return false;
@@ -130,7 +138,21 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
         window.localStorage.setItem(STORAGE_KEY, id);
       },
       isModuleEnabled,
-      canEdit: (slug: string) => (isAdmin ? true : !hasCustomPerms ? true : perms[slug] === "edit"),
+      canEdit: (slug: string) => {
+        if (isAdmin) return true;
+        const granular = actionPermissions[slug];
+        if (granular) return granular.canEdit;
+        return !hasCustomPerms ? true : perms[slug] === "edit";
+      },
+      canCreate: (slug: string) => isAdmin || actionPermissions[slug]?.canCreate ?? (!hasProfilePermissions && (!hasCustomPerms || perms[slug] === "edit")),
+      canDelete: (slug: string) => isAdmin || actionPermissions[slug]?.canDelete ?? (!hasProfilePermissions && (!hasCustomPerms || perms[slug] === "edit")),
+      canViewSubmodule: (moduleSlug: string, submoduleValue: string) => {
+        if (!isModuleEnabled(moduleSlug)) return false;
+        const key = `${moduleSlug}.${submoduleValue}`;
+        if (!preferred.enabledSubmodules.includes(key)) return false;
+        if (isAdmin) return true;
+        return actionPermissions[key]?.canView ?? actionPermissions[moduleSlug]?.canView ?? true;
+      },
       refresh: () => void refetch(),
       viewAs: impersonating,
       exitViewAs: () => {

@@ -149,6 +149,7 @@ const userInput = z.object({
     .optional()
     .transform((v) => (v ? v : undefined)),
   companyId: z.string().uuid().nullable().optional(),
+  accessProfileId: z.string().uuid().nullable().optional(),
   role: z.enum(["devitech_admin", "company_admin", "manager", "operator"]),
   status: z.enum(["active", "blocked"]).default("active"),
   permissions: z.record(z.string(), z.enum(["none", "view", "edit"])).default({}),
@@ -188,6 +189,7 @@ export const saveUser = createServerFn({ method: "POST" })
         full_name: data.fullName,
         job_title: data.jobTitle,
         company_id: data.companyId ?? null,
+        access_profile_id: data.accessProfileId ?? null,
         status: data.status,
         must_change_password: true,
       });
@@ -208,6 +210,7 @@ export const saveUser = createServerFn({ method: "POST" })
           full_name: data.fullName,
           job_title: data.jobTitle,
           company_id: data.companyId ?? null,
+          access_profile_id: data.accessProfileId ?? null,
           status: data.status,
           ...(data.password ? { must_change_password: true } : {}),
         })
@@ -322,22 +325,23 @@ export const setCompanyModules = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
-      .object({ companyId: z.string().uuid(), enabledModules: z.array(z.string()) })
+      .object({ companyId: z.string().uuid(), enabledModules: z.array(z.string()), enabledSubmodules: z.array(z.string()) })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const admin = await assertAdmin(context);
     const unique = Array.from(new Set(data.enabledModules));
+    const submodules = Array.from(new Set(data.enabledSubmodules)).filter((key) => unique.includes(key.split(".")[0] ?? ""));
     const { error } = await admin
       .from("companies")
-      .update({ enabled_modules: unique })
+      .update({ enabled_modules: unique, enabled_submodules: submodules })
       .eq("id", data.companyId);
     if (error) throw new Error(error.message);
     await admin.from("access_logs").insert({
       user_id: context.userId,
       company_id: data.companyId,
       action: "modulos_atualizados",
-      detail: unique.join(", ") || "nenhum módulo",
+      detail: `Módulos: ${unique.join(", ") || "nenhum"}; submódulos: ${submodules.join(", ") || "nenhum"}`,
     });
-    return { ok: true, enabledModules: unique };
+    return { ok: true, enabledModules: unique, enabledSubmodules: submodules };
   });

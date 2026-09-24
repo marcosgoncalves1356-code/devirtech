@@ -103,6 +103,63 @@ export type Database = {
           },
         ]
       }
+      access_profile_submodule_permissions: {
+        Row: {
+          can_create: boolean
+          can_delete: boolean
+          can_edit: boolean
+          can_view: boolean
+          company_id: string
+          created_at: string
+          id: string
+          module_slug: string
+          profile_id: string
+          submodule_slug: string
+          updated_at: string
+        }
+        Insert: {
+          can_create?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          company_id: string
+          created_at?: string
+          id?: string
+          module_slug: string
+          profile_id: string
+          submodule_slug: string
+          updated_at?: string
+        }
+        Update: {
+          can_create?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          company_id?: string
+          created_at?: string
+          id?: string
+          module_slug?: string
+          profile_id?: string
+          submodule_slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_profile_submodule_permissions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_profile_submodule_permissions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "access_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       access_profiles: {
         Row: {
           company_id: string
@@ -150,6 +207,7 @@ export type Database = {
           created_at: string
           document: string | null
           enabled_modules: string[]
+          enabled_submodules: string[]
           id: string
           logo_url: string
           name: string
@@ -164,6 +222,7 @@ export type Database = {
           created_at?: string
           document?: string | null
           enabled_modules?: string[]
+          enabled_submodules?: string[]
           id?: string
           logo_url?: string
           name: string
@@ -178,6 +237,7 @@ export type Database = {
           created_at?: string
           document?: string | null
           enabled_modules?: string[]
+          enabled_submodules?: string[]
           id?: string
           logo_url?: string
           name?: string
@@ -973,6 +1033,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          access_profile_id: string | null
           company_id: string | null
           created_at: string
           email: string
@@ -986,6 +1047,7 @@ export type Database = {
           welcome_seen_at: string | null
         }
         Insert: {
+          access_profile_id?: string | null
           company_id?: string | null
           created_at?: string
           email: string
@@ -999,6 +1061,7 @@ export type Database = {
           welcome_seen_at?: string | null
         }
         Update: {
+          access_profile_id?: string | null
           company_id?: string | null
           created_at?: string
           email?: string
@@ -1012,6 +1075,13 @@ export type Database = {
           welcome_seen_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_access_profile_id_fkey"
+            columns: ["access_profile_id"]
+            isOneToOne: false
+            referencedRelation: "access_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_company_id_fkey"
             columns: ["company_id"]

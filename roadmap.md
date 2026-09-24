@@ -1,10 +1,13 @@
 # Roadmap
 
-- [x] Criar estrutura segura de Tabelas de preços e itens por empresa
-- [x] Implementar cadastro, edição, situação e exclusão
-- [x] Liberar a aba Tabelas de preços com tela responsiva
-- [x] Validar compilação
-- [ ] Validar visualmente no celular — aguardando uma conta conectada na prévia
-- [x] Vincular contas a pagar, contas a receber e faturamentos às safras
-- [x] Liberar Relatórios por Safra com produção, custos, financeiro e comparativo
-- [ ] Validar Relatórios visualmente no celular — aguardando uma conta conectada na prévia
+## Em andamento — Plataforma multiempresa
+- [x] Criar catálogo e estrutura de dados para submódulos
+- [ ] Liberar módulos e submódulos por empresa
+- [ ] Vincular usuários a perfis de acesso
+- [ ] Aplicar permissões por módulo, submódulo e ação
+- [ ] Validar isolamento, compatibilidade e experiência móvel
+- [ ] Iniciar cadastro mestre compartilhado de produtos e serviços
+
+## Validações pendentes
+- [ ] Validar Tabelas de preços visualmente no celular — aguardando conta conectada
+- [ ] Validar Relatórios visualmente no celular — aguardando conta conectada
