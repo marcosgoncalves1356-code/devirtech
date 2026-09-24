@@ -14,6 +14,8 @@ export type ModulePermission = {
   can_delete: boolean;
 };
 
+export type SubmodulePermission = ModulePermission & { submodule_slug: string };
+
 const actionsSchema = z.object({
   can_view: z.boolean(),
   can_create: z.boolean(),
@@ -111,4 +113,48 @@ export const clearModulePermissions = createServerFn({ method: "POST" })
       .eq("profile_id", data.profileId);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+export const listSubmodulePermissions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ profileId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("access_profile_submodule_permissions")
+      .select("id, profile_id, company_id, module_slug, submodule_slug, can_view, can_create, can_edit, can_delete")
+      .eq("profile_id", data.profileId);
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as unknown as SubmodulePermission[];
+  });
+
+export const setSubmodulePermission = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({
+    profileId: z.string().uuid(), moduleSlug: z.string().trim().min(1), submoduleSlug: z.string().trim().min(3), actions: actionsSchema,
+  }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: profile, error: profileError } = await context.supabase
+      .from("access_profiles").select("id, company_id").eq("id", data.profileId).maybeSingle();
+    if (profileError) throw new Error(profileError.message);
+    if (!profile) throw new Error("Perfil de acesso não encontrado.");
+    const { data: company, error: companyError } = await context.supabase
+      .from("companies").select("enabled_modules, enabled_submodules").eq("id", profile.company_id).maybeSingle();
+    if (companyError) throw new Error(companyError.message);
+    if (!company?.enabled_modules?.includes(data.moduleSlug) || !company.enabled_submodules?.includes(data.submoduleSlug)) {
+      throw new Error("Este submódulo não está liberado para a empresa.");
+    }
+    const actions = data.actions;
+    if (!actions.can_view && !actions.can_create && !actions.can_edit && !actions.can_delete) {
+      const { error } = await context.supabase.from("access_profile_submodule_permissions").delete()
+        .eq("profile_id", data.profileId).eq("submodule_slug", data.submoduleSlug);
+      if (error) throw new Error(error.message);
+      return { ok: true, removed: true };
+    }
+    const { error } = await context.supabase.from("access_profile_submodule_permissions").upsert({
+      profile_id: data.profileId, company_id: profile.company_id, module_slug: data.moduleSlug,
+      submodule_slug: data.submoduleSlug, can_view: true, can_create: actions.can_create,
+      can_edit: actions.can_edit, can_delete: actions.can_delete,
+    }, { onConflict: "profile_id,module_slug,submodule_slug" });
+    if (error) throw new Error(error.message);
+    return { ok: true, removed: false };
   });

@@ -25,10 +25,11 @@ export function ModuleTabs({
 }) {
   const { canViewSubmodule } = useCompany();
   const visibleTabs = moduleSlug ? tabs.filter((tab) => canViewSubmodule(moduleSlug, tab.value)) : tabs;
+  const visibleKey = visibleTabs.map((tab) => tab.value).join("|");
   const initialValue = defaultValue && visibleTabs.some((tab) => tab.value === defaultValue) ? defaultValue : visibleTabs[0]?.value;
   useEffect(() => {
     if (value !== undefined && initialValue && !visibleTabs.some((tab) => tab.value === value)) onValueChange?.(initialValue);
-  }, [initialValue, onValueChange, value, visibleTabs]);
+  }, [initialValue, onValueChange, value, visibleKey]);
   if (!initialValue) return null;
 
   return (
