@@ -52,6 +52,7 @@ export type SalesBilling = {
   total: number;
   sold_at: string;
   status: "draft" | "confirmed" | "canceled";
+  season_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -100,6 +101,7 @@ const billingSchema = z.object({
   soldAt: z.string().date("Informe uma data válida."),
   total: z.coerce.number().positive("Informe um valor maior que zero."),
   status: z.enum(["draft", "confirmed", "canceled"]).default("draft"),
+  seasonId: z.string().uuid().nullable().default(null),
 });
 
 async function assertCustomer(
@@ -244,12 +246,22 @@ export const saveSalesBilling = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => billingSchema.parse(input))
   .handler(async ({ data, context }) => {
+    if (data.seasonId) {
+      const { data: season, error: seasonError } = await context.supabase
+        .from("crop_seasons")
+        .select("id")
+        .eq("id", data.seasonId)
+        .eq("company_id", data.companyId)
+        .maybeSingle();
+      if (seasonError || !season) throw new Error("Safra inválida para esta empresa.");
+    }
     const payload = {
       company_id: data.companyId,
       customer: data.customer,
       sold_at: data.soldAt,
       total: Math.round(data.total * 100) / 100,
       status: data.status,
+      season_id: data.seasonId,
     };
     const query = data.id
       ? context.supabase.from("sales").update(payload).eq("id", data.id).eq("company_id", data.companyId)

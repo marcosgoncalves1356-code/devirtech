@@ -156,10 +156,10 @@ export const modules: ErpModule[] = [
     path: "/app/relatorios",
     label: "Relatórios",
     short: "Relatórios",
-    description: "Relatórios gerenciais, custo por talhão, DRE agrícola e exportações.",
+    description: "Produção, produtividade, custos e resultados financeiros consolidados por safra.",
     group: "Gestão",
     icon: BarChart3,
-    features: ["DRE por safra", "Custo por talhão", "Relatórios fiscais", "Exportação PDF / Excel"],
+    features: ["Visão geral", "Produção e produtividade", "Custos da safra", "Financeiro da safra", "Comparativo de safras"],
   },
   {
     slug: "configuracoes",

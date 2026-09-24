@@ -16,6 +16,7 @@ export type Receivable = {
   paid_at: string | null;
   notes: string;
   cost_center_id: string | null;
+  season_id: string | null;
   status: "open" | "paid" | "overdue" | "canceled";
   created_at: string;
   updated_at: string;
@@ -46,6 +47,7 @@ const receivableSchema = z.object({
   dueDate: z.string().trim().min(1, "Informe a data de vencimento."),
   receivedAt: optionalDate,
   costCenterId: optionalUuid,
+  seasonId: optionalUuid,
   notes: z.string().trim().max(1000).default(""),
   status: z.enum(["open", "paid", "overdue", "canceled"]).default("open"),
 });
@@ -85,6 +87,7 @@ export const saveReceivable = createServerFn({ method: "POST" })
       due_date: data.dueDate,
       paid_at: data.receivedAt,
       cost_center_id: data.costCenterId,
+      season_id: data.seasonId,
       notes: data.notes,
       status,
     };
