@@ -510,6 +510,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["entry_kind"]
           notes: string
           paid_at: string | null
+          season_id: string | null
           status: Database["public"]["Enums"]["entry_status"]
           supplier: string
           updated_at: string
@@ -526,6 +527,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["entry_kind"]
           notes?: string
           paid_at?: string | null
+          season_id?: string | null
           status?: Database["public"]["Enums"]["entry_status"]
           supplier?: string
           updated_at?: string
@@ -542,6 +544,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["entry_kind"]
           notes?: string
           paid_at?: string | null
+          season_id?: string | null
           status?: Database["public"]["Enums"]["entry_status"]
           supplier?: string
           updated_at?: string
@@ -559,6 +562,13 @@ export type Database = {
             columns: ["cost_center_id"]
             isOneToOne: false
             referencedRelation: "cost_centers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_entries_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "crop_seasons"
             referencedColumns: ["id"]
           },
         ]
@@ -1248,6 +1258,7 @@ export type Database = {
           created_at: string
           customer: string
           id: string
+          season_id: string | null
           sold_at: string
           status: Database["public"]["Enums"]["doc_status"]
           total: number
@@ -1258,6 +1269,7 @@ export type Database = {
           created_at?: string
           customer: string
           id?: string
+          season_id?: string | null
           sold_at?: string
           status?: Database["public"]["Enums"]["doc_status"]
           total?: number
@@ -1268,6 +1280,7 @@ export type Database = {
           created_at?: string
           customer?: string
           id?: string
+          season_id?: string | null
           sold_at?: string
           status?: Database["public"]["Enums"]["doc_status"]
           total?: number
@@ -1279,6 +1292,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "crop_seasons"
             referencedColumns: ["id"]
           },
         ]
