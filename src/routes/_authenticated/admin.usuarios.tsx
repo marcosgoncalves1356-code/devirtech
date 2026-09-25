@@ -14,6 +14,7 @@ import {
   setUserStatus,
 } from "@/lib/admin.functions";
 import { modules } from "@/lib/modules";
+import { listAccessProfiles, type AccessProfile } from "@/lib/access-profiles.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/usuarios")({
   head: () => ({
@@ -41,6 +42,7 @@ type Draft = {
   jobTitle: string;
   password?: string;
   companyId: string | null;
+  accessProfileId: string | null;
   role: "devitech_admin" | "company_admin" | "manager" | "operator";
   status: "active" | "blocked";
   permissions: Record<string, Level>;
@@ -62,6 +64,7 @@ function AdminUsers() {
   const qc = useQueryClient();
   const fetchUsers = useServerFn(listUsers);
   const fetchCompanies = useServerFn(listCompanies);
+  const fetchProfiles = useServerFn(listAccessProfiles);
   const save = useServerFn(saveUser);
   const reset = useServerFn(resetUserPassword);
   const status = useServerFn(setUserStatus);
@@ -69,6 +72,11 @@ function AdminUsers() {
 
   const { data: users = [], isLoading } = useQuery({ queryKey: ["admin-users"], queryFn: () => fetchUsers() });
   const { data: companies = [] } = useQuery({ queryKey: ["admin-companies"], queryFn: () => fetchCompanies() });
+  const { data: accessProfiles = [] } = useQuery({
+    queryKey: ["access-profiles", draft?.companyId],
+    queryFn: () => fetchProfiles({ data: { companyId: draft?.companyId ?? "" } }),
+    enabled: Boolean(draft?.companyId),
+  });
 
   const [draft, setDraft] = useState<Draft | null>(null);
   const [companyFilter, setCompanyFilter] = useState<string>("all");
@@ -126,6 +134,7 @@ function AdminUsers() {
               password: "",
 
               companyId: (companies[0] as any)?.id ?? null,
+              accessProfileId: null,
               role: "operator",
               status: "active",
               permissions: defaultPerms("view"),
@@ -194,7 +203,7 @@ function AdminUsers() {
             <select
               className="field-shell text-sm"
               value={draft.companyId ?? ""}
-              onChange={(e) => setDraft({ ...draft, companyId: e.target.value || null })}
+              onChange={(e) => setDraft({ ...draft, companyId: e.target.value || null, accessProfileId: null })}
               required={draft.role !== "devitech_admin"}
             >
               <option value="">
@@ -204,6 +213,14 @@ function AdminUsers() {
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
+              ))}
+            </select>
+            <select className="field-shell text-sm" value={draft.accessProfileId ?? ""}
+              onChange={(e) => setDraft({ ...draft, accessProfileId: e.target.value || null })}
+              disabled={!draft.companyId || draft.role === "devitech_admin"}>
+              <option value="">Permissões individuais atuais</option>
+              {(accessProfiles as AccessProfile[]).filter((profile) => profile.status === "active").map((profile) => (
+                <option key={profile.id} value={profile.id}>{profile.name}</option>
               ))}
             </select>
             <select
@@ -328,6 +345,7 @@ function AdminUsers() {
                     jobTitle: u.job_title ?? "",
                     password: "",
                     companyId: u.company_id,
+                    accessProfileId: u.access_profile_id ?? null,
                     role: u.role,
                     status: u.status,
                     permissions: { ...defaultPerms("none"), ...(u.permissions ?? {}) },
