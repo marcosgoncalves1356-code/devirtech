@@ -180,7 +180,7 @@ export function SalesWorkspace() {
     </section>
   );
 
-  return <ModuleTabs tabs={[
+  return <ModuleTabs moduleSlug="vendas" tabs={[
     { value: "customers", label: "Clientes", content: customerPanel },
     { value: "contracts", label: "Contratos", content: contractPanel },
     { value: "orders", label: "Pedidos de venda", content: <SalesOrdersPanel /> },

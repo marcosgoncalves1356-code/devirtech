@@ -9,10 +9,13 @@ import { useCompany } from "@/lib/company-context";
 import {
   clearModulePermissions,
   listModulePermissions,
+  listSubmodulePermissions,
   setModulePermission,
+  setSubmodulePermission,
   type ModulePermission,
+  type SubmodulePermission,
 } from "@/lib/module-permissions.functions";
-import { modules } from "@/lib/modules";
+import { getSubmoduleKey, modules } from "@/lib/modules";
 
 type ActionKey = "can_view" | "can_create" | "can_edit" | "can_delete";
 
@@ -33,6 +36,8 @@ export function ModulePermissionsPanel() {
   const fetchProfiles = useServerFn(listAccessProfiles);
   const fetchPermissions = useServerFn(listModulePermissions);
   const savePermission = useServerFn(setModulePermission);
+  const fetchSubmodulePermissions = useServerFn(listSubmodulePermissions);
+  const saveSubmodulePermission = useServerFn(setSubmodulePermission);
   const clearAll = useServerFn(clearModulePermissions);
 
   const [profileId, setProfileId] = useState<string>("");
@@ -56,19 +61,35 @@ export function ModulePermissionsPanel() {
     queryFn: () => fetchPermissions({ data: { profileId } }),
     enabled: Boolean(profileId),
   });
+  const subPermKey = ["submodule-permissions", profileId];
+  const { data: submodulePermissions = [] } = useQuery({
+    queryKey: subPermKey,
+    queryFn: () => fetchSubmodulePermissions({ data: { profileId } }),
+    enabled: Boolean(profileId),
+  });
 
   const permByModule = new Map(
     (permissions as ModulePermission[]).map((p) => [p.module_slug, p] as const),
+  );
+  const permBySubmodule = new Map(
+    (submodulePermissions as SubmodulePermission[]).map((p) => [p.submodule_slug, p] as const),
   );
 
   const invalidate = () => {
     setError(null);
     void qc.invalidateQueries({ queryKey: permKey });
+    void qc.invalidateQueries({ queryKey: subPermKey });
   };
 
   const toggleMutation = useMutation({
     mutationFn: (vars: { moduleSlug: string; actions: typeof EMPTY }) =>
       savePermission({ data: { profileId, moduleSlug: vars.moduleSlug, actions: vars.actions } }),
+    onSuccess: invalidate,
+    onError: (e: Error) => setError(e.message),
+  });
+  const submoduleMutation = useMutation({
+    mutationFn: (vars: { moduleSlug: string; submoduleSlug: string; actions: typeof EMPTY }) =>
+      saveSubmodulePermission({ data: { profileId, ...vars } }),
     onSuccess: invalidate,
     onError: (e: Error) => setError(e.message),
   });
@@ -84,6 +105,9 @@ export function ModulePermissionsPanel() {
       const allTrue = { can_view: true, can_create: true, can_edit: true, can_delete: true };
       for (const m of availableModules) {
         await savePermission({ data: { profileId, moduleSlug: m.slug, actions: allTrue } });
+        for (const submodule of m.submodules.filter((item) => company.enabledSubmodules.includes(getSubmoduleKey(m.slug, item.value)))) {
+          await saveSubmodulePermission({ data: { profileId, moduleSlug: m.slug, submoduleSlug: getSubmoduleKey(m.slug, submodule.value), actions: allTrue } });
+        }
       }
     },
     onSuccess: invalidate,
@@ -103,7 +127,7 @@ export function ModulePermissionsPanel() {
           <KeySquare className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-lg font-semibold tracking-tight">Permissões por módulo</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Permissões por módulo e submódulo</h2>
           <p className="text-sm text-muted-foreground">
             Defina, para cada perfil de <strong>{company.name}</strong>, quais módulos podem ser acessados e as ações
             permitidas.
@@ -181,7 +205,7 @@ export function ModulePermissionsPanel() {
                   </tr>
                 </thead>
                 <tbody>
-                  {availableModules.map((m) => {
+                  {availableModules.flatMap((m) => {
                     const current = permByModule.get(m.slug);
                     const values = current
                       ? {
@@ -191,8 +215,8 @@ export function ModulePermissionsPanel() {
                           can_delete: current.can_delete,
                         }
                       : { ...EMPTY };
-                    return (
-                      <tr key={m.slug} className="border-b border-border/40 last:border-0">
+                    const moduleRow = (
+                      <tr key={m.slug} className="border-b border-border/40 bg-muted/20">
                         <td className="px-4 py-3">
                           <span className="flex items-center gap-2 font-medium">
                             <m.icon className="h-4 w-4 text-primary" />
@@ -204,7 +228,7 @@ export function ModulePermissionsPanel() {
                             <input
                               type="checkbox"
                               className="h-4 w-4 accent-[var(--primary)]"
-                              disabled={!isAdmin || toggleMutation.isPending}
+                               disabled={!isAdmin || toggleMutation.isPending || submoduleMutation.isPending}
                               checked={values[a.key]}
                               onChange={(e) => {
                                 const next = { ...values, [a.key]: e.target.checked };
@@ -221,6 +245,33 @@ export function ModulePermissionsPanel() {
                         ))}
                       </tr>
                     );
+                    const submoduleRows = m.submodules
+                      .filter((submodule) => company.enabledSubmodules.includes(getSubmoduleKey(m.slug, submodule.value)))
+                      .map((submodule) => {
+                        const key = getSubmoduleKey(m.slug, submodule.value);
+                        const subCurrent = permBySubmodule.get(key);
+                        const subValues = subCurrent ? {
+                          can_view: subCurrent.can_view, can_create: subCurrent.can_create,
+                          can_edit: subCurrent.can_edit, can_delete: subCurrent.can_delete,
+                        } : { ...EMPTY };
+                        return <tr key={key} className="border-b border-border/30 last:border-0">
+                          <td className="py-2 pl-10 pr-4 text-xs text-muted-foreground">↳ {submodule.label}</td>
+                          {ACTIONS.map((action) => <td key={action.key} className="px-3 py-2 text-center">
+                            <input type="checkbox" className="h-4 w-4 accent-[var(--primary)]"
+                              disabled={!isAdmin || submoduleMutation.isPending}
+                              checked={subValues[action.key]}
+                              onChange={(event) => {
+                                const next = { ...subValues, [action.key]: event.target.checked };
+                                if (action.key === "can_view" && !event.target.checked) {
+                                  next.can_create = false; next.can_edit = false; next.can_delete = false;
+                                }
+                                if (action.key !== "can_view" && event.target.checked) next.can_view = true;
+                                submoduleMutation.mutate({ moduleSlug: m.slug, submoduleSlug: key, actions: next });
+                              }} />
+                          </td>)}
+                        </tr>;
+                      });
+                    return [moduleRow, ...submoduleRows];
                   })}
                 </tbody>
               </table>

@@ -140,7 +140,7 @@ export function StockWorkspace() {
 
   return <div className="space-y-4">
     {error ? <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm">{error}</p> : null}
-    <ModuleTabs value={tab} onValueChange={setTab} tabs={[
+    <ModuleTabs moduleSlug="estoque" value={tab} onValueChange={setTab} tabs={[
       { value: "overview", label: "Visão geral", content: <Overview summary={summary} balances={availableBalances} pending={pendingReceipts.length} loading={loading} onEntry={() => openMovement("in")} onExit={() => openMovement("out")} onTransfer={openTransfer} onInventory={openInventory} /> },
       { value: "items", label: "Itens", content: <ItemsPanel items={items} draft={itemDraft} setDraft={setItemDraft} editable={editable} loading={loading} save={(d: ItemDraft) => itemMutation.mutate(d)} saving={itemMutation.isPending} remove={(id: string) => { if (confirm("Excluir este item? Os vínculos existentes podem ser afetados.")) removeItem.mutate(id); }} /> },
       { value: "warehouses", label: "Depósitos", content: <WarehousesPanel warehouses={warehouses} balances={availableBalances} draft={warehouseDraft} setDraft={setWarehouseDraft} editable={editable} loading={loading} save={(d: WarehouseDraft) => warehouseMutation.mutate(d)} saving={warehouseMutation.isPending} remove={(id: string) => { if (confirm("Excluir este depósito?")) removeWarehouse.mutate(id); }} /> },

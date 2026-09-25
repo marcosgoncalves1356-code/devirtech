@@ -43,12 +43,13 @@ export function ModulePage({ slug }: { slug: string }) {
         </div>
       ) : (
         <ModuleTabs
-          tabs={mod.features.map((feature, index) => ({
-            value: `feature-${index}`,
-            label: feature,
+          moduleSlug={slug}
+          tabs={mod.submodules.map((submodule) => ({
+            value: submodule.value,
+            label: submodule.label,
             content: (
               <div className="space-y-4">
-                <UpcomingSubmodule name={feature} />
+                <UpcomingSubmodule name={submodule.label} />
                 <section className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-6 sm:flex-row sm:items-center">
                   <Construction className="h-6 w-6 text-primary" />
                   <div className="min-w-0 flex-1">

@@ -107,11 +107,11 @@ export const clearModulePermissions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ profileId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("access_profile_permissions")
-      .delete()
-      .eq("profile_id", data.profileId);
-    if (error) throw new Error(error.message);
+    const [{ error }, { error: submoduleError }] = await Promise.all([
+      context.supabase.from("access_profile_permissions").delete().eq("profile_id", data.profileId),
+      context.supabase.from("access_profile_submodule_permissions").delete().eq("profile_id", data.profileId),
+    ]);
+    if (error || submoduleError) throw new Error(error?.message ?? submoduleError?.message ?? "Não foi possível limpar as permissões.");
     return { ok: true };
   });
 

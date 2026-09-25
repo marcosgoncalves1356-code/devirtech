@@ -144,8 +144,8 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
         if (granular) return granular.canEdit;
         return !hasCustomPerms ? true : perms[slug] === "edit";
       },
-      canCreate: (slug: string) => isAdmin || actionPermissions[slug]?.canCreate ?? (!hasProfilePermissions && (!hasCustomPerms || perms[slug] === "edit")),
-      canDelete: (slug: string) => isAdmin || actionPermissions[slug]?.canDelete ?? (!hasProfilePermissions && (!hasCustomPerms || perms[slug] === "edit")),
+      canCreate: (slug: string) => isAdmin || (actionPermissions[slug]?.canCreate ?? (!hasProfilePermissions && (!hasCustomPerms || perms[slug] === "edit"))),
+      canDelete: (slug: string) => isAdmin || (actionPermissions[slug]?.canDelete ?? (!hasProfilePermissions && (!hasCustomPerms || perms[slug] === "edit"))),
       canViewSubmodule: (moduleSlug: string, submoduleValue: string) => {
         if (!isModuleEnabled(moduleSlug)) return false;
         const key = `${moduleSlug}.${submoduleValue}`;
