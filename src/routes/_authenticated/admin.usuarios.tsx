@@ -72,16 +72,15 @@ function AdminUsers() {
 
   const { data: users = [], isLoading } = useQuery({ queryKey: ["admin-users"], queryFn: () => fetchUsers() });
   const { data: companies = [] } = useQuery({ queryKey: ["admin-companies"], queryFn: () => fetchCompanies() });
+  const [draft, setDraft] = useState<Draft | null>(null);
+  const [companyFilter, setCompanyFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const { data: accessProfiles = [] } = useQuery({
     queryKey: ["access-profiles", draft?.companyId],
     queryFn: () => fetchProfiles({ data: { companyId: draft?.companyId ?? "" } }),
     enabled: Boolean(draft?.companyId),
   });
-
-  const [draft, setDraft] = useState<Draft | null>(null);
-  const [companyFilter, setCompanyFilter] = useState<string>("all");
-  const [search, setSearch] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const invalidate = () => void qc.invalidateQueries({ queryKey: ["admin-users"] });
 
   const term = search.trim().toLowerCase();
