@@ -61,6 +61,7 @@ function FinanceModule() {
         </div>
       ) : (
         <ModuleTabs
+          moduleSlug="financeiro"
           tabs={[
             { value: "payables", label: "Contas a pagar", content: <PayablesPanel /> },
             { value: "receivables", label: "Contas a receber", content: <ReceivablesPanel /> },

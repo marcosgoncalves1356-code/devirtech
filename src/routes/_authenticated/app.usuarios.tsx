@@ -57,6 +57,7 @@ function UsersModule() {
         </div>
       ) : (
         <ModuleTabs
+          moduleSlug="usuarios"
           tabs={[
             { value: "profiles", label: "Perfis e papéis", content: <AccessProfilesPanel /> },
             { value: "permissions", label: "Permissões por módulo", content: <ModulePermissionsPanel /> },

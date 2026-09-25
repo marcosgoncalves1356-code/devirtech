@@ -58,6 +58,7 @@ function EmployeesModule() {
         </div>
       ) : (
         <ModuleTabs
+          moduleSlug="funcionarios"
           tabs={[
             { value: "records", label: "Ficha do colaborador", content: <EmployeeRecordsPanel /> },
             { value: "structure", label: "Cargos e departamentos", content: <OrgStructurePanel /> },

@@ -62,6 +62,7 @@ function PurchasesModule() {
         </div>
       ) : (
         <ModuleTabs
+          moduleSlug="compras"
           tabs={[
             { value: "suppliers", label: "Fornecedores", content: <SuppliersPanel /> },
             { value: "orders", label: "Pedidos de compra", content: <PurchaseOrdersPanel /> },
