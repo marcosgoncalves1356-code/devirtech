@@ -141,8 +141,8 @@ function AdminModules() {
                   {optionalModules.map((m) => {
                     const on = enabled.includes(m.slug);
                     return (
+                      <div key={m.slug} className="min-w-0">
                       <button
-                        key={m.slug}
                         type="button"
                         disabled={busy}
                         aria-pressed={on}
@@ -154,8 +154,8 @@ function AdminModules() {
                               : [...enabled, m.slug],
                           )
                         }
-                        className={
-                          "flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs transition " +
+                         className={
+                           "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs transition " +
                           (on
                             ? "border-primary/50 bg-primary/10 text-foreground"
                             : "border-border/60 text-muted-foreground hover:border-border")
@@ -173,7 +173,7 @@ function AdminModules() {
                         <span className="min-w-0 flex-1 truncate">{m.label}</span>
                       </button>
                       {on && m.submodules.length ? (
-                        <div className="col-span-full mb-2 ml-3 grid gap-1 border-l border-border/60 pl-3">
+                        <div className="mb-2 ml-3 mt-2 grid gap-1 border-l border-border/60 pl-3">
                           {m.submodules.map((submodule) => {
                             const key = getSubmoduleKey(m.slug, submodule.value);
                             const subOn = (company.enabled_submodules ?? []).includes(key);
@@ -184,6 +184,7 @@ function AdminModules() {
                           })}
                         </div>
                       ) : null}
+                      </div>
                     );
                   })}
                 </div>
