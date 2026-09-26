@@ -1031,6 +1031,56 @@ export type Database = {
           },
         ]
       }
+      products_services: {
+        Row: {
+          category: string
+          code: string
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          kind: string
+          name: string
+          status: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          code: string
+          company_id: string
+          created_at?: string
+          description?: string
+          id?: string
+          kind: string
+          name: string
+          status?: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          code?: string
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          kind?: string
+          name?: string
+          status?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_services_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           access_profile_id: string | null
@@ -1989,6 +2039,10 @@ export type Database = {
     }
     Functions: {
       apply_inventory_count: { Args: { _count_id: string }; Returns: string }
+      can_access_submodule: {
+        Args: { _action?: string; _submodule: string }
+        Returns: boolean
+      }
       create_inventory_count: {
         Args: {
           _company_id: string
