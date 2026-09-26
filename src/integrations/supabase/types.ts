@@ -1989,6 +1989,10 @@ export type Database = {
     }
     Functions: {
       apply_inventory_count: { Args: { _count_id: string }; Returns: string }
+      can_access_submodule: {
+        Args: { _action?: string; _submodule: string }
+        Returns: boolean
+      }
       create_inventory_count: {
         Args: {
           _company_id: string
