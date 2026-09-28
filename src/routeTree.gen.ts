@@ -22,6 +22,7 @@ import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminVisualizarRouteImport } from './routes/_authenticated/admin.visualizar'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppAlterarSenhaRouteImport } from './routes/_authenticated/app.alterar-senha'
+import { Route as AuthenticatedAppCadastrosRouteImport } from './routes/_authenticated/app.cadastros'
 import { Route as AuthenticatedAppComprasRouteImport } from './routes/_authenticated/app.compras'
 import { Route as AuthenticatedAppConfiguracoesRouteImport } from './routes/_authenticated/app.configuracoes'
 import { Route as AuthenticatedAppEmpresasRouteImport } from './routes/_authenticated/app.empresas'
@@ -105,6 +106,12 @@ const AuthenticatedAppAlterarSenhaRoute =
   AuthenticatedAppAlterarSenhaRouteImport.update({
     id: '/alterar-senha',
     path: '/alterar-senha',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppCadastrosRoute =
+  AuthenticatedAppCadastrosRouteImport.update({
+    id: '/cadastros',
+    path: '/cadastros',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppComprasRoute = AuthenticatedAppComprasRouteImport.update({
@@ -194,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/admin/visualizar': typeof AuthenticatedAdminVisualizarRoute
   '/app/alterar-senha': typeof AuthenticatedAppAlterarSenhaRoute
+  '/app/cadastros': typeof AuthenticatedAppCadastrosRoute
   '/app/compras': typeof AuthenticatedAppComprasRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/app/empresas': typeof AuthenticatedAppEmpresasRoute
@@ -219,6 +227,7 @@ export interface FileRoutesByTo {
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/admin/visualizar': typeof AuthenticatedAdminVisualizarRoute
   '/app/alterar-senha': typeof AuthenticatedAppAlterarSenhaRoute
+  '/app/cadastros': typeof AuthenticatedAppCadastrosRoute
   '/app/compras': typeof AuthenticatedAppComprasRoute
   '/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/app/empresas': typeof AuthenticatedAppEmpresasRoute
@@ -248,6 +257,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/admin/visualizar': typeof AuthenticatedAdminVisualizarRoute
   '/_authenticated/app/alterar-senha': typeof AuthenticatedAppAlterarSenhaRoute
+  '/_authenticated/app/cadastros': typeof AuthenticatedAppCadastrosRoute
   '/_authenticated/app/compras': typeof AuthenticatedAppComprasRoute
   '/_authenticated/app/configuracoes': typeof AuthenticatedAppConfiguracoesRoute
   '/_authenticated/app/empresas': typeof AuthenticatedAppEmpresasRoute
@@ -277,6 +287,7 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/admin/visualizar'
     | '/app/alterar-senha'
+    | '/app/cadastros'
     | '/app/compras'
     | '/app/configuracoes'
     | '/app/empresas'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/admin/visualizar'
     | '/app/alterar-senha'
+    | '/app/cadastros'
     | '/app/compras'
     | '/app/configuracoes'
     | '/app/empresas'
@@ -330,6 +342,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/admin/visualizar'
     | '/_authenticated/app/alterar-senha'
+    | '/_authenticated/app/cadastros'
     | '/_authenticated/app/compras'
     | '/_authenticated/app/configuracoes'
     | '/_authenticated/app/empresas'
@@ -443,6 +456,13 @@ declare module '@tanstack/react-router' {
       path: '/alterar-senha'
       fullPath: '/app/alterar-senha'
       preLoaderRoute: typeof AuthenticatedAppAlterarSenhaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/cadastros': {
+      id: '/_authenticated/app/cadastros'
+      path: '/cadastros'
+      fullPath: '/app/cadastros'
+      preLoaderRoute: typeof AuthenticatedAppCadastrosRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/compras': {
@@ -564,6 +584,7 @@ const AuthenticatedAdminRouteWithChildren =
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAlterarSenhaRoute: typeof AuthenticatedAppAlterarSenhaRoute
+  AuthenticatedAppCadastrosRoute: typeof AuthenticatedAppCadastrosRoute
   AuthenticatedAppComprasRoute: typeof AuthenticatedAppComprasRoute
   AuthenticatedAppConfiguracoesRoute: typeof AuthenticatedAppConfiguracoesRoute
   AuthenticatedAppEmpresasRoute: typeof AuthenticatedAppEmpresasRoute
@@ -582,6 +603,7 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAlterarSenhaRoute: AuthenticatedAppAlterarSenhaRoute,
+  AuthenticatedAppCadastrosRoute: AuthenticatedAppCadastrosRoute,
   AuthenticatedAppComprasRoute: AuthenticatedAppComprasRoute,
   AuthenticatedAppConfiguracoesRoute: AuthenticatedAppConfiguracoesRoute,
   AuthenticatedAppEmpresasRoute: AuthenticatedAppEmpresasRoute,
