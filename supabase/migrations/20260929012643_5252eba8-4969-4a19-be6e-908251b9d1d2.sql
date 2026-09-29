@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.enforce_payroll_entry_access() FROM anon, authenticated;

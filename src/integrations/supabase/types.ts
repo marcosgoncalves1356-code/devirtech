@@ -366,6 +366,20 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "crop_seasons_field_fk"
+            columns: ["field_id"]
+            isOneToOne: false
+            referencedRelation: "property_fields"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crop_seasons_property_fk"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "rural_properties"
+            referencedColumns: ["id"]
+          },
         ]
       }
       customers: {
@@ -938,6 +952,70 @@ export type Database = {
           },
         ]
       }
+      payroll_entry_items: {
+        Row: {
+          base_salary: number
+          company_id: string
+          created_at: string
+          deductions: number
+          earnings: number
+          employee_id: string
+          id: string
+          net_total: number | null
+          notes: string
+          payroll_entry_id: string
+          updated_at: string
+        }
+        Insert: {
+          base_salary?: number
+          company_id: string
+          created_at?: string
+          deductions?: number
+          earnings?: number
+          employee_id: string
+          id?: string
+          net_total?: number | null
+          notes?: string
+          payroll_entry_id: string
+          updated_at?: string
+        }
+        Update: {
+          base_salary?: number
+          company_id?: string
+          created_at?: string
+          deductions?: number
+          earnings?: number
+          employee_id?: string
+          id?: string
+          net_total?: number | null
+          notes?: string
+          payroll_entry_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_entry_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_entry_items_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_entry_items_payroll_entry_id_fkey"
+            columns: ["payroll_entry_id"]
+            isOneToOne: false
+            referencedRelation: "payroll_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       production_activities: {
         Row: {
           activity_date: string
@@ -1137,6 +1215,66 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_fields: {
+        Row: {
+          area: number
+          area_unit: string
+          company_id: string
+          created_at: string
+          crop_type: string
+          id: string
+          name: string
+          notes: string
+          property_id: string
+          registry_number: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          area?: number
+          area_unit?: string
+          company_id: string
+          created_at?: string
+          crop_type?: string
+          id?: string
+          name: string
+          notes?: string
+          property_id: string
+          registry_number?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          area?: number
+          area_unit?: string
+          company_id?: string
+          created_at?: string
+          crop_type?: string
+          id?: string
+          name?: string
+          notes?: string
+          property_id?: string
+          registry_number?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_fields_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_fields_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "rural_properties"
             referencedColumns: ["id"]
           },
         ]
@@ -1368,6 +1506,65 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rural_properties: {
+        Row: {
+          address: string
+          area_unit: string
+          city: string
+          company_id: string
+          created_at: string
+          document: string
+          id: string
+          name: string
+          notes: string
+          registry_number: string
+          state: string
+          status: string
+          total_area: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string
+          area_unit?: string
+          city?: string
+          company_id: string
+          created_at?: string
+          document?: string
+          id?: string
+          name: string
+          notes?: string
+          registry_number?: string
+          state?: string
+          status?: string
+          total_area?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          area_unit?: string
+          city?: string
+          company_id?: string
+          created_at?: string
+          document?: string
+          id?: string
+          name?: string
+          notes?: string
+          registry_number?: string
+          state?: string
+          status?: string
+          total_area?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rural_properties_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]

@@ -12,3 +12,9 @@
 ## Validações pendentes
 - [ ] Validar Tabelas de preços visualmente no celular — aguardando conta conectada
 - [ ] Validar Relatórios visualmente no celular — aguardando conta conectada
+
+## Próximas liberações aprovadas
+- [ ] Liberar Propriedades rurais: fazendas, áreas e talhões
+- [ ] Vincular safras a propriedades e talhões
+- [ ] Liberar Folha de pagamento essencial por funcionário
+- [ ] Validar permissões, isolamento e telas móveis das novas liberações

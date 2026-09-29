@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Propriedades rurais são a fonte única de fazendas e talhões; Produção apenas referencia esses cadastros para evitar duplicação.
+- A folha essencial armazena valores por competência e colaborador, deixando encargos legais, guias e holerites fora deste ciclo.
