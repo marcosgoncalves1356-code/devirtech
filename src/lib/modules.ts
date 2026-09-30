@@ -149,7 +149,7 @@ export const modules: ErpModule[] = [
     group: "Operação",
     icon: BadgeDollarSign,
     features: ["Apuração mensal", "Proventos e descontos", "Encargos e guias", "Holerites"],
-    submodules: [sub("monthly", "Apuração mensal"), sub("earnings", "Proventos e descontos"), sub("charges", "Encargos e guias"), sub("payslips", "Holerites")],
+    submodules: [sub("monthly", "Apuração mensal", true), sub("earnings", "Proventos e descontos", true), sub("charges", "Encargos e guias"), sub("payslips", "Holerites")],
   },
   {
     slug: "veiculos",
@@ -171,7 +171,7 @@ export const modules: ErpModule[] = [
     group: "Campo",
     icon: MapPinned,
     features: ["Fazendas e talhões", "Áreas e matrículas", "Mapas e georreferência", "Arrendamentos"],
-    submodules: [sub("farms", "Fazendas e talhões"), sub("areas", "Áreas e matrículas"), sub("maps", "Mapas e georreferência"), sub("leases", "Arrendamentos")],
+    submodules: [sub("farms", "Fazendas", true), sub("areas", "Áreas e talhões", true), sub("maps", "Mapas e georreferência"), sub("leases", "Arrendamentos")],
   },
   {
     slug: "producao",

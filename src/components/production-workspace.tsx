@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { listEmployees } from "@/lib/employees.functions";
+import { listPropertyFields, listRuralProperties } from "@/lib/properties.functions";
 import { listInventoryItems } from "@/lib/stock.functions";
 import {
   deleteCropSeason,
@@ -26,6 +27,8 @@ import {
 
 type SeasonDraft = {
   id?: string;
+  propertyId: string;
+  fieldId: string;
   name: string;
   seasonYear: string;
   startDate: string;
@@ -92,6 +95,8 @@ export function ProductionWorkspace() {
   const fetchHarvests = useServerFn(listHarvestRecords);
   const fetchEmployees = useServerFn(listEmployees);
   const fetchItems = useServerFn(listInventoryItems);
+  const fetchProperties = useServerFn(listRuralProperties);
+  const fetchFields = useServerFn(listPropertyFields);
   const persistSeason = useServerFn(saveCropSeason);
   const removeSeason = useServerFn(deleteCropSeason);
   const persistActivity = useServerFn(saveProductionActivity);
@@ -107,12 +112,16 @@ export function ProductionWorkspace() {
   const harvestsQuery = useQuery({ queryKey: ["harvest-records", company.id], queryFn: () => fetchHarvests(args), enabled });
   const employeesQuery = useQuery({ queryKey: ["employees", company.id], queryFn: () => fetchEmployees(args), enabled });
   const itemsQuery = useQuery({ queryKey: ["inventory-items", company.id], queryFn: () => fetchItems(args), enabled });
+  const propertiesQuery = useQuery({ queryKey: ["rural-properties", company.id], queryFn: () => fetchProperties(args), enabled });
+  const fieldsQuery = useQuery({ queryKey: ["property-fields", company.id], queryFn: () => fetchFields(args), enabled });
 
   const seasons = (seasonsQuery.data ?? []) as CropSeason[];
   const activities = (activitiesQuery.data ?? []) as ProductionActivity[];
   const harvests = (harvestsQuery.data ?? []) as HarvestRecord[];
   const employees = (employeesQuery.data ?? []) as { id: string; full_name: string; status: string }[];
   const items = (itemsQuery.data ?? []) as { id: string; name: string; unit: string }[];
+  const properties = propertiesQuery.data ?? [];
+  const fields = fieldsQuery.data ?? [];
 
   const seasonName = (id: string) => seasons.find((s) => s.id === id)?.name ?? "Safra";
   const seasonById = useMemo(() => new Map(seasons.map((s) => [s.id, s])), [seasons]);
@@ -134,8 +143,8 @@ export function ProductionWorkspace() {
         data: {
           id: d.id,
           companyId: company.id,
-          propertyId: null,
-          fieldId: null,
+          propertyId: d.propertyId || null,
+          fieldId: d.fieldId || null,
           name: d.name,
           seasonYear: Number(d.seasonYear),
           startDate: d.startDate || null,
@@ -213,6 +222,8 @@ export function ProductionWorkspace() {
   const deleteHarvestMutation = useMutation({ mutationFn: (id: string) => removeHarvest({ data: { id } }), onSuccess: invalidate, onError });
 
   const newSeason = (): SeasonDraft => ({
+    propertyId: "",
+    fieldId: "",
     name: "",
     seasonYear: String(new Date().getFullYear()),
     startDate: "",
@@ -235,8 +246,7 @@ export function ProductionWorkspace() {
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-semibold">Safras</h2>
           <p className="text-sm text-muted-foreground">
-            Cadastro das safras com cultivo, terreno, área e valor único de referência da apanha. Os vínculos com
-            propriedade e talhão serão ativados quando o módulo Propriedades Rurais for liberado.
+            Cadastro das safras com cultivo, terreno, área, propriedade, talhão e valor único da apanha.
           </p>
         </div>
         {editable ? (
@@ -255,6 +265,14 @@ export function ProductionWorkspace() {
           }}
         >
           <div className="grid gap-3 sm:grid-cols-3">
+            <select className="field-shell text-sm" value={seasonDraft.propertyId} onChange={(e) => setSeasonDraft({ ...seasonDraft, propertyId: e.target.value, fieldId: "" })}>
+              <option value="">Propriedade não informada</option>
+              {properties.filter((item) => item.status === "active").map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+            </select>
+            <select className="field-shell text-sm" value={seasonDraft.fieldId} disabled={!seasonDraft.propertyId} onChange={(e) => setSeasonDraft({ ...seasonDraft, fieldId: e.target.value })}>
+              <option value="">Talhão não informado</option>
+              {fields.filter((item) => item.property_id === seasonDraft.propertyId && item.status === "active").map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+            </select>
             <input className="field-shell text-sm" placeholder="Nome da safra" required minLength={2} value={seasonDraft.name} onChange={(e) => setSeasonDraft({ ...seasonDraft, name: e.target.value })} />
             <input className="field-shell text-sm" type="number" placeholder="Ano" required value={seasonDraft.seasonYear} onChange={(e) => setSeasonDraft({ ...seasonDraft, seasonYear: e.target.value })} />
             <select className="field-shell text-sm" value={seasonDraft.status} onChange={(e) => setSeasonDraft({ ...seasonDraft, status: e.target.value as SeasonDraft["status"] })}>
@@ -318,7 +336,7 @@ export function ProductionWorkspace() {
               <p className="text-xs text-muted-foreground">
                 Período: {dateBR(s.start_date)} → {dateBR(s.end_date)} · Apanha: {money(Number(s.pick_rate))} por {s.production_unit}
               </p>
-              <p className="text-xs text-muted-foreground">Propriedade e talhão: a vincular no módulo Propriedades Rurais.</p>
+              <p className="text-xs text-muted-foreground">Propriedade: {properties.find((item) => item.id === s.property_id)?.name ?? "não informada"} · Talhão: {fields.find((item) => item.id === s.field_id)?.name ?? "não informado"}</p>
               {editable ? (
                 <div className="flex gap-2">
                   <Button
@@ -327,6 +345,8 @@ export function ProductionWorkspace() {
                     onClick={() =>
                       setSeasonDraft({
                         id: s.id,
+                        propertyId: s.property_id ?? "",
+                        fieldId: s.field_id ?? "",
                         name: s.name,
                         seasonYear: String(s.season_year),
                         startDate: s.start_date ?? "",
