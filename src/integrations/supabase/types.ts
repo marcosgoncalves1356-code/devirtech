@@ -815,6 +815,7 @@ export type Database = {
           id: string
           min_quantity: number
           name: string
+          product_service_id: string | null
           quantity: number
           status: string
           unit: string
@@ -828,6 +829,7 @@ export type Database = {
           id?: string
           min_quantity?: number
           name: string
+          product_service_id?: string | null
           quantity?: number
           status?: string
           unit?: string
@@ -841,6 +843,7 @@ export type Database = {
           id?: string
           min_quantity?: number
           name?: string
+          product_service_id?: string | null
           quantity?: number
           status?: string
           unit?: string
@@ -853,6 +856,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_items_product_service_id_fkey"
+            columns: ["product_service_id"]
+            isOneToOne: false
+            referencedRelation: "products_services"
             referencedColumns: ["id"]
           },
         ]
@@ -1286,6 +1296,7 @@ export type Database = {
           description: string
           id: string
           inventory_item_id: string | null
+          product_service_id: string | null
           purchase_id: string
           quantity: number
           total: number
@@ -1299,6 +1310,7 @@ export type Database = {
           description: string
           id?: string
           inventory_item_id?: string | null
+          product_service_id?: string | null
           purchase_id: string
           quantity?: number
           total?: number
@@ -1312,6 +1324,7 @@ export type Database = {
           description?: string
           id?: string
           inventory_item_id?: string | null
+          product_service_id?: string | null
           purchase_id?: string
           quantity?: number
           total?: number
@@ -1332,6 +1345,13 @@ export type Database = {
             columns: ["inventory_item_id"]
             isOneToOne: false
             referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_items_product_service_id_fkey"
+            columns: ["product_service_id"]
+            isOneToOne: false
+            referencedRelation: "products_services"
             referencedColumns: ["id"]
           },
           {
@@ -1696,6 +1716,7 @@ export type Database = {
           description: string
           id: string
           order_id: string
+          product_service_id: string | null
           quantity: number
           total: number
           unit: string
@@ -1708,6 +1729,7 @@ export type Database = {
           description: string
           id?: string
           order_id: string
+          product_service_id?: string | null
           quantity: number
           total?: number
           unit?: string
@@ -1720,6 +1742,7 @@ export type Database = {
           description?: string
           id?: string
           order_id?: string
+          product_service_id?: string | null
           quantity?: number
           total?: number
           unit?: string
@@ -1739,6 +1762,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_order_items_product_service_id_fkey"
+            columns: ["product_service_id"]
+            isOneToOne: false
+            referencedRelation: "products_services"
             referencedColumns: ["id"]
           },
         ]
@@ -1808,6 +1838,7 @@ export type Database = {
           id: string
           price: number
           price_list_id: string
+          product_service_id: string | null
           unit: string
           updated_at: string
         }
@@ -1818,6 +1849,7 @@ export type Database = {
           id?: string
           price: number
           price_list_id: string
+          product_service_id?: string | null
           unit?: string
           updated_at?: string
         }
@@ -1828,6 +1860,7 @@ export type Database = {
           id?: string
           price?: number
           price_list_id?: string
+          product_service_id?: string | null
           unit?: string
           updated_at?: string
         }
@@ -1844,6 +1877,13 @@ export type Database = {
             columns: ["price_list_id"]
             isOneToOne: false
             referencedRelation: "sales_price_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_price_list_items_product_service_id_fkey"
+            columns: ["product_service_id"]
+            isOneToOne: false
+            referencedRelation: "products_services"
             referencedColumns: ["id"]
           },
         ]
