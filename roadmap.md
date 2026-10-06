@@ -7,7 +7,10 @@
 - [x] Aplicar permissões por módulo, submódulo e ação
 - [x] Validar isolamento e compatibilidade das permissões
 - [x] Iniciar cadastro mestre compartilhado de produtos e serviços
-- [ ] Integrar o cadastro mestre aos itens de Compras, Estoque e Vendas
+- [x] Integrar o cadastro mestre aos itens de Compras, Estoque e Vendas
+
+## Próxima prioridade
+- [ ] Liberar Veículos e combustível: frota, abastecimentos, manutenção e custos
 
 ## Validações pendentes
 - [ ] Validar Tabelas de preços visualmente no celular — aguardando conta conectada

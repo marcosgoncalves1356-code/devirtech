@@ -6,6 +6,7 @@ import { ClipboardList, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
 import { listCustomers, type Customer } from "@/lib/sales.functions";
+import { listProductsServices, type ProductService } from "@/lib/products-services.functions";
 import {
   deleteSalesOrder,
   listSalesOrders,
@@ -14,7 +15,7 @@ import {
   type SalesOrder,
 } from "@/lib/sales-orders.functions";
 
-type ItemDraft = { description: string; unit: string; quantity: string; unitPrice: string };
+type ItemDraft = { productServiceId: string; description: string; unit: string; quantity: string; unitPrice: string };
 type Draft = {
   id?: string;
   customerId: string;
@@ -32,7 +33,7 @@ const STATUS_LABEL: Record<SalesOrder["status"], string> = {
   canceled: "Cancelado",
 };
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-const emptyItem = (): ItemDraft => ({ description: "", unit: "un", quantity: "1", unitPrice: "0" });
+const emptyItem = (): ItemDraft => ({ productServiceId: "", description: "", unit: "un", quantity: "1", unitPrice: "0" });
 const emptyDraft = (): Draft => ({
   customerId: "",
   orderNumber: "",
@@ -51,6 +52,7 @@ const toDraft = (order: SalesOrder): Draft => ({
   status: order.status,
   notes: order.notes,
   items: order.items.map((item) => ({
+    productServiceId: item.product_service_id ?? "",
     description: item.description,
     unit: item.unit,
     quantity: String(item.quantity),
@@ -63,6 +65,7 @@ export function SalesOrdersPanel() {
   const queryClient = useQueryClient();
   const fetchOrders = useServerFn(listSalesOrders);
   const fetchCustomers = useServerFn(listCustomers);
+  const fetchProducts = useServerFn(listProductsServices);
   const saveOrder = useServerFn(saveSalesOrder);
   const changeStatus = useServerFn(setSalesOrderStatus);
   const removeOrder = useServerFn(deleteSalesOrder);
@@ -82,8 +85,10 @@ export function SalesOrdersPanel() {
     queryFn: () => fetchCustomers({ data: { companyId: company.id } }),
     enabled: Boolean(company.id),
   });
+  const productsQuery = useQuery({ queryKey: ["products-services", company.id], queryFn: () => fetchProducts({ data: { companyId: company.id } }), enabled: Boolean(company.id) });
   const orders = ordersQuery.data ?? [];
   const customers = customersQuery.data ?? [];
+  const products = productsQuery.data ?? [];
   const customerNames = useMemo(() => new Map(customers.map((customer) => [customer.id, customer.name])), [customers]);
   const refresh = () => void queryClient.invalidateQueries({ queryKey: ["sales-orders", company.id] });
 
@@ -94,6 +99,7 @@ export function SalesOrdersPanel() {
         companyId: company.id,
         expectedDate: value.expectedDate || null,
         items: value.items.map((item) => ({
+          productServiceId: item.productServiceId || null,
           description: item.description,
           unit: item.unit,
           quantity: Number(item.quantity || 0),
@@ -165,6 +171,7 @@ export function SalesOrdersPanel() {
             <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Itens do pedido</h3><Button type="button" variant="outline" size="sm" onClick={() => setDraft({ ...draft, items: [...draft.items, emptyItem()] })}><Plus /> Adicionar item</Button></div>
             {draft.items.map((item, index) => (
               <div key={index} className="grid min-w-0 gap-2 rounded-xl border border-border/60 p-3 sm:grid-cols-12">
+                <select className="field-shell text-sm sm:col-span-5" value={item.productServiceId} onChange={(event) => { const selected = (products as ProductService[]).find((record) => record.id === event.target.value); updateItem(index, selected ? { productServiceId: selected.id, description: selected.name, unit: selected.unit } : { productServiceId: "" }); }}><option value="">Item avulso</option>{(products as ProductService[]).filter((record) => record.status === "active").map((record) => <option key={record.id} value={record.id}>{record.code} — {record.name}</option>)}</select>
                 <input className="field-shell text-sm sm:col-span-5" required placeholder="Descrição do item" value={item.description} onChange={(event) => updateItem(index, { description: event.target.value })} />
                 <input className="field-shell text-sm sm:col-span-2" required placeholder="Unidade" value={item.unit} onChange={(event) => updateItem(index, { unit: event.target.value })} />
                 <input className="field-shell text-sm sm:col-span-2" type="number" min="0.001" step="0.001" required placeholder="Quantidade" value={item.quantity} onChange={(event) => updateItem(index, { quantity: event.target.value })} />

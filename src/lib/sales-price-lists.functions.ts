@@ -10,6 +10,7 @@ export type SalesPriceListItem = {
   description: string;
   unit: string;
   price: number;
+  product_service_id: string | null;
 };
 
 export type SalesPriceList = {
@@ -26,6 +27,7 @@ export type SalesPriceList = {
 };
 
 const itemSchema = z.object({
+  productServiceId: z.string().uuid().nullable().optional(),
   description: z.string().trim().min(1, "Informe a descrição do item.").max(240),
   unit: z.string().trim().min(1, "Informe a unidade.").max(20),
   price: z.coerce.number().nonnegative("O preço não pode ser negativo."),
@@ -64,6 +66,11 @@ export const saveSalesPriceList = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (data.validUntil && data.validUntil < data.validFrom) {
       throw new Error("A vigência final não pode ser anterior à inicial.");
+    }
+    const linkedIds = [...new Set(data.items.map((item) => item.productServiceId).filter((id): id is string => Boolean(id)))];
+    if (linkedIds.length) {
+      const { data: linked, error: linkedError } = await context.supabase.from("products_services").select("id").eq("company_id", data.companyId).eq("status", "active").in("id", linkedIds);
+      if (linkedError || (linked ?? []).length !== linkedIds.length) throw new Error("Há um produto ou serviço inválido nesta tabela.");
     }
     const normalized = new Set<string>();
     for (const item of data.items) {
@@ -106,6 +113,7 @@ export const saveSalesPriceList = createServerFn({ method: "POST" })
       data.items.map((item) => ({
         price_list_id: priceListId,
         company_id: data.companyId,
+        product_service_id: item.productServiceId ?? null,
         description: item.description,
         unit: item.unit,
         price: item.price,

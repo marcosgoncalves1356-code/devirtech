@@ -12,6 +12,7 @@ export type SalesOrderItem = {
   quantity: number;
   unit_price: number;
   total: number;
+  product_service_id: string | null;
 };
 
 export type SalesOrder = {
@@ -30,6 +31,7 @@ export type SalesOrder = {
 };
 
 const itemSchema = z.object({
+  productServiceId: z.string().uuid().nullable().optional(),
   description: z.string().trim().min(1, "Informe a descrição do item.").max(240),
   unit: z.string().trim().min(1, "Informe a unidade.").max(20),
   quantity: z.coerce.number().positive("A quantidade deve ser maior que zero."),
@@ -80,8 +82,15 @@ export const saveSalesOrder = createServerFn({ method: "POST" })
       .maybeSingle();
     if (customerError || !customer) throw new Error("Cliente inválido para esta empresa.");
 
+    const linkedIds = [...new Set(data.items.map((item) => item.productServiceId).filter((id): id is string => Boolean(id)))];
+    if (linkedIds.length) {
+      const { data: linked, error: linkedError } = await context.supabase.from("products_services").select("id").eq("company_id", data.companyId).eq("status", "active").in("id", linkedIds);
+      if (linkedError || (linked ?? []).length !== linkedIds.length) throw new Error("Há um produto ou serviço inválido neste pedido.");
+    }
+
     const items = data.items.map((item) => ({
       company_id: data.companyId,
+      product_service_id: item.productServiceId ?? null,
       description: item.description,
       unit: item.unit,
       quantity: item.quantity,

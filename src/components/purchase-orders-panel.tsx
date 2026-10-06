@@ -5,6 +5,7 @@ import { ClipboardList, Loader2, Pencil, Plus, Search, Trash2, X } from "lucide-
 
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
+import { listProductsServices, type ProductService } from "@/lib/products-services.functions";
 import {
   deletePurchaseOrder,
   listPurchaseOrders,
@@ -14,7 +15,7 @@ import {
 } from "@/lib/purchase-orders.functions";
 import { listSuppliers, type Supplier } from "@/lib/suppliers.functions";
 
-type ItemDraft = { description: string; unit: string; quantity: string; unitPrice: string };
+type ItemDraft = { productServiceId: string; description: string; unit: string; quantity: string; unitPrice: string };
 type Draft = {
   id?: string;
   supplierId: string;
@@ -33,7 +34,7 @@ const STATUS_LABEL: Record<Draft["status"], string> = {
 };
 
 const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-const emptyItem = (): ItemDraft => ({ description: "", unit: "un", quantity: "1", unitPrice: "0" });
+const emptyItem = (): ItemDraft => ({ productServiceId: "", description: "", unit: "un", quantity: "1", unitPrice: "0" });
 
 function emptyDraft(): Draft {
   return {
@@ -59,6 +60,7 @@ function toDraft(o: PurchaseOrder): Draft {
     items:
       (o.items ?? []).length > 0
         ? o.items.map((i) => ({
+            productServiceId: i.product_service_id ?? "",
             description: i.description,
             unit: i.unit,
             quantity: String(i.quantity),
@@ -73,6 +75,7 @@ export function PurchaseOrdersPanel() {
   const qc = useQueryClient();
   const fetchOrders = useServerFn(listPurchaseOrders);
   const fetchSuppliers = useServerFn(listSuppliers);
+  const fetchProducts = useServerFn(listProductsServices);
   const save = useServerFn(savePurchaseOrder);
   const changeStatus = useServerFn(setPurchaseOrderStatus);
   const remove = useServerFn(deletePurchaseOrder);
@@ -94,6 +97,7 @@ export function PurchaseOrdersPanel() {
     queryFn: () => fetchSuppliers({ data: { companyId: company.id } }),
     enabled: Boolean(company.id),
   });
+  const { data: products = [] } = useQuery({ queryKey: ["products-services", company.id], queryFn: () => fetchProducts({ data: { companyId: company.id } }), enabled: Boolean(company.id) });
 
   const invalidate = () => void qc.invalidateQueries({ queryKey: ["purchase-orders", company.id] });
 
@@ -110,6 +114,7 @@ export function PurchaseOrdersPanel() {
           notes: d.notes,
           status: d.status,
           items: d.items.map((i) => ({
+            productServiceId: i.productServiceId || null,
             description: i.description,
             unit: i.unit,
             quantity: Number(i.quantity || 0),
@@ -269,6 +274,10 @@ export function PurchaseOrdersPanel() {
             </div>
             {draft.items.map((item, index) => (
               <div key={index} className="grid gap-2 rounded-xl border border-border/60 p-3 sm:grid-cols-12">
+                <select className="field-shell text-sm sm:col-span-5" value={item.productServiceId} onChange={(e) => { const selected = (products as ProductService[]).find((record) => record.id === e.target.value); updateItem(index, selected ? { productServiceId: selected.id, description: selected.name, unit: selected.unit } : { productServiceId: "" }); }}>
+                  <option value="">Item avulso</option>
+                  {(products as ProductService[]).filter((record) => record.status === "active").map((record) => <option key={record.id} value={record.id}>{record.code} — {record.name}</option>)}
+                </select>
                 <input
                   className="field-shell text-sm sm:col-span-5"
                   placeholder="Descrição do item"

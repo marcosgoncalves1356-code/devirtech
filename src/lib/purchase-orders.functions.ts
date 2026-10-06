@@ -12,6 +12,7 @@ export type PurchaseItem = {
   quantity: number;
   unit_price: number;
   total: number;
+  product_service_id: string | null;
 };
 
 export type PurchaseOrder = {
@@ -30,6 +31,7 @@ export type PurchaseOrder = {
 };
 
 const itemSchema = z.object({
+  productServiceId: z.string().uuid().nullable().optional(),
   description: z.string().trim().min(1, "Informe a descrição do item.").max(240),
   unit: z.string().trim().max(20).default("un"),
   quantity: z.coerce.number().min(0),
@@ -67,7 +69,13 @@ export const savePurchaseOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => orderSchema.parse(input))
   .handler(async ({ data, context }) => {
+    const linkedIds = [...new Set(data.items.map((item) => item.productServiceId).filter((id): id is string => Boolean(id)))];
+    if (linkedIds.length) {
+      const { data: linked, error: linkedError } = await context.supabase.from("products_services").select("id").eq("company_id", data.companyId).eq("status", "active").in("id", linkedIds);
+      if (linkedError || (linked ?? []).length !== linkedIds.length) throw new Error("Há um produto ou serviço inválido neste pedido.");
+    }
     const items = data.items.map((i) => ({
+      product_service_id: i.productServiceId ?? null,
       description: i.description,
       unit: i.unit || "un",
       quantity: i.quantity,
@@ -106,9 +114,10 @@ export const savePurchaseOrder = createServerFn({ method: "POST" })
       purchaseId = created.id as string;
     }
 
+    if (!purchaseId) throw new Error("Não foi possível identificar o pedido.");
     const { error: itemsError } = await context.supabase
       .from("purchase_items")
-      .insert(items.map((i) => ({ ...i, purchase_id: purchaseId!, company_id: data.companyId })));
+      .insert(items.map((i) => ({ ...i, purchase_id: purchaseId, company_id: data.companyId })));
     if (itemsError) throw new Error(itemsError.message);
 
     return { ok: true, id: purchaseId };
