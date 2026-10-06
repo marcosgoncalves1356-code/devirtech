@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type Warehouse = { id: string; company_id: string; name: string; description: string; status: string; created_at: string; updated_at: string };
-export type InventoryItem = { id: string; company_id: string; name: string; unit: string; quantity: number; min_quantity: number; unit_cost: number; category: string; status: string };
+export type InventoryItem = { id: string; company_id: string; product_service_id: string | null; name: string; unit: string; quantity: number; min_quantity: number; unit_cost: number; category: string; status: string };
 export type StockBalance = { warehouse_id: string | null; warehouse_name: string; item_id: string | null; item_name: string; unit: string; quantity: number; value: number; min_quantity: number };
 export type ReceiptAllocation = { receipt_id: string; received_at: string; document: string; purchase_id: string; supplier: string; warehouse_id: string | null; lines: { purchase_item_id: string; description: string; unit: string; quantity: number; unit_price: number; inventory_item_id: string | null }[] };
 export type StockMovement = { id: string; company_id: string; warehouse_id: string | null; item_id: string; kind: "in" | "out"; quantity: number; unit_cost: number; moved_at: string; document: string; notes: string; origin: "manual" | "transfer" | "inventory"; created_by: string | null; transfer_id: string | null; inventory_count_id: string | null; responsible_name: string };
@@ -12,7 +12,7 @@ export type InventoryCount = { id: string; item_id: string; warehouse_id: string
 
 const companyInput = z.object({ companyId: z.string().uuid() });
 const warehouseSchema = z.object({ id: z.string().uuid().optional(), companyId: z.string().uuid(), name: z.string().trim().min(2, "Informe o nome do depósito.").max(160), description: z.string().trim().max(500).default(""), status: z.enum(["active", "inactive"]).default("active") });
-const itemSchema = z.object({ id: z.string().uuid().optional(), companyId: z.string().uuid(), name: z.string().trim().min(2, "Informe o nome do item.").max(160), unit: z.string().trim().min(1, "Informe a unidade.").max(20), category: z.string().trim().max(120).default(""), status: z.enum(["active", "inactive"]).default("active"), minQuantity: z.coerce.number().min(0).default(0), unitCost: z.coerce.number().min(0).default(0) });
+const itemSchema = z.object({ id: z.string().uuid().optional(), companyId: z.string().uuid(), productServiceId: z.string().uuid().nullable().optional(), name: z.string().trim().min(2, "Informe o nome do item.").max(160), unit: z.string().trim().min(1, "Informe a unidade.").max(20), category: z.string().trim().max(120).default(""), status: z.enum(["active", "inactive"]).default("active"), minQuantity: z.coerce.number().min(0).default(0), unitCost: z.coerce.number().min(0).default(0) });
 const movementSchema = z.object({ id: z.string().uuid().optional(), companyId: z.string().uuid(), warehouseId: z.string().uuid(), itemId: z.string().uuid(), kind: z.enum(["in", "out"]), quantity: z.coerce.number().positive("Informe uma quantidade maior que zero."), unitCost: z.coerce.number().min(0).default(0), movedAt: z.string().min(4), document: z.string().trim().max(120).default(""), notes: z.string().trim().max(1000).default("") });
 
 async function assertCompanyRelations(supabase: any, companyId: string, itemId?: string, warehouseIds: string[] = []) {
@@ -38,11 +38,15 @@ export const saveWarehouse = createServerFn({ method: "POST" }).middleware([requ
 export const deleteWarehouse = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v)).handler(async ({ data, context }) => { const { error } = await context.supabase.from("warehouses").delete().eq("id", data.id); if (error) throw new Error(error.message); return { ok: true }; });
 
 export const listInventoryItems = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => companyInput.parse(v)).handler(async ({ data, context }) => {
-  const { data: rows, error } = await context.supabase.from("inventory_items").select("id, company_id, name, unit, quantity, min_quantity, unit_cost, category, status").eq("company_id", data.companyId).order("name");
+  const { data: rows, error } = await context.supabase.from("inventory_items").select("id, company_id, product_service_id, name, unit, quantity, min_quantity, unit_cost, category, status").eq("company_id", data.companyId).order("name");
   if (error) throw new Error(error.message); return (rows ?? []) as InventoryItem[];
 });
 export const saveInventoryItem = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((v) => itemSchema.parse(v)).handler(async ({ data, context }) => {
-  const payload = { company_id: data.companyId, name: data.name, unit: data.unit, category: data.category, status: data.status, min_quantity: data.minQuantity, unit_cost: data.unitCost };
+  if (data.productServiceId) {
+    const { data: product } = await context.supabase.from("products_services").select("id").eq("id", data.productServiceId).eq("company_id", data.companyId).eq("kind", "product").eq("status", "active").maybeSingle();
+    if (!product) throw new Error("Selecione um produto ativo desta empresa.");
+  }
+  const payload = { company_id: data.companyId, product_service_id: data.productServiceId ?? null, name: data.name, unit: data.unit, category: data.category, status: data.status, min_quantity: data.minQuantity, unit_cost: data.unitCost };
   const q = data.id ? context.supabase.from("inventory_items").update(payload).eq("id", data.id).eq("company_id", data.companyId) : context.supabase.from("inventory_items").insert(payload);
   const { error } = await q; if (error) throw new Error(error.message); return { ok: true };
 });

@@ -5,6 +5,7 @@ import { CalendarDays, ListChecks, Loader2, Pencil, Plus, Search, Trash2, X } fr
 
 import { Button } from "@/components/ui/button";
 import { useCompany } from "@/lib/company-context";
+import { listProductsServices, type ProductService } from "@/lib/products-services.functions";
 import {
   deleteSalesPriceList,
   listSalesPriceLists,
@@ -13,16 +14,16 @@ import {
   type SalesPriceList,
 } from "@/lib/sales-price-lists.functions";
 
-type ItemDraft = { description: string; unit: string; price: string };
+type ItemDraft = { productServiceId: string; description: string; unit: string; price: string };
 type Draft = { id?: string; name: string; validFrom: string; validUntil: string; status: SalesPriceList["status"]; notes: string; items: ItemDraft[] };
 const LABELS: Record<SalesPriceList["status"], string> = { draft: "Rascunho", active: "Ativa", inactive: "Inativa" };
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const today = () => new Date().toISOString().slice(0, 10);
-const emptyItem = (): ItemDraft => ({ description: "", unit: "un", price: "0" });
+const emptyItem = (): ItemDraft => ({ productServiceId: "", description: "", unit: "un", price: "0" });
 const emptyDraft = (): Draft => ({ name: "", validFrom: today(), validUntil: "", status: "draft", notes: "", items: [emptyItem()] });
 const toDraft = (list: SalesPriceList): Draft => ({
   id: list.id, name: list.name, validFrom: list.valid_from.slice(0, 10), validUntil: list.valid_until?.slice(0, 10) ?? "",
-  status: list.status, notes: list.notes, items: list.items.map((item) => ({ description: item.description, unit: item.unit, price: String(item.price) })),
+  status: list.status, notes: list.notes, items: list.items.map((item) => ({ productServiceId: item.product_service_id ?? "", description: item.description, unit: item.unit, price: String(item.price) })),
 });
 const date = (value: string) => new Date(`${value}T12:00:00`).toLocaleDateString("pt-BR");
 
@@ -30,6 +31,7 @@ export function SalesPriceListsPanel() {
   const { company, canEdit } = useCompany();
   const queryClient = useQueryClient();
   const fetchLists = useServerFn(listSalesPriceLists);
+  const fetchProducts = useServerFn(listProductsServices);
   const saveList = useServerFn(saveSalesPriceList);
   const changeStatus = useServerFn(setSalesPriceListStatus);
   const removeList = useServerFn(deleteSalesPriceList);
@@ -42,10 +44,12 @@ export function SalesPriceListsPanel() {
   const query = useQuery({
     queryKey: ["sales-price-lists", company.id], queryFn: () => fetchLists({ data: { companyId: company.id } }), enabled: Boolean(company.id),
   });
+  const productsQuery = useQuery({ queryKey: ["products-services", company.id], queryFn: () => fetchProducts({ data: { companyId: company.id } }), enabled: Boolean(company.id) });
+  const products = productsQuery.data ?? [];
   const lists = query.data ?? [];
   const refresh = () => void queryClient.invalidateQueries({ queryKey: ["sales-price-lists", company.id] });
   const saveMutation = useMutation({
-    mutationFn: (value: Draft) => saveList({ data: { ...value, companyId: company.id, validUntil: value.validUntil || null, items: value.items.map((item) => ({ ...item, price: Number(item.price || 0) })) } }),
+    mutationFn: (value: Draft) => saveList({ data: { ...value, companyId: company.id, validUntil: value.validUntil || null, items: value.items.map((item) => ({ ...item, productServiceId: item.productServiceId || null, price: Number(item.price || 0) })) } }),
     onSuccess: () => { setDraft(null); setError(null); refresh(); }, onError: (caught: Error) => setError(caught.message),
   });
   const statusMutation = useMutation({
@@ -87,6 +91,7 @@ export function SalesPriceListsPanel() {
       <div className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Itens e preços</h3><Button type="button" variant="outline" size="sm" onClick={() => setDraft({ ...draft, items: [...draft.items, emptyItem()] })}><Plus /> Adicionar item</Button></div>
         {draft.items.map((item, index) => <div key={index} className="grid min-w-0 gap-2 rounded-xl border border-border/60 p-3 sm:grid-cols-12">
+          <select className="field-shell text-sm sm:col-span-6" value={item.productServiceId} onChange={(event) => { const selected = (products as ProductService[]).find((record) => record.id === event.target.value); updateItem(index, selected ? { productServiceId: selected.id, description: selected.name, unit: selected.unit } : { productServiceId: "" }); }}><option value="">Item avulso</option>{(products as ProductService[]).filter((record) => record.status === "active").map((record) => <option key={record.id} value={record.id}>{record.code} — {record.name}</option>)}</select>
           <input className="field-shell text-sm sm:col-span-6" required placeholder="Produto ou serviço" value={item.description} onChange={(event) => updateItem(index, { description: event.target.value })} />
           <input className="field-shell text-sm sm:col-span-2" required placeholder="Unidade" value={item.unit} onChange={(event) => updateItem(index, { unit: event.target.value })} />
           <input className="field-shell text-sm sm:col-span-3" type="number" min="0" step="0.01" required placeholder="Preço" value={item.price} onChange={(event) => updateItem(index, { price: event.target.value })} />

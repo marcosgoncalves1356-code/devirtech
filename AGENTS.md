@@ -11,3 +11,4 @@
 
 - Propriedades rurais são a fonte única de fazendas e talhões; Produção apenas referencia esses cadastros para evitar duplicação.
 - A folha essencial armazena valores por competência e colaborador, deixando encargos legais, guias e holerites fora deste ciclo.
+- Produtos e Serviços é o cadastro mestre; documentos operacionais guardam uma referência opcional e uma cópia textual histórica.
