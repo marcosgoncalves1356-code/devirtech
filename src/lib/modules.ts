@@ -160,7 +160,7 @@ export const modules: ErpModule[] = [
     group: "Campo",
     icon: Truck,
     features: ["Frota e implementos", "Abastecimentos", "Manutenção preventiva", "Consumo e custo/hora"],
-    submodules: [sub("fleet", "Frota e implementos"), sub("fuel", "Abastecimentos"), sub("maintenance", "Manutenção preventiva"), sub("costs", "Consumo e custo/hora")],
+    submodules: [sub("fleet", "Frota e implementos", true), sub("fuel", "Abastecimentos", true), sub("maintenance", "Manutenção preventiva", true), sub("costs", "Consumo e custo/hora", true)],
   },
   {
     slug: "propriedades",
