@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791421277735,
+      "tag": "0000_release_fleet_fuel_maintenance",
+      "breakpoints": true
+    }
+  ]
+}

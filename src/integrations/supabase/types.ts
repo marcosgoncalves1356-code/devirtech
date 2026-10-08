@@ -647,6 +647,248 @@ export type Database = {
           },
         ]
       }
+      fleet_assets: {
+        Row: {
+          code: string
+          company_id: string
+          created_at: string
+          id: string
+          initial_meter: number
+          kind: string
+          meter_unit: string
+          name: string
+          notes: string
+          plate: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          company_id: string
+          created_at?: string
+          id?: string
+          initial_meter?: number
+          kind?: string
+          meter_unit?: string
+          name: string
+          notes?: string
+          plate?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          initial_meter?: number
+          kind?: string
+          meter_unit?: string
+          name?: string
+          notes?: string
+          plate?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_assets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fleet_fuel_records: {
+        Row: {
+          asset_id: string
+          company_id: string
+          cost_center_id: string | null
+          created_at: string
+          full_tank: boolean
+          id: string
+          liters: number
+          meter: number
+          notes: string
+          property_id: string | null
+          recorded_at: string
+          season_id: string | null
+          supplier: string
+          total: number | null
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          asset_id: string
+          company_id: string
+          cost_center_id?: string | null
+          created_at?: string
+          full_tank?: boolean
+          id?: string
+          liters: number
+          meter: number
+          notes?: string
+          property_id?: string | null
+          recorded_at: string
+          season_id?: string | null
+          supplier?: string
+          total?: number | null
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string
+          company_id?: string
+          cost_center_id?: string | null
+          created_at?: string
+          full_tank?: boolean
+          id?: string
+          liters?: number
+          meter?: number
+          notes?: string
+          property_id?: string | null
+          recorded_at?: string
+          season_id?: string | null
+          supplier?: string
+          total?: number | null
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_fuel_records_asset_id_company_id_fkey"
+            columns: ["asset_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_assets"
+            referencedColumns: ["id", "company_id"]
+          },
+          {
+            foreignKeyName: "fleet_fuel_records_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_fuel_records_cost_center_id_company_id_fkey"
+            columns: ["cost_center_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "cost_centers"
+            referencedColumns: ["id", "company_id"]
+          },
+          {
+            foreignKeyName: "fleet_fuel_records_property_id_company_id_fkey"
+            columns: ["property_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "rural_properties"
+            referencedColumns: ["id", "company_id"]
+          },
+          {
+            foreignKeyName: "fleet_fuel_records_season_id_company_id_fkey"
+            columns: ["season_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "crop_seasons"
+            referencedColumns: ["id", "company_id"]
+          },
+        ]
+      }
+      fleet_maintenance_records: {
+        Row: {
+          amount: number
+          asset_id: string
+          company_id: string
+          completed_at: string | null
+          cost_center_id: string | null
+          created_at: string
+          description: string
+          id: string
+          meter: number
+          next_meter: number | null
+          notes: string
+          property_id: string | null
+          scheduled_at: string
+          season_id: string | null
+          status: string
+          supplier: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          asset_id: string
+          company_id: string
+          completed_at?: string | null
+          cost_center_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          meter?: number
+          next_meter?: number | null
+          notes?: string
+          property_id?: string | null
+          scheduled_at: string
+          season_id?: string | null
+          status?: string
+          supplier?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          asset_id?: string
+          company_id?: string
+          completed_at?: string | null
+          cost_center_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          meter?: number
+          next_meter?: number | null
+          notes?: string
+          property_id?: string | null
+          scheduled_at?: string
+          season_id?: string | null
+          status?: string
+          supplier?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_maintenance_records_asset_id_company_id_fkey"
+            columns: ["asset_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_assets"
+            referencedColumns: ["id", "company_id"]
+          },
+          {
+            foreignKeyName: "fleet_maintenance_records_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_maintenance_records_cost_center_id_company_id_fkey"
+            columns: ["cost_center_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "cost_centers"
+            referencedColumns: ["id", "company_id"]
+          },
+          {
+            foreignKeyName: "fleet_maintenance_records_property_id_company_id_fkey"
+            columns: ["property_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "rural_properties"
+            referencedColumns: ["id", "company_id"]
+          },
+          {
+            foreignKeyName: "fleet_maintenance_records_season_id_company_id_fkey"
+            columns: ["season_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "crop_seasons"
+            referencedColumns: ["id", "company_id"]
+          },
+        ]
+      }
       harvest_records: {
         Row: {
           company_id: string
