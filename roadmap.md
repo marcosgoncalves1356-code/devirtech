@@ -10,9 +10,12 @@
 - [x] Integrar o cadastro mestre aos itens de Compras, Estoque e Vendas
 
 ## Próxima prioridade
-- [ ] Liberar Veículos e combustível: frota, abastecimentos, manutenção e custos — em implementação
+- [x] Implementar Veículos e combustível: frota, abastecimentos, manutenção e custos
+- Configurações permanece na próxima etapa, limitada a parâmetros reais da empresa; área fiscal continua fora do ciclo.
 
 ## Validações pendentes
+- [ ] Validar cadastro, edição, exclusão e permissões da Frota com conta conectada — sem sessão disponível; seleção de conta necessária
+- [ ] Validar visualmente Frota no celular — aguardando conta conectada
 - [ ] Validar Tabelas de preços visualmente no celular — aguardando conta conectada
 - [ ] Validar Relatórios visualmente no celular — aguardando conta conectada
 
