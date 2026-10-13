@@ -10,7 +10,8 @@
 - [x] Integrar o cadastro mestre aos itens de Compras, Estoque e Vendas
 
 ## Próxima prioridade
-- [ ] Liberar Veículos e combustível: frota, abastecimentos, manutenção e custos
+- [x] Liberar Veículos e combustível: frota, abastecimentos e manutenção
+- [ ] Liberar Consumo e custo/hora da frota (indicadores por veículo)
 
 ## Validações pendentes
 - [ ] Validar Tabelas de preços visualmente no celular — aguardando conta conectada
