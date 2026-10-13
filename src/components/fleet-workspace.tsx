@@ -296,6 +296,49 @@ export function FleetWorkspace() {
     </div>
   );
 
+  const assetStats = useMemo(() => assets.map((asset) => {
+    const fuels = fuelRecords.filter((r) => r.asset_id === asset.id).sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+    const maintenances = maintenanceRecords.filter((r) => r.asset_id === asset.id);
+    const meters = fuels.map((r) => Number(r.meter)).filter((m) => m > 0);
+    const meterStart = meters.length > 0 ? Math.min(...meters) : Number(asset.initial_meter);
+    const meterEnd = meters.length > 0 ? Math.max(...meters) : Number(asset.initial_meter);
+    const meterDelta = Math.max(meterEnd - meterStart, 0);
+    const fullTankLiters = fuels.filter((r) => r.full_tank).reduce((sum, r) => sum + Number(r.liters), 0);
+    const fuelCost = fuels.reduce((sum, r) => sum + Number(r.total), 0);
+    const maintenanceCost = maintenances.reduce((sum, r) => sum + Number(r.amount), 0);
+    const totalCost = fuelCost + maintenanceCost;
+    const consumption = fullTankLiters > 0 && meterDelta > 0 ? meterDelta / fullTankLiters : null;
+    const costPerUnit = meterDelta > 0 ? totalCost / meterDelta : null;
+    return { asset, meterDelta, fullTankLiters, fuelCost, maintenanceCost, totalCost, consumption, costPerUnit };
+  }), [assets, fuelRecords, maintenanceRecords]);
+
+  const costsTab = (
+    <div className="space-y-4">
+      <div><h2 className="text-lg font-semibold">Consumo e custo/hora</h2><p className="text-sm text-muted-foreground">Indicadores por veículo a partir dos abastecimentos e manutenções registrados.</p></div>
+      {fuelQuery.isLoading || maintenanceQuery.isLoading ? <Loader2 className="h-5 w-5 animate-spin text-primary" /> : assetStats.length === 0 ? (
+        <p className="border-y border-border/60 py-8 text-center text-sm text-muted-foreground">Cadastre veículos para ver os indicadores.</p>
+      ) : (
+        <div className="grid gap-3 lg:grid-cols-2">
+          {assetStats.map(({ asset, meterDelta, fullTankLiters, fuelCost, maintenanceCost, totalCost, consumption, costPerUnit }) => (
+            <article key={asset.id} className="space-y-3 rounded-lg border border-border/60 bg-card/50 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div><h3 className="font-semibold">{asset.name}</h3><p className="text-xs text-muted-foreground">{kindLabels[asset.kind] ?? asset.kind} · medidor em {asset.meter_unit}</p></div>
+                <Badge variant="outline">{numberFmt(meterDelta)} {asset.meter_unit} rodados</Badge>
+              </div>
+              <dl className="grid grid-cols-2 gap-2 text-sm">
+                <div className="rounded-md bg-background/60 p-2"><dt className="text-xs text-muted-foreground">Consumo médio</dt><dd className="font-semibold">{consumption !== null ? `${numberFmt(consumption)} ${asset.meter_unit}/L` : "—"}</dd></div>
+                <div className="rounded-md bg-background/60 p-2"><dt className="text-xs text-muted-foreground">Custo por {asset.meter_unit}</dt><dd className="font-semibold">{costPerUnit !== null ? money(costPerUnit) : "—"}</dd></div>
+                <div className="rounded-md bg-background/60 p-2"><dt className="text-xs text-muted-foreground">Combustível ({numberFmt(fullTankLiters)} L tanque cheio)</dt><dd className="font-semibold">{money(fuelCost)}</dd></div>
+                <div className="rounded-md bg-background/60 p-2"><dt className="text-xs text-muted-foreground">Manutenção</dt><dd className="font-semibold">{money(maintenanceCost)}</dd></div>
+              </dl>
+              <p className="text-sm">Custo total: <strong>{money(totalCost)}</strong></p>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-4">
       {error ? <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p> : null}
@@ -305,6 +348,7 @@ export function FleetWorkspace() {
           { value: "fleet", label: "Frota e implementos", content: fleetTab },
           { value: "fuel", label: "Abastecimentos", content: fuelTab },
           { value: "maintenance", label: "Manutenções", content: maintenanceTab },
+          { value: "costs", label: "Consumo e custo/hora", content: costsTab },
         ]}
       />
     </div>

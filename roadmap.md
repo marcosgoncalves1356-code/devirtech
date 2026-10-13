@@ -11,7 +11,8 @@
 
 ## Próxima prioridade
 - [x] Liberar Veículos e combustível: frota, abastecimentos e manutenção
-- [ ] Liberar Consumo e custo/hora da frota (indicadores por veículo)
+- [x] Liberar Consumo e custo/hora da frota (indicadores por veículo)
+- [ ] Liberar Configurações: preferências gerais e parâmetros da empresa
 
 ## Validações pendentes
 - [ ] Validar Tabelas de preços visualmente no celular — aguardando conta conectada
