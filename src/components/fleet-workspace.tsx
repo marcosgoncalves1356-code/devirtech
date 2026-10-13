@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+// Indicadores de consumo e custo/hora calculados a partir de abastecimentos e manutenções.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
